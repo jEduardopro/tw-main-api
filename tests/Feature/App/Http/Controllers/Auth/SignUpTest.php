@@ -24,12 +24,12 @@ class SignUpTest extends TestCase
     {
         Event::fake();
 
-        $response = $this->postJson('api/auth/register', $this->userValidData(['phone'=> null]));
+        $response = $this->postJson('api/auth/register', $this->userValidData(['phone' => null]));
 
         $response->assertSuccessful();
 
         $response->assertJsonStructure([
-            'user' => ['name','email']
+            'user' => ['name', 'email']
         ]);
 
         Event::assertDispatched(UserRegistered::class);
@@ -74,7 +74,7 @@ class SignUpTest extends TestCase
         $response->assertSuccessful();
 
         $response->assertJsonStructure([
-            'user' => ['name','phone']
+            'user' => ['name', 'phone']
         ]);
 
         Event::assertDispatched(UserRegistered::class);
