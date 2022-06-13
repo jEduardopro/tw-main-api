@@ -91,7 +91,7 @@ class SignUpTest extends TestCase
         $this->withoutExceptionHandling();
         $user = User::factory()->unverified()
             ->withoutPassword()
-            ->create($this->userValidData(['email' => null, "phone" => env("PHONE_NUMBER_TEST")]));
+            ->create($this->userValidData(['email' => null]));
 
         $token = Str::random(10);
         $userActivationData = ['user_id' => $user->id, 'token' => $token];
@@ -175,7 +175,7 @@ class SignUpTest extends TestCase
         return array_merge([
             'name' => 'name test',
             'email' => 'example_test@example.com',
-            'phone' => '1234567890'
+            'phone' => env("PHONE_NUMBER_TEST")
         ], $overrides);
     }
 }
