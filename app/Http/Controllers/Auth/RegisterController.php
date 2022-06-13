@@ -4,18 +4,21 @@ namespace App\Http\Controllers\Auth;
 
 use App\Events\UserRegistered;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RegisterFormRequest;
 use App\Models\User;
-use Illuminate\Auth\Events\Registered;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
-
 
 class RegisterController extends Controller
 {
-    public function register(Request $request)
+    public function register(RegisterFormRequest $request)
     {
+        if (!$this->existsAleastEmailOrPhoneField()) {
+            return response()->json([
+                "message" => "Missing email address or phone number"
+            ],422);
+        }
+
         $user = new User();
 
         $user->generateUsername($request->name);
@@ -46,5 +49,25 @@ class RegisterController extends Controller
                 'phone' => $user->phone
             ]
         ]);
+    }
+
+    private function existsAleastEmailOrPhoneField()
+    {
+        $request = request();
+        if (!$request->filled('email') && !$request->filled('phone')) {
+            return false;
+        }
+        $email = $request->email;
+        $phone = $request->phone;
+        
+        if ($email == "null" && $phone == "null") {
+            return false;
+        }
+
+        if (empty($email) && empty($phone)) {
+            return false;
+        }
+
+        return true;
     }
 }

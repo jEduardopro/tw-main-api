@@ -18,7 +18,7 @@ class VerifyEmailActivation extends Notification
      */
     public function __construct()
     {
-        info('verify email activation notification');
+
     }
 
     /**

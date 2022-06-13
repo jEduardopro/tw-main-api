@@ -33,7 +33,6 @@ class VerifyPhoneActivation extends Notification
 
         $this->twilioClient = new Client($account_sid, $auth_token);
         if (config('app.env') == 'testing') {
-            info('test sms notification sent');
             return;
         }
         $this->sendSms();

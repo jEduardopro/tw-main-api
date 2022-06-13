@@ -18,8 +18,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::group(['middleware' => ['guest:api']], function () {
+// Route::group(['middleware' => ['guest:api']], function () {
     Route::post('auth/register', 'Auth\RegisterController@register');
-    Route::post('account/activation/email', 'Auth\AccountActivationController@activateAccountByEmailToken');
-    Route::post('account/activation/resend-email', 'Auth\AccountActivationController@resendEmailToken');
-});
+    Route::post('account/activation', 'Auth\AccountActivationController@activateAccount');
+// });

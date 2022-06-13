@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use App\Notifications\VerifyEmailActivation;
+use App\Services\PhoneNumberValidator;
+use App\Traits\LocationTrait;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -14,7 +16,7 @@ use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, LocationTrait;
 
     /**
      * The attributes that are mass assignable.
@@ -25,6 +27,7 @@ class User extends Authenticatable
         'name',
         'username',
         'email',
+        'country_code',
         'phone',
         'password',
     ];
@@ -57,6 +60,22 @@ class User extends Authenticatable
     public function hasVerifiedPhone()
     {
         return !is_null($this->phone_verified_at);
+    }
+
+    public function verifyPhone()
+    {
+        $this->phone_verified_at = now();
+    }
+
+    public function updatePhoneValidated()
+    {
+        $phoneNumberValidator = new PhoneNumberValidator();
+        $countryCode = $this->getCountryCodeFromLocation();
+        $phoneNumberResponse = $phoneNumberValidator->getPhoneNumberValidated($this->phone, $countryCode);
+        if ($phoneNumberResponse->success && $phoneNumberResponse->isValid) {
+            $this->country_code = $phoneNumberResponse->phoneNumberValidated["countryCode"];
+            $this->phone = $phoneNumberResponse->phoneNumberValidated["E164"];
+        }
     }
 
     public function generateUsername(string $name): void

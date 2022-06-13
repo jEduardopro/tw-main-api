@@ -10,13 +10,15 @@ use Illuminate\Support\Facades\DB;
 
 class AccountActivationController extends Controller
 {
-    public function activateAccountByEmailToken(Request $request)
+    public function activateAccount(Request $request)
     {
         $userActivation = DB::table('user_activations')->where('token', $request->token)->first();
 
         if (!$userActivation) {
             return response()->json([
-                'message' => 'The token is invalid'
+                "errors" => [
+                    "token" => ["The token is invalid"]
+                ]
             ], 422);
         }
 
@@ -24,7 +26,9 @@ class AccountActivationController extends Controller
         $currentDate = now()->subMinutes(2);
         if ($currentDate->greaterThan($userActivationDate)) {
             return response()->json([
-                'message' => 'The token is expired'
+                "errors" => [
+                    "token" => ["The token is expired"]
+                ]
             ], 422);
         }
 
@@ -36,7 +40,15 @@ class AccountActivationController extends Controller
             ], 417);
         }
 
-        $user->email_verified_at = now();
+        if ($user->email) {
+            $user->email_verified_at = now();
+        }
+
+        if ($user->phone) {
+            $user->phone_verified_at = now();
+            $user->updatePhoneValidated();
+        }
+
         $user->save();
 
         DB::table('user_activations')->where('user_id', $user->id)->delete();
