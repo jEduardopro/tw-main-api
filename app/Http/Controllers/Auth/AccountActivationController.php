@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
+use Laravel\Passport\Passport;
 
 class AccountActivationController extends Controller
 {
@@ -59,11 +60,11 @@ class AccountActivationController extends Controller
 
         DB::table('user_activations')->where('user_id', $user->id)->delete();
 
-        $token = $user->createToken('token');
+        $token = $user->createToken('token')->accessToken;
 
         return response()->json([
             "message" => "account activated successfully",
-            "token" => $token->accessToken,
+            "token" => $token,
             "user" => $user
         ],200);
     }

@@ -13,7 +13,7 @@ class RegisterController extends Controller
 {
     public function register(RegisterFormRequest $request)
     {
-        if (!$this->existsAleastEmailOrPhoneField()) {
+        if (!$this->existsAtleastEmailOrPhoneField()) {
             return response()->json([
                 "message" => "Missing email address or phone number"
             ],422);
@@ -55,7 +55,7 @@ class RegisterController extends Controller
         return response()->json($response);
     }
 
-    private function existsAleastEmailOrPhoneField()
+    private function existsAtleastEmailOrPhoneField()
     {
         $request = request();
         if (!$request->filled("email") && !$request->filled("phone")) {
