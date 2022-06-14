@@ -37,6 +37,11 @@ class AccountActivationControllerTest extends TestCase
                 'user'
             ]);
 
+        $this->assertDatabaseHas('users', [
+            'email' => $response->json('user.email'),
+            'is_activated' => 1
+        ]);
+
         $this->assertDatabaseMissing('user_activations', $userActivationData);
     }
     /** @test */
@@ -68,6 +73,11 @@ class AccountActivationControllerTest extends TestCase
         $this->assertDatabaseHas('users', [
             'country_code' => env('COUNTRY_CODE_TEST'),
             'phone' => env('PHONE_NUMBER_VALIDATED_TEST')
+        ]);
+
+        $this->assertDatabaseHas('users', [
+            'email' => $response->json('user.email'),
+            'is_activated' => 1
         ]);
 
         $this->assertDatabaseMissing('user_activations', $userActivationData);

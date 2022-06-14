@@ -54,6 +54,7 @@ class AccountActivationController extends Controller
             $user->phone_verified_at = now();
         }
 
+        $user->is_activated = true;
         $user->save();
 
         DB::table('user_activations')->where('user_id', $user->id)->delete();
