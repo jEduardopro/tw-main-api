@@ -18,6 +18,9 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable, LocationTrait;
 
+    const SIGN_UP_DESC_EMAIL = "signup_with_email";
+    const SIGN_UP_DESC_PHONE = "signup_with_phone";
+
     /**
      * The attributes that are mass assignable.
      *
@@ -80,7 +83,7 @@ class User extends Authenticatable
 
     public function generateUsername(string $name): void
     {
-        $this->username = trim(Str::of($name)->slug('_')->lower());
+        $this->username = trim(Str::of($name)->slug('_')->lower()) . rand(10, 99);
     }
 
     public function encryptPassword(string $password): void

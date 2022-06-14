@@ -55,4 +55,19 @@ class UserFactory extends Factory
             ];
         });
     }
+
+    /**
+     * Indicate that the model's password should be null.
+     *
+     * @return static
+     */
+    public function withPhoneValidated()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'country_code' => env('COUNTRY_CODE_TEST'),
+                'phone' => env('PHONE_NUMBER_VALIDATED_TEST')
+            ];
+        });
+    }
 }

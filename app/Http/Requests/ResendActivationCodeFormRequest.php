@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use App\Rules\Phone;
 use Illuminate\Foundation\Http\FormRequest;
 
-class RegisterFormRequest extends FormRequest
+class ResendActivationCodeFormRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,9 +25,9 @@ class RegisterFormRequest extends FormRequest
     public function rules()
     {
         return [
-            "name" => "required|string|max:255",
-            "email" => "email|unique:users,email|nullable",
-            "phone" => ["nullable", new Phone, "unique:users,phone"]
+            "email" => "required_if:description,signup_with_email|email",
+            "phone" => ["required_if:description,signup_with_phone", new Phone],
+            "description" => "required|string|in:signup_with_email,signup_with_phone"
         ];
     }
 }

@@ -3,14 +3,20 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\AccountActivationFormRequest;
+use App\Http\Requests\ResendActivationCodeFormRequest;
 use App\Models\User;
+use App\Notifications\VerifyEmailActivation;
+use App\Notifications\VerifyPhoneActivation;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Notification;
 
 class AccountActivationController extends Controller
 {
-    public function activateAccount(Request $request)
+    public function activateAccount(AccountActivationFormRequest $request)
     {
         $userActivation = DB::table('user_activations')->where('token', $request->token)->first();
 
@@ -46,7 +52,6 @@ class AccountActivationController extends Controller
 
         if ($user->phone) {
             $user->phone_verified_at = now();
-            $user->updatePhoneValidated();
         }
 
         $user->save();
@@ -60,5 +65,40 @@ class AccountActivationController extends Controller
             "token" => $token->accessToken,
             "user" => $user
         ],200);
+    }
+
+    public function resendActivation(ResendActivationCodeFormRequest $request)
+    {
+        $user = null;
+        if ($request->description === User::SIGN_UP_DESC_EMAIL) {
+            $user = User::where('email', $request->email)->first();
+        }
+        if ($request->description === User::SIGN_UP_DESC_PHONE) {
+            $user = User::where('phone', $request->phone)->first();
+        }
+
+        if (!$user) {
+            return response()->json([
+                "message" => "The code was not sent, the information is invalid"
+            ],417);
+        }
+
+        DB::table('user_activations')->where('user_id', $user->id)->delete();
+
+        $token = Str::upper(Str::random(6));
+        DB::table('user_activations')->insert(['user_id' => $user->id, 'token' => $token ]);
+
+        $user['token'] = $token;
+        if ($user->email) {
+            Notification::send($user, new VerifyEmailActivation());
+        }
+
+        if ($user->phone) {
+            Notification::send($user, new VerifyPhoneActivation($user->phone, $token));
+        }
+
+        return response()->json([
+            "message" => "The code was sent successfully"
+        ]);
     }
 }
