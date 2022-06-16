@@ -49,8 +49,24 @@ class User extends Authenticatable
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
-        'phone_verified_at' => 'datetime'
+        'phone_verified_at' => 'datetime',
+        'is_activated' => 'boolean'
     ];
+
+
+    /**
+     * Determine if the user is activated.
+     *
+     * @return bool
+     */
+    public function isActivated()
+    {
+        if (!$this->hasVerifiedPhone() && !$this->hasVerifiedEmail()) {
+            return false;
+        }
+
+        return $this->is_activated;
+    }
 
     /**
      * Determine if the user has verified their phone number.

@@ -13,7 +13,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
-use Laravel\Passport\Passport;
 
 class AccountActivationController extends Controller
 {
@@ -40,6 +39,13 @@ class AccountActivationController extends Controller
         }
 
         $user = User::where('id', $userActivation->user_id)->first();
+
+        if ($user->isActivated()) {
+            DB::table('user_activations')->where('user_id', $user->id)->delete();
+            return response()->json([
+                'message' => "The user account is already activated"
+            ], 403);
+        }
 
         if (!$user) {
             return response()->json([

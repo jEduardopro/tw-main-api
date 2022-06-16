@@ -44,6 +44,7 @@ class AccountActivationControllerTest extends TestCase
 
         $this->assertDatabaseMissing('user_activations', $userActivationData);
     }
+
     /** @test */
     public function a_user_can_activate_their_account_by_verifying_their_phone()
     {
@@ -140,6 +141,23 @@ class AccountActivationControllerTest extends TestCase
         $this->assertDatabaseMissing("user_activations", $userActivationData);
 
         Notification::assertSentTo($user, VerifyPhoneActivation::class);
+    }
+
+    /** @test */
+    public function a_user_account_activated_cannot_activate_again()
+    {
+        $user = User::factory()->activated()->create();
+
+        $token = Str::upper(Str::random(6));
+        $userActivationData = ['user_id' => $user->id, 'token' => $token];
+        DB::table('user_activations')->insert($userActivationData);
+        $response = $this->postJson('api/account/activation', ['token' => $token]);
+
+        $response->assertStatus(403);
+
+        $this->assertEquals("The user account is already activated", $response->json('message'));
+
+        $this->assertDatabaseMissing("user_activations", $userActivationData);
     }
 
     /** @test */
