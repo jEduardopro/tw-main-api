@@ -45,7 +45,7 @@ class VerifyEmailActivation extends Notification
             ->from('no-reply@twitter.com', 'Email Activation Code')
             ->subject('Verification Email Account')
             ->markdown('mail.account.verification.verify-email-activation', [
-                'token' => $notifiable->token
+                'token' => $this->token
             ]);
     }
 
