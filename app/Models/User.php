@@ -2,9 +2,11 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\Verificationable;
 use App\Services\PhoneNumberValidator;
 use App\Traits\LocationTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
@@ -13,7 +15,7 @@ use Laravel\Passport\HasApiTokens;
 
 class User extends Authenticatable
 {
-    use HasApiTokens, HasFactory, Notifiable, LocationTrait;
+    use HasApiTokens, HasFactory, Notifiable, Verificationable, LocationTrait, SoftDeletes;
 
     const SIGN_UP_DESC_EMAIL = "signup_with_email";
     const SIGN_UP_DESC_PHONE = "signup_with_phone";
@@ -30,6 +32,7 @@ class User extends Authenticatable
         'country_code',
         'phone',
         'password',
+        'country'
     ];
 
     /**
@@ -53,37 +56,7 @@ class User extends Authenticatable
         'is_activated' => 'boolean'
     ];
 
-
-    /**
-     * Determine if the user is activated.
-     *
-     * @return bool
-     */
-    public function isActivated()
-    {
-        if (!$this->hasVerifiedPhone() && !$this->hasVerifiedEmail()) {
-            return false;
-        }
-
-        return $this->is_activated;
-    }
-
-    /**
-     * Determine if the user has verified their phone number.
-     *
-     * @return bool
-     */
-    public function hasVerifiedPhone()
-    {
-        return !is_null($this->phone_verified_at);
-    }
-
-    public function verifyPhone()
-    {
-        $this->phone_verified_at = now();
-    }
-
-    public function updatePhoneValidated()
+    public function updatePhoneValidated(): void
     {
         $phoneNumberValidator = new PhoneNumberValidator();
         $countryCode = $this->getCountryCodeFromLocation();
@@ -96,12 +69,26 @@ class User extends Authenticatable
 
     public function generateUsername(string $name): void
     {
-        $this->username = trim(Str::of($name)->slug('_')->lower()) . rand(10, 99);
+        $this->username = trim(Str::of($name)->slug('_')->lower()) . rand(10, 999);
+    }
+
+    public function setCountryFromIpLocation(): void
+    {
+        $locationData = $this->getLocationData();
+        $this->country = $locationData->countryName;
     }
 
     public function encryptPassword(string $password): void
     {
         $this->password = Hash::make($password);
+    }
+
+    /**
+     * Generate Verification Token
+     */
+    private function generateToken(): string
+    {
+        return Str::upper(Str::random(6));
     }
 
 }

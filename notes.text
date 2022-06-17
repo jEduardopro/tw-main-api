@@ -1,0 +1,16 @@
+
+Sign Up
+    1. - despues de verificar el codigo de activacion de cuenta solicitar la contrasena
+    2.- setear en el registro el pais segun la ip location
+    3 .- creare gender field nullable
+
+Restore Account
+    We should be able to restore user accounts created a month ago
+
+
+Onboarding
+    Solicitar
+    1 .- Imagen de perfil skipeable
+    2 .- Solicitar biografia skipeable
+    3 .- What should we call you? actualizar el username
+        Your @username is unique. You can always change it later.  skipeable

@@ -15,8 +15,8 @@ class VerifyPhoneActivation extends Notification
 
     protected $twilioClient;
     protected $twilioPhoneNumber;
-    protected $phoneNumber;
-    protected $code;
+    public $phoneNumber;
+    public $code;
 
     /**
      * Create a new notification instance.

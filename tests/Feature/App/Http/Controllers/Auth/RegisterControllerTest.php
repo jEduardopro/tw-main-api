@@ -19,7 +19,7 @@ class RegisterControllerTest extends TestCase
         Event::fake();
         $payload = $this->userValidData(['phone' => null]);
 
-        $this->assertDatabaseCount('user_activations', 0);
+        $this->assertDatabaseCount('user_verifications', 0);
         $response = $this->postJson('api/auth/register', $payload);
 
         $response->assertSuccessful()
@@ -32,7 +32,7 @@ class RegisterControllerTest extends TestCase
         Event::assertDispatched(UserRegistered::class);
 
         $this->assertDatabaseHas('users', $payload);
-        $this->assertDatabaseCount('user_activations', 1);
+        $this->assertDatabaseCount('user_verifications', 1);
     }
 
     /** @test */
@@ -42,7 +42,7 @@ class RegisterControllerTest extends TestCase
 
         $payload = $this->userValidData(['email' => null]);
 
-        $this->assertDatabaseCount('user_activations', 0);
+        $this->assertDatabaseCount('user_verifications', 0);
         $response = $this->postJson('api/auth/register', $payload);
 
         $response->assertSuccessful()
@@ -58,7 +58,7 @@ class RegisterControllerTest extends TestCase
             'email' => null,
             'phone' => env('PHONE_NUMBER_VALIDATED_TEST')
         ]);
-        $this->assertDatabaseCount('user_activations', 1);
+        $this->assertDatabaseCount('user_verifications', 1);
     }
 
 
@@ -104,5 +104,20 @@ class RegisterControllerTest extends TestCase
     {
         $this->postJson('api/auth/register', $this->userValidData(["phone" => null, "email" => null]))
             ->assertStatus(422);
+    }
+
+    /** @test */
+    public function the_date_birth_must_be_required()
+    {
+        $this->postJson('api/auth/register', $this->userValidData(["date_birth" => null]))
+            ->assertJsonValidationErrorFor('date_birth');
+    }
+
+
+    /** @test */
+    public function the_date_birth_must_be_a_valid_date_birth_format()
+    {
+        $this->postJson('api/auth/register', $this->userValidData(["date_birth" => "06/06/1996"]))
+            ->assertJsonValidationErrorFor('date_birth');
     }
 }

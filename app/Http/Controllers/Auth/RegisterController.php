@@ -14,9 +14,7 @@ class RegisterController extends Controller
     public function register(RegisterFormRequest $request)
     {
         if (!$this->existsAtleastEmailOrPhoneField()) {
-            return response()->json([
-                "message" => "Missing email address or phone number"
-            ],422);
+            return $this->responseWithMessage("Missing email address or phone number",422);
         }
 
         $user = new User();
@@ -24,8 +22,9 @@ class RegisterController extends Controller
         $signUpField = [];
 
         $user->generateUsername($request->name);
-        // $user->encryptPassword($request->password);
         $user->name = $request->name;
+        $user->setCountryFromIpLocation();
+        $user->date_birth = $request->date_birth;
 
         if ($request->filled("email")) {
             $user->email = $request->email;
@@ -41,18 +40,16 @@ class RegisterController extends Controller
 
         $user->save();
 
-        $user["token"] = Str::upper( Str::random(6) );
+        $user["token"] = $user->createVerificationTokenForUser($user->id);
 
         UserRegistered::dispatch($user);
-
-        DB::table("user_activations")->insert([ "user_id" => $user->id, "token" => $user["token"] ]);
 
         $response = array_merge([
             "message" => "begin verification",
             "description" => $signUpDescription
         ], $signUpField);
 
-        return response()->json($response);
+        return $this->responseWithData($response);
     }
 
     private function existsAtleastEmailOrPhoneField()

@@ -3,58 +3,71 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\{VerificationFormRequest,ResendVerificationCodeFormRequest};
 use App\Models\User;
-use Illuminate\Auth\Access\AuthorizationException;
-use Illuminate\Auth\Events\Verified;
-use Illuminate\Foundation\Auth\RedirectsUsers;
-use Illuminate\Foundation\Auth\VerifiesEmails;
-use Illuminate\Http\JsonResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\URL;
+use App\Notifications\{VerifyEmailActivation,VerifyPhoneActivation};
+use Carbon\Carbon;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\{DB,Notification};
 
 class VerificationController extends Controller
 {
-
-    // use VerifiesEmails;
-
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    public function verify(VerificationFormRequest $request)
     {
-        $this->middleware('signed')->only('verify');
-        $this->middleware('throttle:6,1')->only('verify', 'resend');
+        $userVerification = User::findVerificationByToken($request->token);
+
+        if (!$userVerification) {
+            return $this->responseWithErrors([ "token" => ["The token is invalid"] ]);
+        }
+
+        $userVerificationDate = Carbon::parse($userVerification->created_at);
+        $currentDate = now()->subMinutes(10);
+        if ($currentDate->greaterThan($userVerificationDate)) {
+            return $this->responseWithErrors([ "token" => ["The token is expired"] ]);
+        }
+
+        $user = User::where('id', $userVerification->user_id)->first();
+
+        if (!$user) {
+            return $this->responseWithMessage("The account does not exist", 417);
+        }
+
+        if ($user->isVerified()) {
+            User::deleteUserVerificationTokens($user->id);
+            return $this->responseWithMessage("The user account is already verified", 403);
+        }
+
+        $user->verify();
+        $user->save();
+
+        User::deleteUserVerificationTokens($user->id);
+
+        return $this->responseWithData([
+            "message" => "Verification success",
+            "verified_at" => $user->verificationDate(),
+        ],200);
     }
 
-    public function verify(Request $request)
+    public function resend(ResendVerificationCodeFormRequest $request)
     {
-        if (! URL::hasValidSignature($request)) {
-            return response()->json([
-                "errors" => [
-                    "message" => "Invalid verification link"
-                ]
-            ], 422);
+        $query = User::query();
+        if ($request->description === User::SIGN_UP_DESC_EMAIL) {
+            $user = $query->where('email', $request->email)->first();
+        }
+        if ($request->description === User::SIGN_UP_DESC_PHONE) {
+            $user = $query->where('phone', $request->phone)->first();
         }
 
-        if ($request->user()->hasVerifiedEmail()) {
-            return response()->json([
-                "errors" => [
-                    "message" => "Emaill address already verified"
-                ]
-            ], 422);
+        if (!$user) {
+            return $this->responseWithMessage("The code was not sent, the information is invalid",417);
         }
 
-        if ($request->user()->markEmailAsVerified()) {
-            event(new Verified($request->user()));
-        }
+        User::deleteUserVerificationTokens($user->id);
 
-        return response()->json(["message" => "Email successfully verified"], 200);
-    }
+        $token = $user->createVerificationTokenForUser($user->id);
 
-    public function resend(Request $request)
-    {
+        $user->sendVerificationNotification($token);
 
+        return $this->responseWithMessage("The code was sent successfully");
     }
 }

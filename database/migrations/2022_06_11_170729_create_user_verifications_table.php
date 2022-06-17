@@ -14,7 +14,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('user_activations', function (Blueprint $table) {
+        Schema::create('user_verifications', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('token');
@@ -29,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('user_activations');
+        Schema::dropIfExists('user_verifications');
     }
 };

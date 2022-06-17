@@ -27,7 +27,8 @@ class RegisterFormRequest extends FormRequest
         return [
             "name" => "required|string|max:255",
             "email" => "email|unique:users,email|nullable",
-            "phone" => ["nullable", new Phone, "unique:users,phone"]
+            "phone" => ["nullable", new Phone, "unique:users,phone"],
+            "date_birth" => "required|date_format:Y-m-d"
         ];
     }
 }

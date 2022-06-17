@@ -12,41 +12,41 @@ use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 
-class AccountActivationControllerTest extends TestCase
+class VerificationControllerTest extends TestCase
 {
     use RefreshDatabase;
 
     /** @test */
-    public function a_user_can_activate_their_account_by_verifying_their_email()
+    public function a_user_can_verify_their_email()
     {
         $user = User::factory()->unverified()->withoutPassword()->create($this->userValidData(['phone' => null]));
         $token = Str::upper(Str::random(6));
-        $userActivationData = ['user_id' => $user->id, 'token' => $token];
-        DB::table('user_activations')->insert($userActivationData);
+        $userVerificationData = ['user_id' => $user->id, 'token' => $token];
+        DB::table('user_verifications')->insert($userVerificationData);
 
         $this->assertFalse($user->hasVerifiedEmail());
 
-        $response = $this->postJson('api/account/activation', ['token' => $token]);
+        $response = $this->postJson('api/account/verification', ['token' => $token]);
 
         $this->assertTrue($user->fresh()->hasVerifiedEmail());
 
         $response->assertSuccessful()
             ->assertJsonStructure([
                 'message',
-                'token',
-                'user'
+                'verified_at'
             ]);
 
         $this->assertDatabaseHas('users', [
-            'email' => $response->json('user.email'),
-            'is_activated' => 1
+            'email' => $user->email,
+            'email_verified_at' => $response->json('verified_at'),
+            'is_activated' => false
         ]);
 
-        $this->assertDatabaseMissing('user_activations', $userActivationData);
+        $this->assertDatabaseMissing('user_verifications', $userVerificationData);
     }
 
     /** @test */
-    public function a_user_can_activate_their_account_by_verifying_their_phone()
+    public function a_user_can_verify_their_phone()
     {
         $user = User::factory()->unverified()
             ->withoutPassword()
@@ -54,34 +54,28 @@ class AccountActivationControllerTest extends TestCase
             ->create(['email' => null]);
 
         $token = Str::upper(Str::random(6));
-        $userActivationData = ['user_id' => $user->id, 'token' => $token];
-        DB::table('user_activations')->insert($userActivationData);
+        $userVerificationData = ['user_id' => $user->id, 'token' => $token];
+        DB::table('user_verifications')->insert($userVerificationData);
 
         $this->assertFalse($user->hasVerifiedPhone());
 
-        $response = $this->postJson('api/account/activation', ['token' => $token]);
+        $response = $this->postJson('api/account/verification', ['token' => $token]);
 
         $this->assertTrue($user->fresh()->hasVerifiedPhone());
 
         $response->assertSuccessful()
             ->assertJsonStructure([
                 'message',
-                'token',
-                'user'
+                'verified_at'
             ]);
 
-        $this->assertEquals($response->json('user.phone'), env('PHONE_NUMBER_VALIDATED_TEST'));
         $this->assertDatabaseHas('users', [
-            'country_code' => env('COUNTRY_CODE_TEST'),
-            'phone' => env('PHONE_NUMBER_VALIDATED_TEST')
+            'country_code' => $user->country_code,
+            'phone' => $user->phone,
+            'is_activated' => false
         ]);
 
-        $this->assertDatabaseHas('users', [
-            'email' => $response->json('user.email'),
-            'is_activated' => 1
-        ]);
-
-        $this->assertDatabaseMissing('user_activations', $userActivationData);
+        $this->assertDatabaseMissing('user_verifications', $userVerificationData);
     }
 
     /** @test */
@@ -91,8 +85,8 @@ class AccountActivationControllerTest extends TestCase
 
         $user = User::factory()->unverified()->withoutPassword()->create($this->userValidData(['phone' => null]));
         $token = Str::upper(Str::random(6));
-        $userActivationData = ['user_id' => $user->id, 'token' => $token];
-        DB::table('user_activations')->insert($userActivationData);
+        $userVerificationData = ['user_id' => $user->id, 'token' => $token];
+        DB::table('user_verifications')->insert($userVerificationData);
 
         $this->assertFalse($user->hasVerifiedEmail());
 
@@ -100,14 +94,15 @@ class AccountActivationControllerTest extends TestCase
             "email" => $user->email,
             "description" => User::SIGN_UP_DESC_EMAIL
         ];
-        $response = $this->postJson('api/account/activation/resend', $payload);
+        $response = $this->postJson('api/account/verification/resend', $payload);
         $response->assertSuccessful()
                 ->assertJsonStructure([
                     "message"
                 ]);
+
         $this->assertEquals("The code was sent successfully", $response->json('message'));
 
-        $this->assertDatabaseMissing("user_activations", $userActivationData);
+        $this->assertDatabaseMissing("user_verifications", $userVerificationData);
 
         Notification::assertSentTo($user, VerifyEmailActivation::class);
     }
@@ -122,8 +117,8 @@ class AccountActivationControllerTest extends TestCase
             ->create(['email' => null]);
 
         $token = Str::upper(Str::random(6));
-        $userActivationData = ['user_id' => $user->id, 'token' => $token];
-        DB::table('user_activations')->insert($userActivationData);
+        $userVerificationData = ['user_id' => $user->id, 'token' => $token];
+        DB::table('user_verifications')->insert($userVerificationData);
 
         $this->assertFalse($user->hasVerifiedPhone());
 
@@ -131,33 +126,33 @@ class AccountActivationControllerTest extends TestCase
             "phone" => $user->phone,
             "description" => User::SIGN_UP_DESC_PHONE
         ];
-        $response = $this->postJson('api/account/activation/resend', $payload);
+        $response = $this->postJson('api/account/verification/resend', $payload);
         $response->assertSuccessful()
                 ->assertJsonStructure([
                     "message"
                 ]);
         $this->assertEquals("The code was sent successfully", $response->json('message'));
 
-        $this->assertDatabaseMissing("user_activations", $userActivationData);
+        $this->assertDatabaseMissing("user_verifications", $userVerificationData);
 
         Notification::assertSentTo($user, VerifyPhoneActivation::class);
     }
 
     /** @test */
-    public function a_user_account_activated_cannot_activate_again()
+    public function a_user_account_verified_cannot_verify_again()
     {
-        $user = User::factory()->activated()->create();
+        $user = User::factory()->create();
 
         $token = Str::upper(Str::random(6));
-        $userActivationData = ['user_id' => $user->id, 'token' => $token];
-        DB::table('user_activations')->insert($userActivationData);
-        $response = $this->postJson('api/account/activation', ['token' => $token]);
+        $userVerificationData = ['user_id' => $user->id, 'token' => $token];
+        DB::table('user_verifications')->insert($userVerificationData);
+        $response = $this->postJson('api/account/verification', ['token' => $token]);
 
         $response->assertStatus(403);
 
-        $this->assertEquals("The user account is already activated", $response->json('message'));
+        $this->assertEquals("The user account is already verified", $response->json('message'));
 
-        $this->assertDatabaseMissing("user_activations", $userActivationData);
+        $this->assertDatabaseMissing("user_verifications", $userVerificationData);
     }
 
     /** @test */
@@ -165,19 +160,19 @@ class AccountActivationControllerTest extends TestCase
     {
         $user = User::factory()->unverified()->withoutPassword()->create($this->userValidData(['email' => null]));
         $token = Str::upper(Str::random(6));
-        $userActivationData = ['user_id' => $user->id, 'token' => $token, 'created_at' => now()->subMinutes(5)];
-        DB::table('user_activations')->insert($userActivationData);
+        $userVerificationData = ['user_id' => $user->id, 'token' => $token, 'created_at' => now()->subMinutes(15)];
+        DB::table('user_verifications')->insert($userVerificationData);
 
-        $this->assertDatabaseHas('user_activations', $userActivationData);
+        $this->assertDatabaseHas('user_verifications', $userVerificationData);
 
-        $response = $this->postJson('api/account/activation', ['token' => $token]);
+        $response = $this->postJson('api/account/verification', ['token' => $token]);
         $response->assertJsonValidationErrorFor('token');
     }
 
     /** @test */
     public function the_verification_code_is_required()
     {
-        $this->postJson('api/account/activation', ['token' => null])
+        $this->postJson('api/account/verification', ['token' => null])
             ->assertJsonValidationErrorFor('token')
             ->assertJsonValidationErrors([
                 'token' => ['The token field is required.']
@@ -191,7 +186,7 @@ class AccountActivationControllerTest extends TestCase
             "email" => "no_email@invalid.com",
             "description" => User::SIGN_UP_DESC_EMAIL
         ];
-        $this->postJson('api/account/activation/resend', $payload)
+        $this->postJson('api/account/verification/resend', $payload)
             ->assertStatus(417)
             ->assertExactJson([
                 "message" => "The code was not sent, the information is invalid"
@@ -199,12 +194,12 @@ class AccountActivationControllerTest extends TestCase
     }
 
     /** @test */
-    public function the_email_must_be_required_when_we_resend_activation_code_is_by_mail()
+    public function the_email_must_be_required_when_we_resend_verification_code_is_by_mail()
     {
         $payload = [
             "description" => User::SIGN_UP_DESC_EMAIL
         ];
-        $this->postJson('api/account/activation/resend', $payload)
+        $this->postJson('api/account/verification/resend', $payload)
             ->assertJsonValidationErrorFor('email');
     }
 
@@ -215,17 +210,17 @@ class AccountActivationControllerTest extends TestCase
             "email" => "invalidemail.com",
             "description" => User::SIGN_UP_DESC_EMAIL
         ];
-        $this->postJson('api/account/activation/resend', $payload)
+        $this->postJson('api/account/verification/resend', $payload)
             ->assertJsonValidationErrorFor('email');
     }
 
     /** @test */
-    public function the_phone_must_be_required_when_we_resend_activation_code_is_by_sms()
+    public function the_phone_must_be_required_when_we_resend_verification_code_is_by_sms()
     {
         $payload = [
             "description" => User::SIGN_UP_DESC_PHONE
         ];
-        $this->postJson('api/account/activation/resend', $payload)
+        $this->postJson('api/account/verification/resend', $payload)
             ->assertJsonValidationErrorFor('phone');
     }
 
@@ -236,7 +231,7 @@ class AccountActivationControllerTest extends TestCase
             "phone" => "00-invalid-phone",
             "description" => User::SIGN_UP_DESC_PHONE
         ];
-        $this->postJson('api/account/activation/resend', $payload)
+        $this->postJson('api/account/verification/resend', $payload)
             ->assertJsonValidationErrorFor('phone');
     }
 
@@ -244,7 +239,7 @@ class AccountActivationControllerTest extends TestCase
     public function the_description_is_required()
     {
         $payload = [];
-        $this->postJson('api/account/activation/resend', $payload)
+        $this->postJson('api/account/verification/resend', $payload)
             ->assertJsonValidationErrorFor('description');
     }
 
@@ -254,7 +249,7 @@ class AccountActivationControllerTest extends TestCase
         $payload = [
             "description" => 154545677
         ];
-        $this->postJson('api/account/activation/resend', $payload)
+        $this->postJson('api/account/verification/resend', $payload)
             ->assertJsonValidationErrorFor('description');
     }
 
@@ -264,7 +259,7 @@ class AccountActivationControllerTest extends TestCase
         $payload = [
             "description" => "sign_up_invalid"
         ];
-        $this->postJson('api/account/activation/resend', $payload)
+        $this->postJson('api/account/verification/resend', $payload)
             ->assertJsonValidationErrorFor('description');
     }
 
