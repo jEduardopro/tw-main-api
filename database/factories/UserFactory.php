@@ -67,9 +67,9 @@ class UserFactory extends Factory
     {
         return $this->state(function (array $attributes) {
             return [
-                'country_code' => env('COUNTRY_CODE_TEST'),
-                'phone' => env('PHONE_NUMBER_TEST'),
-                'phone_validated' => env('PHONE_NUMBER_VALIDATED_TEST')
+                'country_code' => env('APP_ENV') == "testing" ? env('COUNTRY_CODE_TEST') : $this->faker->countryCode,
+                'phone' => env('APP_ENV') == "testing" ? env('PHONE_NUMBER_TEST') : $this->faker->phoneNumber,
+                'phone_validated' => env('APP_ENV') == "testing" ? env('PHONE_NUMBER_VALIDATED_TEST') : $this->faker->e164PhoneNumber
             ];
         });
     }
