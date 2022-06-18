@@ -56,7 +56,8 @@ class RegisterControllerTest extends TestCase
 
         $this->assertDatabaseHas('users', [
             'email' => null,
-            'phone' => env('PHONE_NUMBER_VALIDATED_TEST')
+            'phone' => $payload['phone'],
+            'phone_validated' => $response->json('phone')
         ]);
         $this->assertDatabaseCount('user_verifications', 1);
     }
@@ -94,8 +95,14 @@ class RegisterControllerTest extends TestCase
     /** @test */
     public function the_phone_must_be_unique()
     {
-        User::factory()->create($this->userValidData(["email" => null]));
-        $this->postJson('api/auth/register', $this->userValidData(["email" => null]))
+        $payload = $this->userValidData(["email" => null]);
+        User::factory()->withPhoneValidated()->create($payload);
+
+        $this->postJson('api/auth/register', $payload)
+            ->assertJsonValidationErrorFor('phone');
+
+        $payload["phone"] = env("PHONE_NUMBER_VALIDATED_TEST");
+        $this->postJson('api/auth/register', $payload)
             ->assertJsonValidationErrorFor('phone');
     }
 

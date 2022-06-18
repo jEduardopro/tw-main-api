@@ -6,7 +6,6 @@ use App\Events\UserRegistered;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterFormRequest;
 use App\Models\User;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class RegisterController extends Controller
@@ -32,9 +31,8 @@ class RegisterController extends Controller
             $signUpDescription = User::SIGN_UP_DESC_EMAIL;
         }
         if ($request->filled("phone")) {
-            $user->phone = $request->phone;
-            $user->updatePhoneValidated();
-            $signUpField["phone"] = $user->phone;
+            $user->setPhoneAndCountryCodeValidated($request->phone);
+            $signUpField["phone"] = $user->phone_validated;
             $signUpDescription = User::SIGN_UP_DESC_PHONE;
         }
 

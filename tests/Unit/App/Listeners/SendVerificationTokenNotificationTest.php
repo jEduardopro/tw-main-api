@@ -18,6 +18,7 @@ class SendVerificationTokenNotificationTest extends TestCase
     /** @test */
     public function a_notification_is_sent_when_a_user_is_registered_user_by_email()
     {
+        $this->withoutExceptionHandling();
         Notification::fake();
 
         $user = User::factory()->unverified()->create([
@@ -54,7 +55,7 @@ class SendVerificationTokenNotificationTest extends TestCase
 
         Notification::assertSentTo($user, VerifyPhoneActivation::class, function($notification) use ($user){
             $this->assertTrue(!is_null($notification->phoneNumber));
-            $this->assertEquals($notification->phoneNumber, $user->phone);
+            $this->assertEquals($notification->phoneNumber, $user->phone_validated);
             $this->assertTrue(!is_null($notification->code));
             $this->assertEquals($notification->code, $user["token"]);
             return true;

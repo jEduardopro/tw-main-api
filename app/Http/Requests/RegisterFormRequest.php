@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use App\Rules\Phone;
+use App\Rules\PhoneMustBeUnique;
 use Illuminate\Foundation\Http\FormRequest;
 
 class RegisterFormRequest extends FormRequest
@@ -27,7 +28,7 @@ class RegisterFormRequest extends FormRequest
         return [
             "name" => "required|string|max:255",
             "email" => "email|unique:users,email|nullable",
-            "phone" => ["nullable", new Phone, "unique:users,phone"],
+            "phone" => ["nullable", new Phone, new PhoneMustBeUnique],
             "date_birth" => "required|date_format:Y-m-d"
         ];
     }

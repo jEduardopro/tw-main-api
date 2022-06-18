@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Concerns\Verificationable;
 use App\Services\PhoneNumberValidator;
 use App\Traits\LocationTrait;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -31,6 +32,7 @@ class User extends Authenticatable
         'email',
         'country_code',
         'phone',
+        'phone_validated',
         'password',
         'country'
     ];
@@ -56,14 +58,15 @@ class User extends Authenticatable
         'is_activated' => 'boolean'
     ];
 
-    public function updatePhoneValidated(): void
+    public function setPhoneAndCountryCodeValidated($phone): void
     {
         $phoneNumberValidator = new PhoneNumberValidator();
         $countryCode = $this->getCountryCodeFromLocation();
-        $phoneNumberResponse = $phoneNumberValidator->getPhoneNumberValidated($this->phone, $countryCode);
+        $phoneNumberResponse = $phoneNumberValidator->getPhoneNumberValidated($phone, $countryCode);
         if ($phoneNumberResponse->success && $phoneNumberResponse->isValid) {
             $this->country_code = $phoneNumberResponse->phoneNumberValidated["countryCode"];
-            $this->phone = $phoneNumberResponse->phoneNumberValidated["E164"];
+            $this->phone = $phone;
+            $this->phone_validated = $phoneNumberResponse->phoneNumberValidated["E164"];
         }
     }
 

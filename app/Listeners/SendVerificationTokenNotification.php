@@ -32,8 +32,8 @@ class SendVerificationTokenNotification
             $event->user->notify(new VerifyEmailActivation($event->user->token));
         }
 
-        if (! $event->user->hasVerifiedPhone() && $event->user->phone) {
-            $event->user->notify(new VerifyPhoneActivation($event->user->phone, $event->user->token));
+        if (! $event->user->hasVerifiedPhone() && $event->user->phone_validated) {
+            $event->user->notify(new VerifyPhoneActivation($event->user->phone_validated, $event->user->token));
         }
     }
 }
