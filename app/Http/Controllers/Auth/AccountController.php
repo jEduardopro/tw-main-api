@@ -20,6 +20,13 @@ class AccountController extends Controller
             return $this->responseWithMessage("Sorry, we could not find your account", 400);
         }
 
-        return $this->responseWithMessage("success");
+        return $this->responseWithData([
+            "account_info" => [
+                "username" => $userAccount->username,
+                "email" => $userAccount->getEmailMask(),
+                "phone" => $userAccount->getPhoneMask()
+            ],
+            "message" => "success"
+        ]);
     }
 }

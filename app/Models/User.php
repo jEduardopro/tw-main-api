@@ -5,7 +5,6 @@ namespace App\Models;
 use App\Models\Concerns\Verificationable;
 use App\Services\PhoneNumberValidator;
 use App\Traits\LocationTrait;
-use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -84,6 +83,35 @@ class User extends Authenticatable
     public function encryptPassword(string $password): void
     {
         $this->password = Hash::make($password);
+    }
+
+    /**
+     * Return a protected email address of user
+     */
+    public function getEmailMask(): string|null
+    {
+        if (!$this->email) {
+            return null;
+        }
+        $emailParts = explode("@", $this->email);
+        $firstPartEmail = substr($emailParts[0], 0, 2) . preg_replace("/[A-Za-z0-9._]/", "*", substr($emailParts[0], 2));
+        $lastPartEmail = substr($emailParts[1], 0, 1) . preg_replace("/[A-Za-z0-9]/", "*", substr($emailParts[1], 1));
+        $emailMask = "{$firstPartEmail}@{$lastPartEmail}";
+        return $emailMask;
+    }
+
+
+    /**
+     * Return a protected phone number of user
+     */
+    public function getPhoneMask(): string|null
+    {
+        $phone = $this->phone;
+        if (!$phone) {
+            return null;
+        }
+        $phoneMask = preg_replace("/[A-Za-z0-9]/", "*", substr($phone, 0, strlen($phone) - 2)) . substr($phone, -2, 2);
+        return $phoneMask;
     }
 
     /**

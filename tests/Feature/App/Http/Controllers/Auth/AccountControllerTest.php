@@ -18,6 +18,13 @@ class AccountControllerTest extends TestCase
     {
         $user = User::factory()->withPhoneValidated()->create();
 
+        $phone = $user->phone;
+        $emailParts = explode("@",$user->email);
+        $firstPartEmail = substr($emailParts[0], 0, 2). preg_replace("/[A-Za-z0-9._]/", "*", substr($emailParts[0], 2));
+        $lastPartEmail = substr($emailParts[1], 0, 1). preg_replace("/[A-Za-z0-9]/", "*", substr($emailParts[1], 1));
+        $emailMask = "{$firstPartEmail}@{$lastPartEmail}";
+        $phoneMask = preg_replace("/[A-Za-z0-9]/", "*", substr($phone, 0, strlen($phone)-2)) . substr($phone, -2, 2);
+
         $response = $this->postJson('api/auth/account/find', ["user_identifier" => $user->email])->assertSuccessful();
         $this->assertEquals("success", $response->json("message"));
 
@@ -26,6 +33,10 @@ class AccountControllerTest extends TestCase
 
         $response = $this->postJson('api/auth/account/find', ["user_identifier" => $user->phone])->assertSuccessful();
         $this->assertEquals("success", $response->json("message"));
+
+        $this->assertEquals($emailMask, $response->json("account_info.email"));
+        $this->assertEquals($phoneMask, $response->json("account_info.phone"));
+        $this->assertEquals($user->username, $response->json("account_info.username"));
     }
 
     /** @test */
