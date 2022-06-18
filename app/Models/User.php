@@ -94,4 +94,16 @@ class User extends Authenticatable
         return Str::upper(Str::random(6));
     }
 
+
+    public function scopeFindByIdentifier($query, $identifier)
+    {
+        if (!$identifier) {
+            return;
+        }
+
+        $query->where('email', $identifier)
+            ->orWhere('phone', $identifier)
+            ->orWhere('phone_validated', $identifier)
+            ->orWhere('username', $identifier);
+    }
 }

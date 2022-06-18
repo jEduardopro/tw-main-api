@@ -26,7 +26,7 @@ class VerificationControllerTest extends TestCase
 
         $this->assertFalse($user->hasVerifiedEmail());
 
-        $response = $this->postJson('api/account/verification', ['token' => $token]);
+        $response = $this->postJson('api/auth/verification/verify', ['token' => $token]);
 
         $this->assertTrue($user->fresh()->hasVerifiedEmail());
 
@@ -59,7 +59,7 @@ class VerificationControllerTest extends TestCase
 
         $this->assertFalse($user->hasVerifiedPhone());
 
-        $response = $this->postJson('api/account/verification', ['token' => $token]);
+        $response = $this->postJson('api/auth/verification/verify', ['token' => $token]);
 
         $this->assertTrue($user->fresh()->hasVerifiedPhone());
 
@@ -94,7 +94,7 @@ class VerificationControllerTest extends TestCase
             "email" => $user->email,
             "description" => User::SIGN_UP_DESC_EMAIL
         ];
-        $response = $this->postJson('api/account/verification/resend', $payload);
+        $response = $this->postJson('api/auth/verification/resend', $payload);
         $response->assertSuccessful()
                 ->assertJsonStructure([
                     "message"
@@ -126,7 +126,7 @@ class VerificationControllerTest extends TestCase
             "phone" => $user->phone,
             "description" => User::SIGN_UP_DESC_PHONE
         ];
-        $response = $this->postJson('api/account/verification/resend', $payload);
+        $response = $this->postJson('api/auth/verification/resend', $payload);
         $response->assertSuccessful()
                 ->assertJsonStructure([
                     "message"
@@ -146,7 +146,7 @@ class VerificationControllerTest extends TestCase
         $token = Str::upper(Str::random(6));
         $userVerificationData = ['user_id' => $user->id, 'token' => $token];
         DB::table('user_verifications')->insert($userVerificationData);
-        $response = $this->postJson('api/account/verification', ['token' => $token]);
+        $response = $this->postJson('api/auth/verification/verify', ['token' => $token]);
 
         $response->assertStatus(403);
 
@@ -165,14 +165,14 @@ class VerificationControllerTest extends TestCase
 
         $this->assertDatabaseHas('user_verifications', $userVerificationData);
 
-        $response = $this->postJson('api/account/verification', ['token' => $token]);
+        $response = $this->postJson('api/auth/verification/verify', ['token' => $token]);
         $response->assertJsonValidationErrorFor('token');
     }
 
     /** @test */
     public function the_verification_code_is_required()
     {
-        $this->postJson('api/account/verification', ['token' => null])
+        $this->postJson('api/auth/verification/verify', ['token' => null])
             ->assertJsonValidationErrorFor('token')
             ->assertJsonValidationErrors([
                 'token' => ['The token field is required.']
@@ -186,7 +186,7 @@ class VerificationControllerTest extends TestCase
             "email" => "no_email@invalid.com",
             "description" => User::SIGN_UP_DESC_EMAIL
         ];
-        $this->postJson('api/account/verification/resend', $payload)
+        $this->postJson('api/auth/verification/resend', $payload)
             ->assertStatus(417)
             ->assertExactJson([
                 "message" => "The code was not sent, the information is invalid"
@@ -199,7 +199,7 @@ class VerificationControllerTest extends TestCase
         $payload = [
             "description" => User::SIGN_UP_DESC_EMAIL
         ];
-        $this->postJson('api/account/verification/resend', $payload)
+        $this->postJson('api/auth/verification/resend', $payload)
             ->assertJsonValidationErrorFor('email');
     }
 
@@ -210,7 +210,7 @@ class VerificationControllerTest extends TestCase
             "email" => "invalidemail.com",
             "description" => User::SIGN_UP_DESC_EMAIL
         ];
-        $this->postJson('api/account/verification/resend', $payload)
+        $this->postJson('api/auth/verification/resend', $payload)
             ->assertJsonValidationErrorFor('email');
     }
 
@@ -220,7 +220,7 @@ class VerificationControllerTest extends TestCase
         $payload = [
             "description" => User::SIGN_UP_DESC_PHONE
         ];
-        $this->postJson('api/account/verification/resend', $payload)
+        $this->postJson('api/auth/verification/resend', $payload)
             ->assertJsonValidationErrorFor('phone');
     }
 
@@ -231,7 +231,7 @@ class VerificationControllerTest extends TestCase
             "phone" => "00-invalid-phone",
             "description" => User::SIGN_UP_DESC_PHONE
         ];
-        $this->postJson('api/account/verification/resend', $payload)
+        $this->postJson('api/auth/verification/resend', $payload)
             ->assertJsonValidationErrorFor('phone');
     }
 
@@ -239,7 +239,7 @@ class VerificationControllerTest extends TestCase
     public function the_description_is_required()
     {
         $payload = [];
-        $this->postJson('api/account/verification/resend', $payload)
+        $this->postJson('api/auth/verification/resend', $payload)
             ->assertJsonValidationErrorFor('description');
     }
 
@@ -249,7 +249,7 @@ class VerificationControllerTest extends TestCase
         $payload = [
             "description" => 154545677
         ];
-        $this->postJson('api/account/verification/resend', $payload)
+        $this->postJson('api/auth/verification/resend', $payload)
             ->assertJsonValidationErrorFor('description');
     }
 
@@ -259,7 +259,7 @@ class VerificationControllerTest extends TestCase
         $payload = [
             "description" => "sign_up_invalid"
         ];
-        $this->postJson('api/account/verification/resend', $payload)
+        $this->postJson('api/auth/verification/resend', $payload)
             ->assertJsonValidationErrorFor('description');
     }
 
