@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Auth\Concerns\UserAccount;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginFormRequest;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
@@ -16,10 +15,6 @@ class LoginController extends Controller
     {
         $userIdentifier = $request->user_identifier;
         $password = $request->password;
-
-        if (Auth::check()) {
-            $this->responseWithMessage("you are already logged in");
-        }
 
         if (!$user = $this->existsUserAccountByIdentifier($userIdentifier)) {
             return $this->responseWithMessage("login fail, we could not find your account", 400);
