@@ -7,17 +7,18 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
 
-class VerifyEmailActivation extends Notification
+class ResetPassword extends Notification
 {
     use Queueable;
 
-    public string $token;
+    public $token;
+
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($token)
+    public function __construct(string $token)
     {
         $this->token = $token;
     }
@@ -43,9 +44,10 @@ class VerifyEmailActivation extends Notification
     {
         return (new MailMessage)
             ->from('no-reply@twitterclone.com', 'Twitter Clone')
-            ->subject('Verification Email Account')
-            ->markdown('mail.account.verification.verify-email-activation', [
-                'token' => $this->token
+            ->subject('Password reset request')
+            ->markdown('mail.account.verification.reset-password', [
+                "user" => $notifiable,
+                "token" => $this->token
             ]);
     }
 

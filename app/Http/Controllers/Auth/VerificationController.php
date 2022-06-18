@@ -5,10 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\{VerificationFormRequest,ResendVerificationCodeFormRequest};
 use App\Models\User;
-use App\Notifications\{VerifyEmailActivation,VerifyPhoneActivation};
 use Carbon\Carbon;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\{DB,Notification};
 
 class VerificationController extends Controller
 {

@@ -12,3 +12,8 @@ Route::post('auth/signup', 'Auth\SignUpController@signup');
 
 Route::post('auth/verification/resend', 'Auth\VerificationController@resend');
 Route::post('auth/verification/verify', 'Auth\VerificationController@verify');
+
+Route::post('auth/send-password-reset', 'Auth\ResetPasswordController@send');
+Route::post('auth/password-verify-code', 'Auth\ResetPasswordController@verify');
+Route::post('auth/reset-password', 'Auth\ResetPasswordController@reset');
+

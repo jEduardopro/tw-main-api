@@ -19,6 +19,7 @@ class User extends Authenticatable
 
     const SIGN_UP_DESC_EMAIL = "signup_with_email";
     const SIGN_UP_DESC_PHONE = "signup_with_phone";
+    const RESET_PASSWORD_BY_EMAIL = "reset_password_by_email";
 
     /**
      * The attributes that are mass assignable.
@@ -117,9 +118,9 @@ class User extends Authenticatable
     /**
      * Generate Verification Token
      */
-    private function generateToken(): string
+    public function generateToken(): string
     {
-        return Str::upper(Str::random(6));
+        return Str::upper(Str::random(8));
     }
 
 
