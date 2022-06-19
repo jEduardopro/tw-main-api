@@ -63,9 +63,21 @@ class User extends Authenticatable implements HasMedia
 
     public function registerMediaConversions(Media $media = null): void
     {
+        $this->addMediaConversion('small')
+            ->width(150)
+            ->height(150);
+
         $this->addMediaConversion('thumb')
             ->width(360)
             ->height(360);
+
+        $this->addMediaConversion('medium')
+            ->width(680)
+            ->height(380);
+
+        $this->addMediaConversion('large')
+            ->width(1200)
+            ->height(675);
     }
 
     public function setPhoneAndCountryCodeValidated($phone): void

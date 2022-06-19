@@ -25,6 +25,7 @@ Route::group(["middleware" => ["auth:api"]], function() {
 
     // Media
     Route::post("media/upload", "Media\MediaController@store");
+    Route::delete("media/{id}/remove", "Media\MediaController@destroy");
 });
 
 

@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Storage;
 use Laravel\Passport\Passport;
 use Tests\TestCase;
@@ -40,6 +41,54 @@ class MediaControllerTest extends TestCase
             "collection_name" => $collectionName,
             "file_name" => $response->json("media_id_string")
         ]);
+    }
+
+    /** @test */
+    public function a_logged_user_can_remove_media_file()
+    {
+        $user = User::factory()->activated()->create();
+        Passport::actingAs($user);
+
+        $collectionName = "twee_image";
+        $media = $user->addMedia(storage_path('media-demo/test_image.jpeg'))
+            ->preservingOriginal()
+            ->toMediaCollection($collectionName);
+
+        $this->assertTrue(File::exists($media->getPath()));
+        $this->assertDatabaseHas("media", [
+            "id" => $media->id,
+            "model_id" => $user->id,
+            "model_type" => User::class,
+            "collection_name" => $collectionName,
+            "file_name" => $media->file_name
+        ]);
+
+        $response = $this->deleteJson("/api/media/{$media->id}/remove");
+
+        $response->assertSuccessful();
+        $this->assertEquals("media removed successfully", $response->json("message"));
+
+        $this->assertFalse(File::exists($media->getPath()));
+        $this->assertDatabaseMissing("media", [
+            "id" => $media->id,
+            "model_id" => $user->id,
+            "model_type" => User::class,
+            "collection_name" => $collectionName,
+            "file_name" => $media->file_name
+        ]);
+    }
+
+    /** @test */
+    public function a_media_file_cannot_be_deleted_if_it_does_not_exist()
+    {
+        $user = User::factory()->activated()->create();
+        Passport::actingAs($user);
+        
+        $response = $this->deleteJson("/api/media/1/remove");
+
+        $response->assertStatus(404);
+
+        $this->assertEquals("the resource doesn't exist", $response->json("message"));
     }
 
     /** @test */
