@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreTweetFormRequest extends FormRequest
+class MediaFormRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,8 @@ class StoreTweetFormRequest extends FormRequest
     public function rules()
     {
         return [
-            "body" => "required|max:280",
-            "media" => "array|max:4"
+            "media" => "required|mimes:png,jpg,jpeg,svg|max:10240",
+            "media_category" => "required|in:tweet_image"
         ];
     }
 }

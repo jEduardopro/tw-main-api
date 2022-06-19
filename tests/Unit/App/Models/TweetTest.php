@@ -6,6 +6,7 @@ use App\Models\Tweet;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Tests\TestCase;
 
@@ -33,5 +34,11 @@ class TweetTest extends TestCase
     public function a_tweet_model_must_use_the_trait_has_factory()
     {
         $this->assertClassUsesTrait(HasFactory::class, Tweet::class);
+    }
+
+    /** @test */
+    public function a_user_model_must_use_the_trait_interacts_with_media()
+    {
+        $this->assertClassUsesTrait(InteractsWithMedia::class, Tweet::class);
     }
 }

@@ -12,10 +12,13 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Passport\HasApiTokens;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
-class User extends Authenticatable
+class User extends Authenticatable implements HasMedia
 {
-    use HasApiTokens, HasFactory, Notifiable, Verificationable, LocationTrait, SoftDeletes;
+    use HasApiTokens, HasFactory, Notifiable, Verificationable, LocationTrait, SoftDeletes, InteractsWithMedia;
 
     const SIGN_UP_DESC_EMAIL = "signup_with_email";
     const SIGN_UP_DESC_PHONE = "signup_with_phone";
@@ -57,6 +60,13 @@ class User extends Authenticatable
         'phone_verified_at' => 'datetime',
         'is_activated' => 'boolean'
     ];
+
+    public function registerMediaConversions(Media $media = null): void
+    {
+        $this->addMediaConversion('thumb')
+            ->width(360)
+            ->height(360);
+    }
 
     public function setPhoneAndCountryCodeValidated($phone): void
     {

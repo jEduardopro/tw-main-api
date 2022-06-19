@@ -22,6 +22,9 @@ Route::group(["middleware" => ["auth:api"]], function() {
     // Tweets
     Route::post("tweets", "Tweets\TweetController@store");
     Route::delete("tweets/{id}", "Tweets\TweetController@destroy");
+
+    // Media
+    Route::post("media/upload", "Media\MediaController@store");
 });
 
 

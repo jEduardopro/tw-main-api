@@ -90,6 +90,47 @@ class TweetControllerTest extends TestCase
     }
 
     /** @test */
+    public function a_new_tweet_can_have_media_files_related()
+    {
+        $user = User::factory()->activated()->create();
+        Passport::actingAs($user);
+
+        $collectionName = "twee_image";
+        $media = $user->addMedia(storage_path('media-demo/test_image.jpeg'))
+                ->preservingOriginal()
+                ->toMediaCollection($collectionName);
+
+        $this->assertDatabaseHas("media", [
+            "model_id" => $user->id,
+            "model_type" => User::class,
+            "collection_name" => $collectionName,
+            "file_name" => $media->file_name
+        ]);
+
+        $payload = [
+            "body" => "My first tweet with images",
+            "media" => [$media->id]
+        ];
+        $response = $this->postJson("api/tweets", $payload);
+
+        $response->assertSuccessful();
+
+        $this->assertDatabaseMissing("media", [
+            "model_id" => $user->id,
+            "model_type" => User::class,
+            "collection_name" => $collectionName,
+            "file_name" => $media->file_name
+        ]);
+
+        $this->assertDatabaseHas("media", [
+            "model_type" => Tweet::class,
+            "collection_name" => "images",
+            "file_name" => $media->file_name
+        ]);
+
+    }
+
+    /** @test */
     public function the_body_is_required()
     {
         $user = User::factory()->activated()->create();
@@ -106,5 +147,24 @@ class TweetControllerTest extends TestCase
         $body = "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Esse harum id, nemo nostrum dicta voluptate deleniti suscipit alias dolores recusandae nisi aut ullam, consectetur minima, dignissimos quaerat magnam amet eligendi ipsum provident pariatur cumque consequuntur? Ratione, ipsa.";
         $this->postJson("api/tweets", ["body" => $body])
             ->assertJsonValidationErrorFor("body");
+    }
+
+    /** @test */
+    public function the_media_must_be_an_array()
+    {
+        $user = User::factory()->activated()->create();
+        Passport::actingAs($user);
+        $this->postJson("api/tweets", ["body" => "My first tweet", "media" => null])
+            ->assertJsonValidationErrorFor("media");
+    }
+
+
+    /** @test */
+    public function the_media_should_not_have_more_than_four_media_ids()
+    {
+        $user = User::factory()->activated()->create();
+        Passport::actingAs($user);
+        $this->postJson("api/tweets", ["body" => "My first tweet", "media" => [1,2,3,4,5]])
+            ->assertJsonValidationErrorFor("media");
     }
 }

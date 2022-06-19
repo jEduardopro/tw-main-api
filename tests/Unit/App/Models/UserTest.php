@@ -11,6 +11,7 @@ use App\Traits\LocationTrait;
 use App\Models\Concerns\Verificationable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
+use Spatie\MediaLibrary\InteractsWithMedia;
 use Tests\TestCase;
 
 class UserTest extends TestCase
@@ -66,5 +67,9 @@ class UserTest extends TestCase
         $this->assertClassUsesTrait(Verificationable::class, User::class);
     }
 
-
+    /** @test */
+    public function a_user_model_must_use_the_trait_interacts_with_media()
+    {
+        $this->assertClassUsesTrait(InteractsWithMedia::class, User::class);
+    }
 }
