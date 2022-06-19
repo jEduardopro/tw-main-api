@@ -17,3 +17,11 @@ Route::post('auth/send-password-reset', 'Auth\ResetPasswordController@send');
 Route::post('auth/password-verify-code', 'Auth\ResetPasswordController@verify');
 Route::post('auth/reset-password', 'Auth\ResetPasswordController@reset');
 
+
+Route::group(["middleware" => ["auth:api"]], function() {
+    // Tweets
+    Route::post("tweets", "Tweets\TweetController@store");
+    Route::delete("tweets/{id}", "Tweets\TweetController@destroy");
+});
+
+
