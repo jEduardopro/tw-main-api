@@ -24,9 +24,9 @@ class TweetController extends Controller
         return $this->responseWithMessage("successful tweet");
     }
 
-    public function destroy($id)
+    public function destroy($uuid)
     {
-        $tweet = Tweet::whereId($id)->first();
+        $tweet = Tweet::where("uuid", $uuid)->first();
 
         if (!$tweet) {
             return $this->responseWithMessage("the tweet does not exist or has already been deleted", 404);

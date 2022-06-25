@@ -63,7 +63,7 @@ class TweetControllerTest extends TestCase
             "deleted_at" => null
         ]);
 
-        $response = $this->deleteJson("api/tweets/{$tweet->id}");
+        $response = $this->deleteJson("api/tweets/{$tweet->uuid}");
 
         $this->assertEquals("tweet removed", $response->json("message"));
 
@@ -82,7 +82,7 @@ class TweetControllerTest extends TestCase
 
         Passport::actingAs($user);
 
-        $response = $this->deleteJson("api/tweets/{$deletedTweet->id}");
+        $response = $this->deleteJson("api/tweets/{$deletedTweet->uuid}");
 
         $response->assertStatus(404);
         $this->assertEquals("the tweet does not exist or has already been deleted", $response->json("message"));
@@ -109,7 +109,7 @@ class TweetControllerTest extends TestCase
 
         $payload = [
             "body" => "My first tweet with images",
-            "media" => [$media->id]
+            "media" => [$media->uuid]
         ];
         $response = $this->postJson("api/tweets", $payload);
 

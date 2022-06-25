@@ -36,6 +36,7 @@ class MediaControllerTest extends TestCase
             ->assertJsonStructure(["media_id", "media_id_string", "media_url"]);
 
         $this->assertDatabaseHas("media", [
+            "uuid" => $response->json("media_id"),
             "model_id" => $user->id,
             "model_type" => User::class,
             "collection_name" => $collectionName,
@@ -63,7 +64,7 @@ class MediaControllerTest extends TestCase
             "file_name" => $media->file_name
         ]);
 
-        $response = $this->deleteJson("/api/media/{$media->id}/remove");
+        $response = $this->deleteJson("/api/media/{$media->uuid}/remove");
 
         $response->assertSuccessful();
         $this->assertEquals("media removed successfully", $response->json("message"));
@@ -83,7 +84,7 @@ class MediaControllerTest extends TestCase
     {
         $user = User::factory()->activated()->create();
         Passport::actingAs($user);
-        
+
         $response = $this->deleteJson("/api/media/1/remove");
 
         $response->assertStatus(404);

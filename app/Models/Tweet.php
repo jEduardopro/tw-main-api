@@ -18,7 +18,7 @@ class Tweet extends Model implements HasMedia
     protected $fillable = ["body"];
 
     /** Relationships */
-    
+
     /**
      * Get the user that owns the Tweet
      *
@@ -37,7 +37,7 @@ class Tweet extends Model implements HasMedia
             return;
         }
 
-        $media = $user->media()->whereIn('id', request()->media)->get();
+        $media = $user->media()->whereIn('uuid', request()->media)->get();
 
         $media->each(function (Media $mediaItem) {
             $mediaItem->move($this, 'images', 'media');

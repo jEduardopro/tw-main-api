@@ -1,31 +1,37 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Media\MediaController;
+use App\Http\Controllers\Tweets\TweetController;
 use Illuminate\Support\Facades\Route;
 
+Route::prefix('auth')->group(function() {
+    Route::post('/account/find', 'Auth\AccountController@find');
+    Route::post('/login', 'Auth\LoginController@login');
 
-Route::post('auth/account/find', 'Auth\AccountController@find');
-Route::post('auth/login', 'Auth\LoginController@login');
+    Route::post('/register', 'Auth\RegisterController@register');
+    Route::post('/signup', 'Auth\SignUpController@signup');
 
-Route::post('auth/register', 'Auth\RegisterController@register');
-Route::post('auth/signup', 'Auth\SignUpController@signup');
+    Route::post('/verification/resend', 'Auth\VerificationController@resend');
+    Route::post('/verification/verify', 'Auth\VerificationController@verify');
 
-Route::post('auth/verification/resend', 'Auth\VerificationController@resend');
-Route::post('auth/verification/verify', 'Auth\VerificationController@verify');
-
-Route::post('auth/send-password-reset', 'Auth\ResetPasswordController@send');
-Route::post('auth/password-verify-code', 'Auth\ResetPasswordController@verify');
-Route::post('auth/reset-password', 'Auth\ResetPasswordController@reset');
+    Route::post('/send-password-reset', 'Auth\ResetPasswordController@send');
+    Route::post('/password-verify-code', 'Auth\ResetPasswordController@verify');
+    Route::post('/reset-password', 'Auth\ResetPasswordController@reset');
+});
 
 
 Route::group(["middleware" => ["auth:api"]], function() {
     // Tweets
-    Route::post("tweets", "Tweets\TweetController@store");
-    Route::delete("tweets/{id}", "Tweets\TweetController@destroy");
+    Route::controller(TweetController::class)->group(function(){
+        Route::post("tweets", "store");
+        Route::delete("tweets/{id}", "destroy");
+    });
 
     // Media
-    Route::post("media/upload", "Media\MediaController@store");
-    Route::delete("media/{id}/remove", "Media\MediaController@destroy");
+    Route::controller(MediaController::class)->group(function(){
+        Route::post("media/upload", "store");
+        Route::delete("media/{id}/remove", "destroy");
+    });
 
     // Users
     Route::get("users/{id}/timeline", "Users\UserTimelineController@index");

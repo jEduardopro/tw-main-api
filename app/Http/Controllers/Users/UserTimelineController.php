@@ -4,13 +4,17 @@ namespace App\Http\Controllers\Users;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TweetResource;
-use Illuminate\Http\Request;
+use App\Models\User;
 
 class UserTimelineController extends Controller
 {
-    public function index(Request $request)
+    public function index($userUuid)
     {
-        $user = $request->user();
+        $user = User::where("uuid", $userUuid)->first();
+
+        if (!$user) {
+            return $this->responseWithMessage("the timeline of tweets is not available for this account", 400);
+        }
 
         $timeline = $user->tweets()->latest()->paginate();
 

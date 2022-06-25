@@ -22,15 +22,15 @@ class MediaController extends Controller
             ->toMediaCollection($request->media_category);
 
         return $this->responseWithData([
-            "media_id" => $media->id,
+            "media_id" => $media->uuid,
             "media_id_string" => $filename,
             "media_url" => $media->getUrl()
         ]);
     }
 
-    public function destroy($id)
+    public function destroy($uuid)
     {
-        $media = Media::whereId($id)->first();
+        $media = Media::where("uuid", $uuid)->first();
 
         if (!$media) {
             return $this->responseWithMessage("the resource doesn't exist", 404);

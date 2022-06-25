@@ -87,4 +87,18 @@ class UserFactory extends Factory
             ];
         });
     }
+
+    /**
+     * Indicate that the model is deleted.
+     *
+     * @return static
+     */
+    public function withSoftDelete()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'deleted_at' => now(),
+            ];
+        });
+    }
 }
