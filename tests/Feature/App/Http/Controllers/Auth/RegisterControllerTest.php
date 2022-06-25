@@ -111,6 +111,10 @@ class RegisterControllerTest extends TestCase
     {
         $this->postJson('api/auth/register', $this->userValidData(["phone" => null, "email" => null]))
             ->assertStatus(422);
+        $this->postJson('api/auth/register', $this->userValidData(["phone" => "null", "email" => "null"]))
+            ->assertStatus(422);
+        $this->postJson('api/auth/register', $this->userValidData(["phone" => "", "email" => ""]))
+            ->assertStatus(422);
     }
 
     /** @test */

@@ -26,7 +26,7 @@ class VerificationController extends Controller
         $user = User::where('id', $userVerification->user_id)->first();
 
         if (!$user) {
-            return $this->responseWithMessage("The account does not exist", 417);
+            return $this->responseWithMessage("The account does not exist", 400);
         }
 
         if ($user->isVerified()) {

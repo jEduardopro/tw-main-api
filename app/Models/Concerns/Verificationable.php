@@ -39,10 +39,6 @@ trait Verificationable
      */
     public static function findVerificationByToken(string $token): bool|Object
     {
-        if (!$token) {
-            return false;
-        }
-
         $pendingVerification = DB::table('user_verifications')->where('token', $token)->first();
 
         if (!$pendingVerification) {

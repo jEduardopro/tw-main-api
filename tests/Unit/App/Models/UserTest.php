@@ -82,6 +82,37 @@ class UserTest extends TestCase
     }
 
     /** @test */
+    public function the_get_email_mask_method_must_return_null_if_no_email_set()
+    {
+        $user = new User();
+        $this->assertTrue(is_null( $user->getEmailMask() ) );
+    }
+
+    /** @test */
+    public function the_get_phone_mask_method_must_return_null_if_no_phone_set()
+    {
+        $user = new User();
+        $this->assertTrue(is_null( $user->getPhoneMask() ) );
+    }
+
+    /** @test */
+    public function the_verification_date_method_must_return_a_valid_format_date()
+    {
+        $user = User::factory()->create();
+        $this->assertEquals($user->email_verified_at->format('Y-m-d H:i:s'), $user->verificationDate() );
+
+        $user = User::factory()->unverified()->create(["phone_verified_at" => now()]);
+        $this->assertEquals($user->phone_verified_at->format('Y-m-d H:i:s'), $user->verificationDate() );
+    }
+
+    /** @test */
+    public function the_verification_date_method_must_return_false_if_no_email_and_phone_are_verified()
+    {
+        $user = User::factory()->unverified()->create();
+        $this->assertEquals(false, $user->verificationDate() );
+    }
+
+    /** @test */
     public function a_user_has_many_tweets()
     {
         $user = User::factory()->activated()->create();

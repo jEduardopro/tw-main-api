@@ -8,6 +8,7 @@ use App\Http\Controllers\Auth\Concerns\UserAccount;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Notifications\ResetPassword;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
@@ -41,8 +42,12 @@ class ResetPasswordControllerTest extends TestCase
         ]);
         $this->assertDatabaseCount("password_resets", 1);
 
-        Notification::assertSentTo($user, ResetPassword::class, function($notification){
+        Notification::assertSentTo($user, ResetPassword::class, function($notification, $channels) use ($user){
+            $mail = $notification->toMail($user);
+            $this->assertInstanceOf(MailMessage::class, $mail);
+            $this->assertContains("mail", $channels);
             $this->assertTrue(!is_null($notification->token));
+            $this->assertArrayHasKey("token", $mail->viewData);
             return true;
         });
     }
@@ -102,6 +107,16 @@ class ResetPasswordControllerTest extends TestCase
             ->assertJsonStructure(["message"]);
 
         $this->assertEquals("We could not find your account", $response->json("message"));
+    }
+
+    /** @test */
+    public function the_verify_process_must_be_fail_if_no_password_resets_token()
+    {
+        $user = User::factory()->create();
+        $token = $user->generateToken();
+
+        $this->postJson("api/auth/password-verify-code", ["token" => $token])
+                ->assertJsonValidationErrorFor("token");
     }
 
     /** @test */

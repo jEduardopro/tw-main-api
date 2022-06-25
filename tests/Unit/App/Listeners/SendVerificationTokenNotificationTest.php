@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Notifications\VerifyEmailActivation;
 use App\Notifications\VerifyPhoneActivation;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\Str;
 use Tests\TestCase;
@@ -29,9 +30,14 @@ class SendVerificationTokenNotificationTest extends TestCase
 
         UserRegistered::dispatch($user);
 
-        Notification::assertSentTo($user, VerifyEmailActivation::class, function($notification) use ($user){
+        Notification::assertSentTo($user, VerifyEmailActivation::class, function($notification, $channels) use ($user){
+            $mail = $notification->toMail($user);
+
+            $this->assertInstanceOf(MailMessage::class, $mail);
+            $this->assertContains("mail", $channels);
             $this->assertTrue(!is_null($notification->token));
             $this->assertEquals($notification->token, $user["token"]);
+            $this->assertArrayHasKey("token", $mail->viewData);
             return true;
         });
     }

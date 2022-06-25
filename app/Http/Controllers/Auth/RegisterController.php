@@ -55,16 +55,6 @@ class RegisterController extends Controller
         if (!$request->filled("email") && !$request->filled("phone")) {
             return false;
         }
-        $email = $request->email;
-        $phone = $request->phone;
-
-        if ($email == "null" && $phone == "null") {
-            return false;
-        }
-
-        if (empty($email) && empty($phone)) {
-            return false;
-        }
 
         return true;
     }

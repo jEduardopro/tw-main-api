@@ -173,10 +173,6 @@ class User extends Authenticatable implements HasMedia
 
     public function scopeFindByIdentifier($query, $identifier)
     {
-        if (!$identifier) {
-            return;
-        }
-
         $query->where('email', $identifier)
             ->orWhere('phone', $identifier)
             ->orWhere('phone_validated', $identifier)

@@ -79,6 +79,34 @@ class VerificationControllerTest extends TestCase
     }
 
     /** @test */
+    public function the_verify_process_to_email_or_phone_must_be_fail_if_does_not_exist_a_user_verification_token()
+    {
+        $token = Str::upper(Str::random(6));
+
+        $this->postJson('api/auth/verification/verify', ['token' => $token])
+                    ->assertJsonValidationErrorFor("token");
+    }
+
+    /** @test */
+    public function the_verify_process_to_email_or_phone_must_be_fail_if_there_is_no_registered_user()
+    {
+        $user = User::factory()->unverified()
+            ->withoutPassword()
+            ->withPhoneValidated()
+            ->create(['email' => null]);
+
+        $token = Str::upper(Str::random(6));
+        $userVerificationData = ['user_id' => $user->id, 'token' => $token];
+        DB::table('user_verifications')->insert($userVerificationData);
+
+        $user->delete();
+        $response = $this->postJson('api/auth/verification/verify', ['token' => $token]);
+
+        $response->assertStatus(400);
+        $this->assertEquals("The account does not exist", $response->json("message"));
+    }
+
+    /** @test */
     public function a_user_can_resend_the_verification_token_by_email()
     {
         Notification::fake();

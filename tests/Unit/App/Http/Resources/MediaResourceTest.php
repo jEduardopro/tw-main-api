@@ -22,7 +22,7 @@ class MediaResourceTest extends TestCase
             ->preservingOriginal()
             ->toMediaCollection("images");
 
-        $mediaResource = MediaResource::make($media)->resolve();
+        $mediaResource = MediaResource::make($media->refresh())->resolve();
 
         $this->assertTrue(is_string($media->uuid));
         $this->assertEquals($media->uuid, $mediaResource["id"]);

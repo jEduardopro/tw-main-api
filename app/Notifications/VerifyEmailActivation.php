@@ -48,17 +48,4 @@ class VerifyEmailActivation extends Notification
                 'token' => $this->token
             ]);
     }
-
-    /**
-     * Get the array representation of the notification.
-     *
-     * @param  mixed  $notifiable
-     * @return array
-     */
-    public function toArray($notifiable)
-    {
-        return [
-            //
-        ];
-    }
 }
