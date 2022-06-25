@@ -30,4 +30,9 @@ class Controller extends BaseController
     {
         return $this->response($data, $statusCode);
     }
+
+    protected function responseWithResource($resource)
+    {
+        return $resource;
+    }
 }

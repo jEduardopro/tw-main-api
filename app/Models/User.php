@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use App\Models\Concerns\HasUuid;
 use App\Models\Concerns\Verificationable;
 use App\Services\PhoneNumberValidator;
 use App\Traits\LocationTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -18,7 +20,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class User extends Authenticatable implements HasMedia
 {
-    use HasApiTokens, HasFactory, Notifiable, Verificationable, LocationTrait, SoftDeletes, InteractsWithMedia;
+    use HasApiTokens, HasFactory, Notifiable, Verificationable, LocationTrait, SoftDeletes, InteractsWithMedia, HasUuid;
 
     const SIGN_UP_DESC_EMAIL = "signup_with_email";
     const SIGN_UP_DESC_PHONE = "signup_with_phone";
@@ -37,7 +39,8 @@ class User extends Authenticatable implements HasMedia
         'phone',
         'phone_validated',
         'password',
-        'country'
+        'country',
+        'date_birth'
     ];
 
     /**
@@ -60,6 +63,28 @@ class User extends Authenticatable implements HasMedia
         'phone_verified_at' => 'datetime',
         'is_activated' => 'boolean'
     ];
+
+    // protected static function booted()
+    // {
+    //     // dd('dkfhgjkjdfg');
+    //     User::creating(function ($model) {
+    //         dd('djkhjdkd');
+    //         $model->uuid = Str::uuid()->toString();
+    //     });
+    // }
+
+    /** Relationships */
+
+    /**
+     * Get all of the tweets for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function tweets(): HasMany
+    {
+        return $this->hasMany(Tweet::class);
+    }
+
 
     public function registerMediaConversions(Media $media = null): void
     {

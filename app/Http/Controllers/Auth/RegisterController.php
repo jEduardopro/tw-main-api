@@ -6,7 +6,6 @@ use App\Events\UserRegistered;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RegisterFormRequest;
 use App\Models\User;
-use Illuminate\Support\Str;
 
 class RegisterController extends Controller
 {
@@ -17,13 +16,12 @@ class RegisterController extends Controller
         }
 
         $user = new User();
+        $user->fill($request->validated());
         $signUpDescription = null;
         $signUpField = [];
 
         $user->generateUsername($request->name);
-        $user->name = $request->name;
         $user->setCountryFromIpLocation();
-        $user->date_birth = $request->date_birth;
 
         if ($request->filled("email")) {
             $user->email = $request->email;
@@ -46,6 +44,7 @@ class RegisterController extends Controller
             "message" => "begin verification",
             "description" => $signUpDescription
         ], $signUpField);
+
 
         return $this->responseWithData($response);
     }

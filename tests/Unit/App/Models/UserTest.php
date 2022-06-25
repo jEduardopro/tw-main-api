@@ -9,9 +9,11 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use App\Traits\LocationTrait;
 use App\Models\Concerns\Verificationable;
+use App\Models\Tweet;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use App\Models\Concerns\HasUuid;
 use Tests\TestCase;
 
 class UserTest extends TestCase
@@ -23,7 +25,7 @@ class UserTest extends TestCase
     {
         $this->assertTrue(
             Schema::hasColumns('users', [
-                'name', 'username', 'email', 'email_verified_at',
+                'uuid', 'name', 'username', 'email', 'email_verified_at',
                 'country_code', 'phone', 'phone_verified_at',
                 'country', 'gender', 'date_birth',
                 'is_activated', 'created_at', 'updated_at', 'deleted_at'
@@ -71,5 +73,20 @@ class UserTest extends TestCase
     public function a_user_model_must_use_the_trait_interacts_with_media()
     {
         $this->assertClassUsesTrait(InteractsWithMedia::class, User::class);
+    }
+
+    /** @test */
+    public function a_user_model_must_use_the_trait_has_uuid()
+    {
+        $this->assertClassUsesTrait(HasUuid::class, User::class);
+    }
+
+    /** @test */
+    public function a_user_has_many_tweets()
+    {
+        $user = User::factory()->activated()->create();
+        Tweet::factory()->create(["user_id" => $user->id]);
+
+        $this->assertInstanceOf(Tweet::class, $user->tweets->first());
     }
 }

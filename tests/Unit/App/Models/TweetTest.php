@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Concerns\HasUuid;
+use App\Models\User;
 use Tests\TestCase;
 
 class TweetTest extends TestCase
@@ -19,7 +21,7 @@ class TweetTest extends TestCase
     {
         $this->assertTrue(
             Schema::hasColumns('tweets', [
-                'user_id', 'body', 'created_at', 'updated_at', 'deleted_at'
+               'uuid', 'user_id', 'body', 'created_at', 'updated_at', 'deleted_at'
             ])
         );
     }
@@ -37,8 +39,24 @@ class TweetTest extends TestCase
     }
 
     /** @test */
-    public function a_user_model_must_use_the_trait_interacts_with_media()
+    public function a_tweet_model_must_use_the_trait_interacts_with_media()
     {
         $this->assertClassUsesTrait(InteractsWithMedia::class, Tweet::class);
+    }
+
+    /** @test */
+    public function a_tweet_model_must_use_the_trait_has_uuid()
+    {
+        $this->assertClassUsesTrait(HasUuid::class, Tweet::class);
+    }
+
+
+    /** @test */
+    public function a_tweet_model_belongs_to_user()
+    {
+        $user = User::factory()->activated()->create();
+        $tweet = Tweet::factory()->create(["user_id" => $user->id]);
+
+        $this->assertInstanceOf(User::class, $tweet->user);
     }
 }
