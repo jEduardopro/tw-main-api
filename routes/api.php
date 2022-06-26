@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Media\MediaController;
 use App\Http\Controllers\Tweets\TweetController;
+use App\Http\Controllers\Users\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function() {
@@ -22,21 +23,28 @@ Route::prefix('auth')->group(function() {
 
 Route::group(["middleware" => ["auth:api"]], function() {
     // Tweets
-    Route::controller(TweetController::class)->group(function(){
-        Route::post("tweets", "store");
-        Route::delete("tweets/{id}", "destroy");
+    Route::controller(TweetController::class)->prefix("tweets")->group(function(){
+        Route::post("/", "store");
+        Route::delete("/{id}", "destroy");
     });
 
     // Media
-    Route::controller(MediaController::class)->group(function(){
-        Route::post("media/upload", "store");
-        Route::delete("media/{id}/remove", "destroy");
+    Route::controller(MediaController::class)->prefix("media")->group(function(){
+        Route::post("/upload", "store");
+        Route::delete("/{id}/remove", "destroy");
     });
 
     // Users
+
+    // Profile
+    Route::controller(ProfileController::class)->prefix("profile")->group(function () {
+        Route::put("/", "update");
+        Route::post("/update-banner", "updateBanner");
+        Route::post("/update-image", "updateImage");
+    });
 });
 
-Route::get("users/{username}/profile", "Users\ProfileController@getProfileByUsername");
+Route::get("profile/{username}", "Users\ProfileController@getProfileByUsername");
 
 Route::get("users/{id}/timeline", "Users\UserTimelineController@index");
 

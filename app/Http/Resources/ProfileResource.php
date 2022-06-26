@@ -18,6 +18,7 @@ class ProfileResource extends JsonResource
             "id" => $this->uuid,
             "name" => $this->name,
             "username" => $this->username,
+            "description" => $this->description,
             "readable_joined_date" => $this->getReadableJoinedDate()
         ];
     }

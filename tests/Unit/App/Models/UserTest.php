@@ -26,9 +26,9 @@ class UserTest extends TestCase
         $this->assertTrue(
             Schema::hasColumns('users', [
                 'uuid', 'name', 'username', 'email', 'email_verified_at',
-                'country_code', 'phone', 'phone_verified_at',
-                'country', 'gender', 'date_birth',
-                'is_activated', 'created_at', 'updated_at', 'deleted_at'
+                'country_code', 'phone', 'phone_verified_at', 'password',
+                'country', 'gender', 'date_birth', 'banner_id', 'image_id',
+                'description', 'is_activated', 'created_at', 'updated_at', 'deleted_at'
             ])
         );
     }
