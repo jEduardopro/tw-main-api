@@ -34,7 +34,9 @@ Route::group(["middleware" => ["auth:api"]], function() {
     });
 
     // Users
-    Route::get("users/{id}/timeline", "Users\UserTimelineController@index");
 });
 
+Route::get("users/{username}/profile", "Users\ProfileController@getProfileByUsername");
+
+Route::get("users/{id}/timeline", "Users\UserTimelineController@index");
 

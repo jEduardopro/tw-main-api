@@ -23,7 +23,7 @@ abstract class TestCase extends BaseTestCase
             'name' => 'name test',
             'email' => 'example_test@example.com',
             'phone' => env("PHONE_NUMBER_TEST"),
-            'date_birth' => $this->faker->date()
+            'date_birth' => now()->subYears(13)->format('Y-m-d')
         ], $overrides);
     }
 

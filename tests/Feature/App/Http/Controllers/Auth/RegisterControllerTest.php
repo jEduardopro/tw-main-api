@@ -131,4 +131,12 @@ class RegisterControllerTest extends TestCase
         $this->postJson('api/auth/register', $this->userValidData(["date_birth" => "06/06/1996"]))
             ->assertJsonValidationErrorFor('date_birth');
     }
+
+
+    /** @test */
+    public function the_date_of_birth_must_be_at_least_13_years_old()
+    {
+        $this->postJson('api/auth/register', $this->userValidData(["date_birth" => now()->format("Y-m-d")]))
+            ->assertJsonValidationErrorFor('date_birth');
+    }
 }

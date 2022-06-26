@@ -64,15 +64,6 @@ class User extends Authenticatable implements HasMedia
         'is_activated' => 'boolean'
     ];
 
-    // protected static function booted()
-    // {
-    //     // dd('dkfhgjkjdfg');
-    //     User::creating(function ($model) {
-    //         dd('djkhjdkd');
-    //         $model->uuid = Str::uuid()->toString();
-    //     });
-    // }
-
     /** Relationships */
 
     /**
@@ -85,23 +76,40 @@ class User extends Authenticatable implements HasMedia
         return $this->hasMany(Tweet::class);
     }
 
+    /** Scopes */
+
+    public function scopeFindByIdentifier($query, $identifier)
+    {
+        $query->where('email', $identifier)
+            ->orWhere('phone', $identifier)
+            ->orWhere('phone_validated', $identifier)
+            ->orWhere('username', $identifier);
+    }
+
+    public function scopeActive($query)
+    {
+        $query->where('is_activated', true);
+    }
+
+
+    /** Public methods */
 
     public function registerMediaConversions(Media $media = null): void
     {
         $this->addMediaConversion('small')
-            ->width(150)
+        ->width(150)
             ->height(150);
 
         $this->addMediaConversion('thumb')
-            ->width(360)
+        ->width(360)
             ->height(360);
 
         $this->addMediaConversion('medium')
-            ->width(680)
+        ->width(680)
             ->height(380);
 
         $this->addMediaConversion('large')
-            ->width(1200)
+        ->width(1200)
             ->height(675);
     }
 
@@ -170,12 +178,12 @@ class User extends Authenticatable implements HasMedia
         return Str::upper(Str::random(8));
     }
 
-
-    public function scopeFindByIdentifier($query, $identifier)
+    /**
+     * Returns date of join to twitter clone of a user readable for humans
+     */
+    public function getReadableJoinedDate(): string
     {
-        $query->where('email', $identifier)
-            ->orWhere('phone', $identifier)
-            ->orWhere('phone_validated', $identifier)
-            ->orWhere('username', $identifier);
+        $date = $this->created_at;
+        return $date->format('F') . " " . $date->format("Y");
     }
 }
