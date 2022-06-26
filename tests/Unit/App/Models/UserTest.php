@@ -120,4 +120,46 @@ class UserTest extends TestCase
 
         $this->assertInstanceOf(Tweet::class, $user->tweets->first());
     }
+
+    /** @test */
+    public function a_user_has_many_followers()
+    {
+        $user = User::factory()->activated()->create();
+        $user2 = User::factory()->activated()->create();
+
+        $user->follow($user2->id);
+
+        $this->assertInstanceOf(User::class, $user2->fresh()->followers->first());
+        $this->assertEquals($user->id, $user2->fresh()->followers->first()->id);
+    }
+
+    /** @test */
+    public function a_user_can_be_following_many_people()
+    {
+        $user = User::factory()->activated()->create();
+        $user2 = User::factory()->activated()->create();
+
+        $user->follow($user2->id);
+
+        $this->assertInstanceOf(User::class, $user->fresh()->following->first());
+        $this->assertEquals($user2->id, $user->fresh()->following->first()->id);
+    }
+
+
+    /** @test */
+    public function a_user_can_stop_following_other_users()
+    {
+        $user = User::factory()->activated()->create();
+        $user2 = User::factory()->activated()->create();
+
+        $user->follow($user2->id);
+
+        $this->assertInstanceOf(User::class, $user->fresh()->following->first());
+        $this->assertEquals($user2->id, $user->fresh()->following->first()->id);
+        $this->assertEquals(1, $user->fresh()->following->count());
+
+        $user->unfollow($user2->id);
+
+        $this->assertEquals(0, $user->fresh()->following->count());
+    }
 }

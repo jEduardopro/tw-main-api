@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Friendships\FriendshipController;
 use App\Http\Controllers\Media\MediaController;
 use App\Http\Controllers\Tweets\TweetController;
 use App\Http\Controllers\Users\ProfileController;
@@ -41,6 +42,12 @@ Route::group(["middleware" => ["auth:api"]], function() {
         Route::put("/", "update");
         Route::post("/update-banner", "updateBanner");
         Route::post("/update-image", "updateImage");
+    });
+
+    //Friendships
+    Route::controller(FriendshipController::class)->prefix("friendships")->group(function () {
+        Route::post("/follow", "follow");
+        Route::delete("/unfollow", "unfollow");
     });
 });
 

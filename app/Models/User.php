@@ -7,6 +7,7 @@ use App\Models\Concerns\Verificationable;
 use App\Services\PhoneNumberValidator;
 use App\Traits\LocationTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -76,6 +77,27 @@ class User extends Authenticatable implements HasMedia
         return $this->hasMany(Tweet::class);
     }
 
+    /**
+     * The following that belong to the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function following(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'followers', 'follower_id', 'followed_id');
+    }
+
+
+    /**
+     * The followers that belong to the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function followers(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'followers', 'followed_id', 'follower_id');
+    }
+
     /** Scopes */
 
     public function scopeFindByIdentifier($query, $identifier)
@@ -93,6 +115,23 @@ class User extends Authenticatable implements HasMedia
 
 
     /** Public methods */
+
+    /**
+     * Create the friendship between follower and followed
+     */
+    public function follow(string $userId): void
+    {
+        $this->following()->attach($userId);
+    }
+
+
+    /**
+     * Delete the friendship between follower and followed
+     */
+    public function unfollow(string $userId): void
+    {
+        $this->following()->detach($userId);
+    }
 
     public function registerMediaConversions(Media $media = null): void
     {

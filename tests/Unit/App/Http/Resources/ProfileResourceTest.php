@@ -25,4 +25,43 @@ class ProfileResourceTest extends TestCase
         $this->assertEquals($user->description, $profileResource["description"]);
         $this->assertEquals($user->getReadableJoinedDate(), $profileResource["readable_joined_date"]);
     }
+
+    /** @test */
+    public function a_profile_resources_must_have_the_following_count_key_when_its_following_count_relation_is_loaded()
+    {
+        $user = User::factory()->activated()->create();
+        $user2 = User::factory()->activated()->create();
+
+        $user->follow($user2->id);
+
+        $profileResource = ProfileResource::make($user)->resolve();
+
+        $this->assertArrayNotHasKey("following_count", $profileResource);
+
+        $user->loadCount('following');
+
+        $profileResource = ProfileResource::make($user)->resolve();
+
+        $this->assertArrayHasKey("following_count", $profileResource);
+    }
+
+
+    /** @test */
+    public function a_profile_resources_must_have_the_followers_count_key_when_its_followers_count_relation_is_loaded()
+    {
+        $user = User::factory()->activated()->create();
+        $user2 = User::factory()->activated()->create();
+
+        $user2->follow($user->id);
+
+        $profileResource = ProfileResource::make($user)->resolve();
+
+        $this->assertArrayNotHasKey("followers_count", $profileResource);
+
+        $user->loadCount('followers');
+
+        $profileResource = ProfileResource::make($user)->resolve();
+
+        $this->assertArrayHasKey("followers_count", $profileResource);
+    }
 }

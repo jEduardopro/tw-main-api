@@ -252,7 +252,7 @@ class ProfileControllerTest extends TestCase
     {
         return array_merge([
             "name" => $this->faker->name,
-            "description" => $this->faker->paragraph,
+            "description" => $this->faker->sentence,
             "date_birth" => now()->subYears(15)->format("Y-m-d")
         ], $overrides);
     }
