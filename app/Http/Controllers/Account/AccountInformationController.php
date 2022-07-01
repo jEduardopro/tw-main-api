@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Account;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateEmailAddressFormRequest;
+use App\Http\Requests\UpdateUsernameFormRequest;
 use App\Http\Requests\VerifyNewEmailFormRequest;
 use App\Models\User;
 use App\Notifications\VerifyNewEmailAddress;
@@ -13,7 +14,7 @@ use Illuminate\Support\Facades\Notification;
 
 class AccountInformationController extends Controller
 {
-    public function updateUsername(Request $request)
+    public function updateUsername(UpdateUsernameFormRequest $request)
     {
         $user = $request->user();
 

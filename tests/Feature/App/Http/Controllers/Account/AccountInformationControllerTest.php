@@ -22,7 +22,7 @@ class AccountInformationControllerTest extends TestCase
         $user = User::factory()->activated()->create();
         Passport::actingAs($user);
 
-        $username = $this->faker->userName;
+        $username = "testusername".time();
         $response = $this->postJson("api/account/information/update-username", ["username" => $username]);
 
         $response->assertSuccessful();
@@ -135,7 +135,6 @@ class AccountInformationControllerTest extends TestCase
         $this->assertEquals("The code is invalid", $response->json("message"));
     }
 
-
     /** @test */
     public function the_process_to_verify_code_and_update_email_address_must_fail_if_the_code_is_expired()
     {
@@ -152,6 +151,39 @@ class AccountInformationControllerTest extends TestCase
             ->assertJsonStructure(["errors"]);
 
         $this->assertEquals("The code is expired", $response->json("errors.code.0"));
+    }
+
+    /** @test */
+    public function the_username_is_required_to_update_it()
+    {
+        $user = User::factory()->activated()->create();
+        Passport::actingAs($user);
+
+        $this->postJson("api/account/information/update-username", ["username" => null])
+                ->assertJsonValidationErrorFor("username");
+    }
+
+
+    /** @test */
+    public function the_username_must_be_unique_to_update_it()
+    {
+        $usernameAlreadyTaken = "test_username";
+        $user = User::factory()->activated()->create();
+        $user2 = User::factory()->activated()->create(["username" => $usernameAlreadyTaken]);
+        Passport::actingAs($user);
+
+        $this->postJson("api/account/information/update-username", ["username" => $usernameAlreadyTaken])
+                ->assertJsonValidationErrorFor("username");
+    }
+
+    /** @test */
+    public function the_username_must_be_a_valid_username()
+    {
+        $user = User::factory()->activated()->create();
+        Passport::actingAs($user);
+
+        $this->postJson("api/account/information/update-username", ["username" => "invalid username"])
+            ->assertJsonValidationErrorFor("username");
     }
 
     /** @test */
