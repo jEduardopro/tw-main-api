@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Account\AccountInformationController;
+use App\Http\Controllers\Account\AccountPersonalizationController;
 use App\Http\Controllers\Friendships\FriendshipController;
 use App\Http\Controllers\Media\MediaController;
 use App\Http\Controllers\Tweets\TweetController;
@@ -44,10 +46,23 @@ Route::group(["middleware" => ["auth:api"]], function() {
         Route::post("/update-image", "updateImage");
     });
 
-    //Friendships
+    // Friendships
     Route::controller(FriendshipController::class)->prefix("friendships")->group(function () {
         Route::post("/follow", "follow");
         Route::delete("/unfollow", "unfollow");
+    });
+
+    // Account personalization
+    Route::controller(AccountPersonalizationController::class)->prefix("account")->group(function () {
+        Route::post("/personalization", "update");
+    });
+
+    // Account information
+    Route::controller(AccountInformationController::class)->prefix("account/information")->group(function () {
+        Route::post("/update-username", "updateUsername");
+        Route::post("/verify-new-email", "verifyNewEmail");
+        Route::post("/resend-new-email", "resendNewEmail");
+        Route::post("/update-email", "updateEmail");
     });
 });
 

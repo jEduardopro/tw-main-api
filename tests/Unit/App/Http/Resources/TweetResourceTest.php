@@ -51,8 +51,6 @@ class TweetResourceTest extends TestCase
     /** @test */
     public function a_tweet_resources_must_have_the_images_key_when_its_media_relation_is_loaded()
     {
-        $this->withoutExceptionHandling();
-
         $user = User::factory()->create();
         $tweet = Tweet::factory()->create(["user_id" => $user->id]);
 
