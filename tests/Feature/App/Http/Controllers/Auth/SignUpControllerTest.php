@@ -155,7 +155,7 @@ class SignUpControllerTest extends TestCase
     }
 
     /** @test */
-    public function the_password_must_be_have_at_least_eight_characters()
+    public function the_password_must_be_have_at_least_8_characters()
     {
         $payload = [
             "email" => "test_email@example.com",

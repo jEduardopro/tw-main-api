@@ -15,6 +15,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Passport\HasApiTokens;
+use Laravel\Passport\Token;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -224,5 +225,14 @@ class User extends Authenticatable implements HasMedia
     {
         $date = $this->created_at;
         return $date->format('F') . " " . $date->format("Y");
+    }
+
+    /**
+     * Invalidate all tokens created for this user
+     */
+    public function revokeTokensFor($userId)
+    {
+        Token::where('user_id', $userId)
+            ->update(['revoked' => true]);
     }
 }

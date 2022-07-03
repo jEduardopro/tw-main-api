@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Account\AccountInformationController;
+use App\Http\Controllers\Account\AccountPasswordController;
 use App\Http\Controllers\Account\AccountPersonalizationController;
 use App\Http\Controllers\Friendships\FriendshipController;
 use App\Http\Controllers\Media\MediaController;
@@ -53,16 +54,21 @@ Route::group(["middleware" => ["auth:api"]], function() {
     });
 
     // Account personalization
-    Route::controller(AccountPersonalizationController::class)->prefix("account")->group(function () {
-        Route::post("/personalization", "update");
+    Route::controller(AccountPersonalizationController::class)->prefix("account/personalization")->group(function () {
+        Route::put("/", "update");
     });
 
     // Account information
     Route::controller(AccountInformationController::class)->prefix("account/information")->group(function () {
-        Route::post("/update-username", "updateUsername");
+        Route::put("/update-username", "updateUsername");
         Route::post("/verify-new-email", "verifyNewEmail");
         Route::post("/resend-new-email", "resendNewEmail");
-        Route::post("/update-email", "updateEmail");
+        Route::put("/update-email", "updateEmail");
+    });
+
+    // Account Password
+    Route::controller(AccountPasswordController::class)->prefix("account/password")->group(function () {
+        Route::put("/", "update");
     });
 });
 

@@ -22,11 +22,12 @@ class LoginController extends Controller
 
         $checkPassword = Hash::check($password, $user->password);
 
-        $token = $user->createToken('token')->accessToken;
-
         if (!$checkPassword) {
             return $this->responseWithMessage("Wrong password", 400);
         }
+        
+        $token = $user->createToken('token')->accessToken;
+
 
         return $this->responseWithData([
             "token" => $token,

@@ -15,12 +15,14 @@ class AccountPersonalizationControllerTest extends TestCase
     /** @test */
     public function a_logged_user_can_update_their_country()
     {
+        $this->withoutExceptionHandling();
+
         $user = User::factory()->activated()->create();
         Passport::actingAs($user);
 
         $preferenceType = "country";
         $country = $this->faker->country;
-        $response = $this->postJson("api/account/personalization", ["preference_type" => $preferenceType, "value" => $country]);
+        $response = $this->putJson("api/account/personalization", ["preference_type" => $preferenceType, "value" => $country]);
 
         $response->assertSuccessful();
 
@@ -39,7 +41,7 @@ class AccountPersonalizationControllerTest extends TestCase
 
         $preferenceType = "gender";
         $gender = $this->faker->randomElement(['male', 'female']);
-        $response = $this->postJson("api/account/personalization", ["preference_type" => $preferenceType, "value" => $gender]);
+        $response = $this->putJson("api/account/personalization", ["preference_type" => $preferenceType, "value" => $gender]);
 
         $response->assertSuccessful();
 
@@ -56,7 +58,7 @@ class AccountPersonalizationControllerTest extends TestCase
         $user = User::factory()->activated()->create();
         Passport::actingAs($user);
 
-        $this->postJson("api/account/personalization", ["preference_type" => null, "value" => "test value"])
+        $this->putJson("api/account/personalization", ["preference_type" => null, "value" => "test value"])
                 ->assertJsonValidationErrorFor("preference_type");
     }
 
@@ -67,7 +69,7 @@ class AccountPersonalizationControllerTest extends TestCase
         $user = User::factory()->activated()->create();
         Passport::actingAs($user);
 
-        $this->postJson("api/account/personalization", ["preference_type" => "invalid-preference-type", "value" => "test value"])
+        $this->putJson("api/account/personalization", ["preference_type" => "invalid-preference-type", "value" => "test value"])
                 ->assertJsonValidationErrorFor("preference_type");
     }
 
@@ -78,7 +80,7 @@ class AccountPersonalizationControllerTest extends TestCase
         $user = User::factory()->activated()->create();
         Passport::actingAs($user);
 
-        $this->postJson("api/account/personalization", ["preference_type" => "country", "value" => null])
+        $this->putJson("api/account/personalization", ["preference_type" => "country", "value" => null])
                 ->assertJsonValidationErrorFor("value");
     }
 
@@ -89,7 +91,7 @@ class AccountPersonalizationControllerTest extends TestCase
         $user = User::factory()->activated()->create();
         Passport::actingAs($user);
 
-        $this->postJson("api/account/personalization", ["preference_type" => "country", "value" => 78564])
+        $this->putJson("api/account/personalization", ["preference_type" => "country", "value" => 78564])
                 ->assertJsonValidationErrorFor("value");
     }
 
@@ -100,7 +102,7 @@ class AccountPersonalizationControllerTest extends TestCase
         $user = User::factory()->activated()->create();
         Passport::actingAs($user);
 
-        $this->postJson("api/account/personalization", ["preference_type" => "country", "value" => "Lorem ipsum dolor sit amet consectetur adipisicing elit. Iusto assumenda facilis, sapiente rem reiciendis explicabo" ])
+        $this->putJson("api/account/personalization", ["preference_type" => "country", "value" => "Lorem ipsum dolor sit amet consectetur adipisicing elit. Iusto assumenda facilis, sapiente rem reiciendis explicabo" ])
                 ->assertJsonValidationErrorFor("value");
     }
 }

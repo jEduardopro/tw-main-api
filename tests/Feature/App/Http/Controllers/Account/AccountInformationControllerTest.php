@@ -23,7 +23,7 @@ class AccountInformationControllerTest extends TestCase
         Passport::actingAs($user);
 
         $username = "testusername".time();
-        $response = $this->postJson("api/account/information/update-username", ["username" => $username]);
+        $response = $this->putJson("api/account/information/update-username", ["username" => $username]);
 
         $response->assertSuccessful();
 
@@ -101,7 +101,7 @@ class AccountInformationControllerTest extends TestCase
         $this->assertDatabaseHas("user_verifications", ["user_id" => $user->id]);
 
         $email = $this->faker->email;
-        $response = $this->postJson("api/account/information/update-email", ["email" => $email, "code" => $token]);
+        $response = $this->putJson("api/account/information/update-email", ["email" => $email, "code" => $token]);
 
         $response->assertSuccessful()
                 ->assertJsonStructure(["verified_at", "message"]);
@@ -127,7 +127,7 @@ class AccountInformationControllerTest extends TestCase
         $token = "invalid-token";
 
         $email = $this->faker->email;
-        $response = $this->postJson("api/account/information/update-email", ["email" => $email, "code" => $token]);
+        $response = $this->putJson("api/account/information/update-email", ["email" => $email, "code" => $token]);
 
         $response->assertStatus(400)
             ->assertJsonStructure(["message"]);
@@ -145,7 +145,7 @@ class AccountInformationControllerTest extends TestCase
         DB::table('user_verifications')->insert(['user_id' => $user->id, 'token' => $token, 'created_at' => now()->subMinutes(15)]);
 
         $email = $this->faker->email;
-        $response = $this->postJson("api/account/information/update-email", ["email" => $email, "code" => $token]);
+        $response = $this->putJson("api/account/information/update-email", ["email" => $email, "code" => $token]);
 
         $response->assertStatus(422)
             ->assertJsonStructure(["errors"]);
@@ -159,7 +159,7 @@ class AccountInformationControllerTest extends TestCase
         $user = User::factory()->activated()->create();
         Passport::actingAs($user);
 
-        $this->postJson("api/account/information/update-username", ["username" => null])
+        $this->putJson("api/account/information/update-username", ["username" => null])
                 ->assertJsonValidationErrorFor("username");
     }
 
@@ -172,7 +172,7 @@ class AccountInformationControllerTest extends TestCase
         $user2 = User::factory()->activated()->create(["username" => $usernameAlreadyTaken]);
         Passport::actingAs($user);
 
-        $this->postJson("api/account/information/update-username", ["username" => $usernameAlreadyTaken])
+        $this->putJson("api/account/information/update-username", ["username" => $usernameAlreadyTaken])
                 ->assertJsonValidationErrorFor("username");
     }
 
@@ -182,7 +182,7 @@ class AccountInformationControllerTest extends TestCase
         $user = User::factory()->activated()->create();
         Passport::actingAs($user);
 
-        $this->postJson("api/account/information/update-username", ["username" => "invalid username"])
+        $this->putJson("api/account/information/update-username", ["username" => "invalid username"])
             ->assertJsonValidationErrorFor("username");
     }
 
@@ -227,7 +227,7 @@ class AccountInformationControllerTest extends TestCase
         $user = User::factory()->activated()->create();
         Passport::actingAs($user);
 
-        $this->postJson("api/account/information/update-email", ["email" => null])
+        $this->putJson("api/account/information/update-email", ["email" => null])
                 ->assertJsonValidationErrorFor("email");
     }
 
@@ -240,7 +240,7 @@ class AccountInformationControllerTest extends TestCase
         $user2 = User::factory()->activated()->create(["email" => $emailAlreadyTaken]);
         Passport::actingAs($user);
 
-        $this->postJson("api/account/information/update-email", ["email" => $emailAlreadyTaken])
+        $this->putJson("api/account/information/update-email", ["email" => $emailAlreadyTaken])
                 ->assertJsonValidationErrorFor("email");
     }
 
@@ -251,7 +251,7 @@ class AccountInformationControllerTest extends TestCase
         $user = User::factory()->activated()->create();
         Passport::actingAs($user);
 
-        $this->postJson("api/account/information/update-email", ["email" => "invalid-email-address"])
+        $this->putJson("api/account/information/update-email", ["email" => "invalid-email-address"])
                 ->assertJsonValidationErrorFor("email");
     }
 
@@ -261,7 +261,7 @@ class AccountInformationControllerTest extends TestCase
         $user = User::factory()->activated()->create();
         Passport::actingAs($user);
 
-        $this->postJson("api/account/information/update-email", ["email" => "test_email@example.com", "code" => null])
+        $this->putJson("api/account/information/update-email", ["email" => "test_email@example.com", "code" => null])
             ->assertJsonValidationErrorFor("code");
     }
 }
