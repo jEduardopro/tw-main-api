@@ -14,6 +14,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use App\Models\Concerns\HasUuid;
+use Laravel\Scout\Searchable;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Tests\TestCase;
 
@@ -80,6 +81,13 @@ class UserTest extends TestCase
     public function a_user_model_must_use_the_trait_has_uuid()
     {
         $this->assertClassUsesTrait(HasUuid::class, User::class);
+    }
+
+
+    /** @test */
+    public function a_user_model_must_use_the_trait_searchable()
+    {
+        $this->assertClassUsesTrait(Searchable::class, User::class);
     }
 
     /** @test */
