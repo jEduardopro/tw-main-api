@@ -15,7 +15,6 @@ class AccountPersonalizationControllerTest extends TestCase
     /** @test */
     public function a_logged_user_can_update_their_country()
     {
-        $this->withoutExceptionHandling();
 
         $user = User::factory()->activated()->create();
         Passport::actingAs($user);

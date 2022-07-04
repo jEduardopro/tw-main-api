@@ -40,7 +40,7 @@ class TweetControllerTest extends TestCase
             "body" => "My first tweet"
         ];
         $response = $this->postJson("api/tweets", $payload)
-                    ->assertStatus(401);
+            ->assertStatus(401);
 
         $this->assertEquals("Unauthenticated.", $response->json("message"));
         $this->assertDatabaseMissing("tweets", [
@@ -86,7 +86,6 @@ class TweetControllerTest extends TestCase
 
         $response->assertStatus(404);
         $this->assertEquals("the tweet does not exist or has already been deleted", $response->json("message"));
-
     }
 
     /** @test */
@@ -95,10 +94,10 @@ class TweetControllerTest extends TestCase
         $user = User::factory()->activated()->create();
         Passport::actingAs($user);
 
-        $collectionName = "twee_image";
+        $collectionName = "tweet_image";
         $media = $user->addMedia(storage_path('media-demo/test_image.jpeg'))
-                ->preservingOriginal()
-                ->toMediaCollection($collectionName);
+            ->preservingOriginal()
+            ->toMediaCollection($collectionName);
 
         $this->assertDatabaseHas("media", [
             "model_id" => $user->id,
@@ -127,7 +126,6 @@ class TweetControllerTest extends TestCase
             "collection_name" => "images",
             "file_name" => $media->file_name
         ]);
-
     }
 
     /** @test */
@@ -136,7 +134,7 @@ class TweetControllerTest extends TestCase
         $user = User::factory()->activated()->create();
         Passport::actingAs($user);
         $this->postJson("api/tweets", ["body" => null])
-                ->assertJsonValidationErrorFor("body");
+            ->assertJsonValidationErrorFor("body");
     }
 
     /** @test */
@@ -164,7 +162,7 @@ class TweetControllerTest extends TestCase
     {
         $user = User::factory()->activated()->create();
         Passport::actingAs($user);
-        $this->postJson("api/tweets", ["body" => "My first tweet", "media" => [1,2,3,4,5]])
+        $this->postJson("api/tweets", ["body" => "My first tweet", "media" => [1, 2, 3, 4, 5]])
             ->assertJsonValidationErrorFor("media");
     }
 }

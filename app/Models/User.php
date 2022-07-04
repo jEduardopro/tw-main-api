@@ -17,13 +17,14 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
 use Laravel\Passport\HasApiTokens;
 use Laravel\Passport\Token;
+use Laravel\Scout\Searchable;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class User extends Authenticatable implements HasMedia
 {
-    use HasApiTokens, HasFactory, Notifiable, Verificationable, LocationTrait, SoftDeletes, InteractsWithMedia, HasUuid;
+    use HasApiTokens, HasFactory, Notifiable, Verificationable, LocationTrait, SoftDeletes, InteractsWithMedia, HasUuid, Searchable;
 
     const SIGN_UP_DESC_EMAIL = "signup_with_email";
     const SIGN_UP_DESC_PHONE = "signup_with_phone";
@@ -36,6 +37,8 @@ class User extends Authenticatable implements HasMedia
      */
     protected $fillable = [
         'name',
+        'image_id',
+        'banner_id',
         'username',
         'email',
         'country_code',
@@ -43,7 +46,9 @@ class User extends Authenticatable implements HasMedia
         'phone_validated',
         'password',
         'country',
-        'date_birth'
+        'date_birth',
+        'gender',
+        'description'
     ];
 
     /**
@@ -256,5 +261,19 @@ class User extends Authenticatable implements HasMedia
     {
         Token::where('user_id', $userId)
             ->update(['revoked' => true]);
+    }
+
+    /**
+     * Get the indexable data array for the model.
+     *
+     * @return array
+     */
+    public function toSearchableArray()
+    {
+        return [
+            "name" => $this->name,
+            "username" => $this->username,
+            "email" => $this->email,
+        ];
     }
 }

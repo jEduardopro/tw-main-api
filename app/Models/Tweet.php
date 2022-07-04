@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Spatie\MediaLibrary\InteractsWithMedia;
+use Illuminate\Support\Str;
 
 class Tweet extends Model implements HasMedia
 {
@@ -27,6 +28,17 @@ class Tweet extends Model implements HasMedia
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /** Scopes */
+    public function scopeSearchByImageTerm($query, string $q)
+    {
+        $tweetIds = Media::select('model_id')->where('name', 'like', "%{$q}%")
+                        ->orWhere('name', 'like', "%". Str::slug($q) . "%")
+                        ->orWhere('name', 'like', "%". Str::slug($q, "_") . "%")
+                        ->where('model_type', Tweet::class);
+                        
+        $query->whereIn('id', $tweetIds);
     }
 
     public function attachMediaFiles()
@@ -71,4 +83,5 @@ class Tweet extends Model implements HasMedia
         $date = $this->created_at;
         return $date->format('H:i a') . " · " . $date->format('M j') . "," . $date->format("Y");
     }
+
 }

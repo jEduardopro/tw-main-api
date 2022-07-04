@@ -86,3 +86,6 @@ Route::get("profile/{username}", "Users\ProfileController@getProfileByUsername")
 
 Route::get("users/{id}/timeline", "Users\UserTimelineController@index");
 
+// Searcher
+Route::get("search", "Searcher\SearchController@index");
+
