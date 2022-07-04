@@ -7,6 +7,7 @@ use App\Models\Concerns\Verificationable;
 use App\Services\PhoneNumberValidator;
 use App\Traits\LocationTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -76,6 +77,27 @@ class User extends Authenticatable implements HasMedia
     public function tweets(): HasMany
     {
         return $this->hasMany(Tweet::class);
+    }
+
+    /**
+     * Get the profile image media that owns the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function profileImage(): BelongsTo
+    {
+        return $this->belongsTo(Media::class, 'image_id');
+    }
+
+
+    /**
+     * Get the profile banner media that owns the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function profileBanner(): BelongsTo
+    {
+        return $this->belongsTo(Media::class, 'banner_id');
     }
 
     /**

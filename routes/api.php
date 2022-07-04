@@ -7,6 +7,8 @@ use App\Http\Controllers\Friendships\FriendshipController;
 use App\Http\Controllers\Media\MediaController;
 use App\Http\Controllers\Tweets\TweetController;
 use App\Http\Controllers\Users\ProfileController;
+use App\Http\Controllers\Users\UserFollowersController;
+use App\Http\Controllers\Users\UserFollowingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function() {
@@ -38,7 +40,15 @@ Route::group(["middleware" => ["auth:api"]], function() {
         Route::delete("/{id}/remove", "destroy");
     });
 
-    // Users
+    // User Followers
+    Route::controller(UserFollowersController::class)->prefix("users")->group(function(){
+        Route::get("/{id}/followers", "index");
+    });
+
+    // User Followings
+    Route::controller(UserFollowingsController::class)->prefix("users")->group(function(){
+        Route::get("/{id}/followings", "index");
+    });
 
     // Profile
     Route::controller(ProfileController::class)->prefix("profile")->group(function () {

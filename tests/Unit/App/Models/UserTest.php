@@ -14,6 +14,7 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use App\Models\Concerns\HasUuid;
+use Spatie\MediaLibrary\MediaCollections\Models\Media;
 use Tests\TestCase;
 
 class UserTest extends TestCase
@@ -119,6 +120,41 @@ class UserTest extends TestCase
         Tweet::factory()->create(["user_id" => $user->id]);
 
         $this->assertInstanceOf(Tweet::class, $user->tweets->first());
+    }
+
+    /** @test */
+    public function a_user_profile_image_belongs_to_the_media()
+    {
+        $user = User::factory()->activated()->create();
+
+        $collectionName = "profile_image";
+        $media = $user->addMedia(storage_path('media-demo/avatar.jpeg'))
+                ->preservingOriginal()
+                ->toMediaCollection($collectionName);
+
+        $user->image_id = $media->id;
+        $user->save();
+
+        $this->assertInstanceOf(Media::class, $user->profileImage);
+        $this->assertEquals($media->id, $user->profileImage->id);
+    }
+
+
+    /** @test */
+    public function a_user_profile_banner_belongs_to_the_media()
+    {
+        $user = User::factory()->activated()->create();
+
+        $collectionName = "banner_image";
+        $media = $user->addMedia(storage_path('media-demo/bg_banner.jpeg'))
+            ->preservingOriginal()
+            ->toMediaCollection($collectionName);
+
+        $user->banner_id = $media->id;
+        $user->save();
+
+        $this->assertInstanceOf(Media::class, $user->profileBanner);
+        $this->assertEquals($media->id, $user->profileBanner->id);
     }
 
     /** @test */

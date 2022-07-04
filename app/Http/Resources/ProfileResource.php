@@ -19,6 +19,12 @@ class ProfileResource extends JsonResource
             "name" => $this->name,
             "username" => $this->username,
             "description" => $this->description,
+            $this->mergeWhen($this->relationLoaded('profileImage'), function() {
+                return ["image" => MediaResource::make($this->profileImage)];
+            }),
+            $this->mergeWhen($this->relationLoaded('profileBanner'), function() {
+                return ["banner" => MediaResource::make($this->profileBanner)];
+            }),
             $this->mergeWhen(!is_null( $this->following_count ), function() {
                 return ["following_count" => $this->following_count];
             }),
