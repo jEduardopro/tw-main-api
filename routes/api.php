@@ -1,14 +1,10 @@
 <?php
 
 use App\Http\Controllers\Account\AccountInformationController;
-use App\Http\Controllers\Account\AccountPasswordController;
-use App\Http\Controllers\Account\AccountPersonalizationController;
 use App\Http\Controllers\Friendships\FriendshipController;
 use App\Http\Controllers\Media\MediaController;
 use App\Http\Controllers\Tweets\TweetController;
 use App\Http\Controllers\Users\ProfileController;
-use App\Http\Controllers\Users\UserFollowersController;
-use App\Http\Controllers\Users\UserFollowingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function() {
@@ -40,14 +36,10 @@ Route::group(["middleware" => ["auth:api"]], function() {
         Route::delete("/{id}/remove", "destroy");
     });
 
-    // User Followers
-    Route::controller(UserFollowersController::class)->prefix("users")->group(function(){
-        Route::get("/{id}/followers", "index");
-    });
-
-    // User Followings
-    Route::controller(UserFollowingsController::class)->prefix("users")->group(function(){
-        Route::get("/{id}/followings", "index");
+    // User Followers and Followings
+    Route::prefix("users")->group(function(){
+        Route::get("/{id}/followers", "Users\UserFollowersController@index");
+        Route::get("/{id}/followings", "Users\UserFollowingsController@index");
     });
 
     // Profile
@@ -63,9 +55,13 @@ Route::group(["middleware" => ["auth:api"]], function() {
         Route::delete("/unfollow", "unfollow");
     });
 
-    // Account personalization
-    Route::controller(AccountPersonalizationController::class)->prefix("account/personalization")->group(function () {
-        Route::put("/", "update");
+    // Account
+    Route::prefix("account")->group(function () {
+        Route::put("/personalization", "Account\AccountPersonalizationController@update");
+        // Account Password
+        Route::put("/password", "Account\AccountPasswordController@update");
+        // Account Deactivation
+        Route::post("/deactivation", "Account\AccountDeactivationController@deactivate");
     });
 
     // Account information
@@ -76,10 +72,6 @@ Route::group(["middleware" => ["auth:api"]], function() {
         Route::put("/update-email", "updateEmail");
     });
 
-    // Account Password
-    Route::controller(AccountPasswordController::class)->prefix("account/password")->group(function () {
-        Route::put("/", "update");
-    });
 });
 
 Route::get("profile/{username}", "Users\ProfileController@getProfileByUsername");
@@ -88,4 +80,7 @@ Route::get("users/{id}/timeline", "Users\UserTimelineController@index");
 
 // Searcher
 Route::get("search", "Searcher\SearchController@index");
+
+// Account Reactivation
+Route::post("account/reactivation", "Account\AccountReactivationController@reactivate");
 

@@ -69,6 +69,8 @@ class User extends Authenticatable implements HasMedia
     protected $casts = [
         'email_verified_at' => 'datetime',
         'phone_verified_at' => 'datetime',
+        'deactivated_at' => 'datetime',
+        'reactivated_at' => 'datetime',
         'is_activated' => 'boolean'
     ];
 
@@ -275,5 +277,23 @@ class User extends Authenticatable implements HasMedia
             "username" => $this->username,
             "email" => $this->email,
         ];
+    }
+
+    /**
+     * Returns true if the account is deactivated
+     */
+    public function isDeactivated(): bool
+    {
+        return !$this->is_activated && $this->deactivated_at;
+    }
+
+    /**
+     *  Returns the deadline to reactivate the user account
+     */
+    public function accountReactivationDeadline(): string
+    {
+        $reactivationDeadline = $this->deactivated_at->addDays(30);
+
+        return $reactivationDeadline->format('Y-m-d');
     }
 }

@@ -60,6 +60,25 @@ class LoginControllerTest extends TestCase
         $this->assertEquals("Wrong password", $response->json("message"));
     }
 
+    /** @test */
+    public function a_guest_user_can_reactivate_their_account_by_logging_in_if_it_has_not_been_deactivated_for_more_than_1_month()
+    {
+        $deactivationDate = now()->subDays(10);
+        $user = User::factory()->create(["is_activated" => false, "deactivated_at" => $deactivationDate]);
+        $reactivationDeadline = $user->deactivated_at->addDays(30);
+
+        // Reactivate your account?
+        // You deactivated your account on Jul 4, 2022.
+        // On Aug 3, 2022, it will no longer be possible for you to restore your Twitter account if it was accidentally or wrongfully deactivated.
+        // By clicking "Yes, reactivate", you will halt the deactivation process and reactivate your account.
+
+        $response = $this->postJson('api/auth/login', ["user_identifier" => $user->email, "password" => "password"])
+                ->assertJsonStructure(["message", "reactivation_deadline"]);
+
+        $this->assertEquals("begin account activation process", $response->json("message"));
+        $this->assertEquals($reactivationDeadline->format('Y-m-d'), $response->json("reactivation_deadline"));
+    }
+
 
     /** @test */
     public function the_user_identifier_is_required()

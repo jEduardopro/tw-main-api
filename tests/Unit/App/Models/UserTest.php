@@ -30,7 +30,7 @@ class UserTest extends TestCase
                 'uuid', 'name', 'username', 'email', 'email_verified_at',
                 'country_code', 'phone', 'phone_verified_at', 'password',
                 'country', 'gender', 'date_birth', 'banner_id', 'image_id',
-                'description', 'is_activated', 'created_at', 'updated_at', 'deleted_at'
+                'description', 'is_activated', 'deactivated_at', 'reactivated_at', 'created_at', 'updated_at', 'deleted_at'
             ])
         );
     }

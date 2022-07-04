@@ -89,6 +89,21 @@ class UserFactory extends Factory
     }
 
     /**
+     * Indicate that the model's is_activated should be false.
+     *
+     * @return static
+     */
+    public function deactivated()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'is_activated' => false,
+                'deactivated_at' => now()
+            ];
+        });
+    }
+
+    /**
      * Indicate that the model is deleted.
      *
      * @return static
