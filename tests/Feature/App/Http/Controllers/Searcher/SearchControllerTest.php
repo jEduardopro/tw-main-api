@@ -21,8 +21,7 @@ class SearchControllerTest extends TestCase
         User::factory()->activated()->create(["name" => $testName]);
 
         $response = $this->json("GET", "api/search", [
-            "q" => "ex",
-            "f" => "user"
+            "q" => "ex"
         ]);
 
         $response->assertSuccessful()

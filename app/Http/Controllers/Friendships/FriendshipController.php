@@ -25,6 +25,11 @@ class FriendshipController extends Controller
             return $this->responseWithMessage("You can't follow yourself", 403);
         }
 
+        $followings = $user->following()->select('users.id')->get()->pluck('id');
+        if ($followings->contains($userToFollow->id)) {
+            return $this->responseWithMessage("you are already following this user", 400);
+        }
+
         $user->follow($userToFollow->id);
 
         Cache::forget("user_{$userToFollow->id}_followers_list");

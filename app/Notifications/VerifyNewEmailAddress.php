@@ -45,7 +45,7 @@ class VerifyNewEmailAddress extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject("{$this->token} is your twitter verification code")
+            ->subject("{$this->token} is your twitter clone verification code")
             ->markdown('mail.account.information.verify-new-email-address', [
                 "token" => $this->token
             ]);

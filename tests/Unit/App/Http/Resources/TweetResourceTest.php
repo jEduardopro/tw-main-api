@@ -2,7 +2,7 @@
 
 namespace Tests\Unit\App\Http\Resources;
 
-use App\Http\Resources\{MediaResource, UserResource,TweetResource};
+use App\Http\Resources\{MediaResource, ProfileResource,TweetResource};
 use App\Models\Tweet;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -45,7 +45,7 @@ class TweetResourceTest extends TestCase
 
         $this->assertArrayHasKey("owner", $tweetResource);
 
-        $this->assertInstanceOf(UserResource::class, $tweetResource["owner"]);
+        $this->assertInstanceOf(ProfileResource::class, $tweetResource["owner"]);
     }
 
     /** @test */

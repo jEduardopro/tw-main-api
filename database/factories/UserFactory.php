@@ -89,7 +89,7 @@ class UserFactory extends Factory
     }
 
     /**
-     * Indicate that the model's is_activated should be false.
+     * Indicate that the model's is_activated should be false and deactivated_at is not null.
      *
      * @return static
      */
@@ -99,6 +99,22 @@ class UserFactory extends Factory
             return [
                 'is_activated' => false,
                 'deactivated_at' => now()
+            ];
+        });
+    }
+
+    /**
+     * Indicate that the model's is_activated should be true and reactivated_at is not null.
+     *
+     * @return static
+     */
+    public function reactivated()
+    {
+        return $this->state(function (array $attributes) {
+            return [
+                'is_activated' => true,
+                'deactivated_at' => null,
+                'reactivated_at' => now(),
             ];
         });
     }

@@ -114,7 +114,7 @@ class User extends Authenticatable implements HasMedia
      */
     public function following(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'followers', 'follower_id', 'followed_id');
+        return $this->belongsToMany(User::class, 'followers', 'follower_id', 'followed_id')->withTimestamps();
     }
 
 
@@ -125,7 +125,7 @@ class User extends Authenticatable implements HasMedia
      */
     public function followers(): BelongsToMany
     {
-        return $this->belongsToMany(User::class, 'followers', 'followed_id', 'follower_id');
+        return $this->belongsToMany(User::class, 'followers', 'followed_id', 'follower_id')->withTimestamps();
     }
 
     /** Scopes */
@@ -277,6 +277,14 @@ class User extends Authenticatable implements HasMedia
             "username" => $this->username,
             "email" => $this->email,
         ];
+    }
+
+    /**
+     * Returns true if the account is activated
+     */
+    public function isActivated(): bool
+    {
+        return $this->is_activated && $this->reactivated_at && !$this->deactivated_at;
     }
 
     /**

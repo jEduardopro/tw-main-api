@@ -19,6 +19,15 @@ class AccountDeactivationControllerTest extends TestCase
 
         Passport::actingAs($user);
 
+        $user->createToken('ttoken')->accessToken;
+
+        $this->assertEquals(1, $user->tokens->count());
+        $this->assertDatabaseHas("oauth_access_tokens", [
+            "user_id" => $user->id,
+            "name" => "ttoken",
+            "revoked" => 0
+        ]);
+
         $response = $this->postJson("api/account/deactivation");
 
         $response->assertSuccessful()
@@ -31,6 +40,18 @@ class AccountDeactivationControllerTest extends TestCase
             "is_activated" => 0,
             "deactivated_at" => $response->json("deactivated_at")
         ]);
+
+        $this->assertDatabaseHas("oauth_access_tokens", [
+            "user_id" => $user->id,
+            "name" => "ttoken",
+            "revoked" => 1
+        ]);
+
+        $this->postJson("api/auth/login", [
+            "user_identifier" => $user->email,
+            "password" => "password"
+        ])->assertStatus(200)->assertJsonStructure(["message", "reactivation_deadline"]);
+
     }
 
     /** @test */

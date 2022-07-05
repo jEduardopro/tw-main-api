@@ -28,6 +28,22 @@ class AccountReactivationControllerTest extends TestCase
 
         $this->assertEquals("successfully account reactivation", $response->json("message"));
 
+        $this->assertArrayNotHasKey("email_verified_at", $response->json("user"));
+        $this->assertArrayNotHasKey("country_code", $response->json("user"));
+        $this->assertArrayNotHasKey("phone", $response->json("user"));
+        $this->assertArrayNotHasKey("phone_validated", $response->json("user"));
+        $this->assertArrayNotHasKey("phone_verified_at", $response->json("user"));
+        $this->assertArrayNotHasKey("banner_id", $response->json("user"));
+        $this->assertArrayNotHasKey("image_id", $response->json("user"));
+        $this->assertArrayNotHasKey("country", $response->json("user"));
+        $this->assertArrayNotHasKey("gender", $response->json("user"));
+        $this->assertArrayNotHasKey("description", $response->json("user"));
+        $this->assertArrayNotHasKey("date_birth", $response->json("user"));
+        $this->assertArrayNotHasKey("deactivated_at", $response->json("user"));
+        $this->assertArrayNotHasKey("reactivated_at", $response->json("user"));
+        $this->assertArrayNotHasKey("updated_at", $response->json("user"));
+        $this->assertArrayNotHasKey("deleted_at", $response->json("user"));
+
         $this->assertDatabaseHas("users", [
             "id" => $user->id,
             "is_activated" => 1,
@@ -63,5 +79,36 @@ class AccountReactivationControllerTest extends TestCase
         $response = $this->postJson("api/account/reactivation", $payload)->assertStatus(400);
 
         $this->assertEquals("the credentials are invalid", $response->json("message"));
+    }
+
+
+    /** @test */
+    public function the_reactivation_process_should_fail_if_the_user_account_is_already_activated()
+    {
+        $user = User::factory()->reactivated()->create();
+
+        $payload = [
+            "user_identifier" => $user->email,
+            "password" => "password"
+        ];
+
+        $response = $this->postJson("api/account/reactivation", $payload)->assertStatus(400);
+
+        $this->assertEquals("this account is already activated", $response->json("message"));
+    }
+
+    /** @test */
+    public function the_user_identifier_is_required()
+    {
+        $this->postJson("api/account/reactivation", ["user_identifier" => null])
+                    ->assertJsonValidationErrorFor("user_identifier");
+    }
+
+
+    /** @test */
+    public function the_password_is_required()
+    {
+        $this->postJson("api/account/reactivation", ["user_identifier" => "test-identifier", "password" => null])
+                    ->assertJsonValidationErrorFor("password");
     }
 }

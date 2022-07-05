@@ -18,7 +18,7 @@ class UserFollowersController extends Controller
         }
 
         $followers = Cache::remember("user_{$user->id}_followers_list", 900, function () use ($user) {
-            return $user->followers()->paginate();
+            return $user->followers()->orderBy('followers.created_at', 'desc')->with(['profileImage'])->paginate();
         });
 
 

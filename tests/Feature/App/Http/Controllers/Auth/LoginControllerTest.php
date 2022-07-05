@@ -35,6 +35,22 @@ class LoginControllerTest extends TestCase
                     ->assertJsonStructure(["token", "user", "message"]);
 
         $this->assertEquals("successful login", $response->json("message"));
+
+        $this->assertArrayNotHasKey("email_verified_at", $response->json("user"));
+        $this->assertArrayNotHasKey("country_code", $response->json("user"));
+        $this->assertArrayNotHasKey("phone", $response->json("user"));
+        $this->assertArrayNotHasKey("phone_validated", $response->json("user"));
+        $this->assertArrayNotHasKey("phone_verified_at", $response->json("user"));
+        $this->assertArrayNotHasKey("banner_id", $response->json("user"));
+        $this->assertArrayNotHasKey("image_id", $response->json("user"));
+        $this->assertArrayNotHasKey("country", $response->json("user"));
+        $this->assertArrayNotHasKey("gender", $response->json("user"));
+        $this->assertArrayNotHasKey("description", $response->json("user"));
+        $this->assertArrayNotHasKey("date_birth", $response->json("user"));
+        $this->assertArrayNotHasKey("deactivated_at", $response->json("user"));
+        $this->assertArrayNotHasKey("reactivated_at", $response->json("user"));
+        $this->assertArrayNotHasKey("updated_at", $response->json("user"));
+        $this->assertArrayNotHasKey("deleted_at", $response->json("user"));
     }
 
     /** @test */

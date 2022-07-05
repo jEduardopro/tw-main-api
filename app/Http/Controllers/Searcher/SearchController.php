@@ -25,6 +25,9 @@ class SearchController extends Controller
                 $tweets = Tweet::searchByImageTerm($q)->with(['media', 'user'])->paginate();
                 $results = TweetResource::collection($tweets);
                 break;
+            default:
+                $users = User::search($q)->paginate();
+                $results = ProfileResource::collection($users);
 
         }
 

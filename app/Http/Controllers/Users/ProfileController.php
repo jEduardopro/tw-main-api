@@ -12,7 +12,9 @@ class ProfileController extends Controller
 {
     public function getProfileByUsername($username)
     {
-        $user = User::where('username', $username)->first();
+        $user = User::where('username', $username)
+                ->with(["profileImage", "profileBanner"])
+                ->withCount(["following", "followers"])->first();
 
         if (!$user) {
             return $this->responseWithMessage("This account doesn't exist", 400);

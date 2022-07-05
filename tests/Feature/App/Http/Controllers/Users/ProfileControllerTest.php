@@ -20,7 +20,13 @@ class ProfileControllerTest extends TestCase
 
         $response = $this->getJson("api/profile/{$user->username}");
 
-        $response->assertSuccessful();
+        $response->assertSuccessful()
+                    ->assertJsonStructure([
+                        "image",
+                        "banner",
+                        "following_count",
+                        "followers_count",
+                    ]);
 
         $this->assertEquals($user->uuid, $response->json("id"));
         $this->assertEquals($user->username, $response->json("username"));
@@ -36,7 +42,13 @@ class ProfileControllerTest extends TestCase
 
         $response = $this->getJson("api/profile/{$user2->username}");
 
-        $response->assertSuccessful();
+        $response->assertSuccessful()
+                    ->assertJsonStructure([
+                        "image",
+                        "banner",
+                        "following_count",
+                        "followers_count",
+                    ]);
 
         $this->assertEquals($user2->uuid, $response->json("id"));
         $this->assertEquals($user2->username, $response->json("username"));
@@ -49,7 +61,13 @@ class ProfileControllerTest extends TestCase
 
         $response = $this->getJson("api/profile/{$user->username}");
 
-        $response->assertSuccessful();
+        $response->assertSuccessful()
+            ->assertJsonStructure([
+                "image",
+                "banner",
+                "following_count",
+                "followers_count",
+            ]);
 
         $this->assertEquals($user->uuid, $response->json("id"));
         $this->assertEquals($user->username, $response->json("username"));
@@ -64,7 +82,13 @@ class ProfileControllerTest extends TestCase
 
         $response = $this->getJson("api/profile/{$user2->username}");
 
-        $response->assertSuccessful();
+        $response->assertSuccessful()
+            ->assertJsonStructure([
+                "image",
+                "banner",
+                "following_count",
+                "followers_count",
+            ]);
 
         $this->assertEquals($user2->uuid, $response->json("id"));
         $this->assertEquals($user2->username, $response->json("username"));

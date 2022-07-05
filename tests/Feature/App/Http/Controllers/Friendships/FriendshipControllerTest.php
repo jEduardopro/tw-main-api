@@ -71,6 +71,22 @@ class FriendshipControllerTest extends TestCase
     }
 
     /** @test */
+    public function a_user_can_only_follow_another_user_once()
+    {
+        $user = User::factory()->activated()->create();
+        Passport::actingAs($user);
+        $user2 = User::factory()->activated()->create();
+
+        $user->follow($user2->id);
+
+        $response = $this->postJson("api/friendships/follow", ["user_id" => $user2->uuid])
+            ->assertStatus(400)
+            ->assertJsonStructure(["message"]);
+
+        $this->assertEquals("you are already following this user", $response->json("message"));
+    }
+
+    /** @test */
     public function clear_cache_of_followers_and_following_list_for_followed_and_follower_respectively()
     {
         $user = User::factory()->activated()->create();

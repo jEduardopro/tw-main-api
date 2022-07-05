@@ -16,7 +16,7 @@ class UserTimelineController extends Controller
             return $this->responseWithMessage("the timeline of tweets is not available for this account", 400);
         }
 
-        $timeline = $user->tweets()->latest()->paginate();
+        $timeline = $user->tweets()->with(["user.profileImage", "media"])->latest()->paginate();
 
         return $this->responseWithResource(TweetResource::collection($timeline));
     }

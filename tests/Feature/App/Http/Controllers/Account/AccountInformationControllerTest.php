@@ -57,7 +57,7 @@ class AccountInformationControllerTest extends TestCase
             $mailInfo = $notification->toMail($user);
 
             $this->assertInstanceOf(MailMessage::class, $mailInfo);
-            $this->assertTrue( str_contains((string) $mailInfo->subject, "is your twitter verification code") );
+            $this->assertTrue( str_contains((string) $mailInfo->subject, "is your twitter clone verification code") );
             $this->assertEquals("mail.account.information.verify-new-email-address", $mailInfo->markdown);
             $this->assertArrayHasKey("token", $mailInfo->viewData);
             $this->assertTrue(!is_null($notification->email));

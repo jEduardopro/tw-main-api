@@ -20,7 +20,7 @@ class CustomPathGenerator implements BasePathGenerator
      */
     public function getPathForConversions(Media $media): string
     {
-        return $this->getPatchPrefix($media) . '/conversions/';
+        return $this->getPatchPrefix($media) . '/sizes/';
     }
 
     /*
@@ -33,6 +33,6 @@ class CustomPathGenerator implements BasePathGenerator
 
     public function getPatchPrefix($media)
     {
-        return explode('\\', $media->model_type)[2] . '/' . $media->id;
+        return strtolower(explode('\\', $media->model_type)[2]) . '/' . $media->uuid;
     }
 }

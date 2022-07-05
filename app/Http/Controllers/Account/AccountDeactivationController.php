@@ -19,6 +19,8 @@ class AccountDeactivationController extends Controller
         $user->deactivated_at = now();
         $user->save();
 
+        $user->revokeTokensFor($user->id);
+
         return $this->responseWithData([
             "message" => "account deactivated",
             "deactivated_at" => $user->deactivated_at->format('Y-m-d H:i:s')

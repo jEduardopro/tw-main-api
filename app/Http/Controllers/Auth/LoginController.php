@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Auth\Concerns\UserAccount;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginFormRequest;
+use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
@@ -38,7 +39,7 @@ class LoginController extends Controller
 
         return $this->responseWithData([
             "token" => $token,
-            "user" => $user,
+            "user" => UserResource::make($user),
             "message" => "successful login"
         ]);
     }

@@ -18,7 +18,7 @@ class TweetResource extends JsonResource
             "id" => $this->uuid,
             $this->mergeWhen($this->relationLoaded("user"), function () {
                 return [
-                    "owner" => UserResource::make($this->user)
+                    "owner" => ProfileResource::make($this->user)
                 ];
             }),
             "body" => $this->body,

@@ -19,14 +19,19 @@ class UserTimelineControllerTest extends TestCase
         $user = User::factory()->activated()->create();
         Passport::actingAs($user);
 
-        $tweet1 = Tweet::factory()->create(["user_id" => $user->id, "created_at" => now()->subMinutes(5)]);
+        Tweet::factory()->create(["user_id" => $user->id, "created_at" => now()->subMinutes(5)]);
         $tweet2 = Tweet::factory()->create(["user_id" => $user->id]);
 
         $response = $this->getJson("api/users/{$user->uuid}/timeline");
 
         $response->assertSuccessful()
                 ->assertJsonStructure(["meta", "links"]);
+
+
         $this->assertEquals($tweet2->body, $response->json("data.0.body"));
+        $this->assertArrayHasKey("images", $response->json("data.0"));
+        $this->assertArrayHasKey("owner", $response->json("data.0"));
+        $this->assertArrayHasKey("image", $response->json("data.0.owner"));
     }
 
     /** @test */
@@ -34,14 +39,18 @@ class UserTimelineControllerTest extends TestCase
     {
         $user = User::factory()->activated()->create();
 
-        $tweet1 = Tweet::factory()->create(["user_id" => $user->id, "created_at" => now()->subMinutes(5)]);
+        Tweet::factory()->create(["user_id" => $user->id, "created_at" => now()->subMinutes(5)]);
         $tweet2 = Tweet::factory()->create(["user_id" => $user->id]);
 
         $response = $this->getJson("api/users/{$user->uuid}/timeline");
 
         $response->assertSuccessful()
                 ->assertJsonStructure(["meta", "links"]);
+                
         $this->assertEquals($tweet2->body, $response->json("data.0.body"));
+        $this->assertArrayHasKey("images", $response->json("data.0"));
+        $this->assertArrayHasKey("owner", $response->json("data.0"));
+        $this->assertArrayHasKey("image", $response->json("data.0.owner"));
     }
 
     /** @test */

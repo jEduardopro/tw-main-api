@@ -4,20 +4,25 @@ namespace App\Http\Controllers\Account;
 
 use App\Http\Controllers\Auth\Concerns\UserAccount;
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
+use App\Http\Requests\AccountReactivationFormRequest;
+use App\Http\Resources\UserResource;
 use Illuminate\Support\Facades\Hash;
 
 class AccountReactivationController extends Controller
 {
     use UserAccount;
 
-    public function reactivate(Request $request)
+    public function reactivate(AccountReactivationFormRequest $request)
     {
         $userIdentifier = $request->user_identifier;
         $password = $request->password;
 
         if (!$user = $this->existsUserAccountByIdentifier($userIdentifier)) {
             return $this->responseWithMessage("reactivation fail, we could not find your account", 400);
+        }
+
+        if ($user->isActivated()) {
+            return $this->responseWithMessage("this account is already activated", 400);
         }
 
         $checkPassword = Hash::check($password, $user->password);
@@ -36,7 +41,7 @@ class AccountReactivationController extends Controller
 
         return $this->responseWithData([
             "token" => $token,
-            "user" => $user,
+            "user" => UserResource::make($user),
             "reactivated_at" => $user->reactivated_at->format('Y-m-d H:i:s'),
             "message" => "successfully account reactivation"
         ]);
