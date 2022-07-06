@@ -17,7 +17,7 @@ class MediaControllerTest extends TestCase
 	use RefreshDatabase;
 
 	/** @test */
-	public function a_logged_user_can_upload_images_to_create_a_new_tweet()
+	public function an_authenticated_user_can_upload_images_to_create_a_new_tweet()
 	{
 		$user = User::factory()->activated()->create();
 		Passport::actingAs($user);
@@ -45,7 +45,7 @@ class MediaControllerTest extends TestCase
 	}
 
 	/** @test */
-	public function a_logged_user_can_remove_media_file()
+	public function an_authenticated_user_can_remove_media_file()
 	{
 		$user = User::factory()->activated()->create();
 		Passport::actingAs($user);

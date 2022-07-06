@@ -3,6 +3,7 @@
 namespace Tests\Unit\App\Http\Resources;
 
 use App\Http\Resources\{MediaResource, ProfileResource,TweetResource};
+use App\Models\Like;
 use App\Models\Reply;
 use App\Models\Tweet;
 use App\Models\User;
@@ -112,5 +113,30 @@ class TweetResourceTest extends TestCase
         $tweetResource = TweetResource::make($tweet)->resolve();
 
         $this->assertArrayHasKey("replies_count", $tweetResource);
+    }
+
+
+    /** @test */
+    public function a_tweet_resources_must_have_the_key_of_likes_count_when_its_likes_count_relation_is_loaded()
+    {
+        $user = User::factory()->activated()->create();
+        $user2 = User::factory()->activated()->create();
+        $tweet = Tweet::factory()->create(["user_id" => $user2->id]);
+
+        Like::factory()->create([
+            "user_id" => $user->id,
+            "likeable_id" => $tweet->id,
+            "likeable_type" => Tweet::class
+        ]);
+
+        $tweetResource = TweetResource::make($tweet)->resolve();
+
+        $this->assertArrayNotHasKey("likes_count", $tweetResource);
+
+        $tweet->loadCount('likes');
+
+        $tweetResource = TweetResource::make($tweet)->resolve();
+
+        $this->assertArrayHasKey("likes_count", $tweetResource);
     }
 }

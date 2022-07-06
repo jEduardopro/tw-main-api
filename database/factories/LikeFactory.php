@@ -7,9 +7,9 @@ use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Retweet>
+ * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Like>
  */
-class RetweetFactory extends Factory
+class LikeFactory extends Factory
 {
     /**
      * Define the model's default state.
@@ -19,8 +19,9 @@ class RetweetFactory extends Factory
     public function definition()
     {
         return [
-            "user_id" => User::factory()->activated()->create()->id,
-            "tweet_id" => Tweet::factory()->create()->id,
+            'user_id' => User::factory()->activated()->create()->id,
+            'likeable_type' => Tweet::class,
+            'likeable_id' => Tweet::factory()->create()->id
         ];
     }
 }

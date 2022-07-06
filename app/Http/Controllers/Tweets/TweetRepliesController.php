@@ -20,7 +20,7 @@ class TweetRepliesController extends Controller
         $replies = $tweet->replies()->get()->pluck('reply_tweet_id');
         $tweets  = Tweet::whereIn('id', $replies)
                     ->with(["user.profileImage", "media"])
-                    ->withCount(["retweets", "replies"])
+                    ->withCount(["retweets", "replies", "likes"])
                     ->latest()->paginate();
 
         return $this->responseWithResource(TweetResource::collection($tweets));

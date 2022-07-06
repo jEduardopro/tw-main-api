@@ -33,6 +33,7 @@ class TweetRepliesControllerTest extends TestCase
         $this->assertArrayHasKey("images", $mostRecentTweetReply);
         $this->assertArrayHasKey("retweets_count", $mostRecentTweetReply);
         $this->assertArrayHasKey("replies_count", $mostRecentTweetReply);
+        $this->assertArrayHasKey("likes_count", $mostRecentTweetReply);
     }
 
     /** @test */

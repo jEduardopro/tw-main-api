@@ -178,7 +178,7 @@ class User extends Authenticatable implements HasMedia
      */
     public function retweet($tweetId): void
     {
-        $this->retweets()->create(["tweet_id" => $tweetId]);
+        $this->retweets()->firstOrCreate(["tweet_id" => $tweetId]);
     }
 
 

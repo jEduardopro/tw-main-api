@@ -10,179 +10,177 @@ use Tests\TestCase;
 
 class AccountPasswordControllerTest extends TestCase
 {
-    use RefreshDatabase;
+	use RefreshDatabase;
 
-    /** @test */
-    public function a_logged_user_can_update_their_password()
-    {
-        $user = User::factory()->activated()->create();
-        Passport::actingAs($user);
+	/** @test */
+	public function an_authenticated_user_can_update_their_password()
+	{
+		$user = User::factory()->activated()->create();
+		Passport::actingAs($user);
 
-        $user->createToken('ttoken')->accessToken;
+		$user->createToken('ttoken')->accessToken;
 
-        $this->assertEquals(1, $user->tokens->count());
-        $this->assertDatabaseHas("oauth_access_tokens", [
-            "user_id" => $user->id,
-            "name" => "ttoken",
-            "revoked" => 0
-        ]);
+		$this->assertEquals(1, $user->tokens->count());
+		$this->assertDatabaseHas("oauth_access_tokens", [
+			"user_id" => $user->id,
+			"name" => "ttoken",
+			"revoked" => 0
+		]);
 
-        $newPassword = "NewSecret1";
-        $payload = [
-            "current_password" => "password",
-            "new_password" => $newPassword,
-            "new_password_confirmation" => $newPassword
-        ];
-        $response = $this->putJson("api/account/password", $payload);
+		$newPassword = "NewSecret1";
+		$payload = [
+			"current_password" => "password",
+			"new_password" => $newPassword,
+			"new_password_confirmation" => $newPassword
+		];
+		$response = $this->putJson("api/account/password", $payload);
 
-        $response->assertSuccessful();
+		$response->assertSuccessful();
 
-        $this->assertEquals("password updated", $response->json("message"));
+		$this->assertEquals("password updated", $response->json("message"));
 
-        $loginResponse = $this->postJson("api/auth/login", [
-            "user_identifier" => $user->email,
-            "password" => "password"
-        ])->assertStatus(400);
+		$loginResponse = $this->postJson("api/auth/login", [
+			"user_identifier" => $user->email,
+			"password" => "password"
+		])->assertStatus(400);
 
-        $this->assertEquals("Wrong password", $loginResponse->json("message"));
+		$this->assertEquals("Wrong password", $loginResponse->json("message"));
 
-        $this->assertDatabaseHas("oauth_access_tokens", [
-            "user_id" => $user->id,
-            "name" => "ttoken",
-            "revoked" => 1
-        ]);
+		$this->assertDatabaseHas("oauth_access_tokens", [
+			"user_id" => $user->id,
+			"name" => "ttoken",
+			"revoked" => 1
+		]);
 
-        $loginResponse = $this->postJson("api/auth/login", [
-            "user_identifier" => $user->email,
-            "password" => $newPassword
-        ])->assertStatus(200);
+		$loginResponse = $this->postJson("api/auth/login", [
+			"user_identifier" => $user->email,
+			"password" => $newPassword
+		])->assertStatus(200);
 
-        $this->assertEquals("successful login", $loginResponse->json("message"));
-    }
+		$this->assertEquals("successful login", $loginResponse->json("message"));
+	}
 
-    /** @test */
-    public function the_update_password_process_must_fail_if_the_current_password_is_wrong()
-    {
-        $user = User::factory()->activated()->create();
-        Passport::actingAs($user);
+	/** @test */
+	public function the_update_password_process_must_fail_if_the_current_password_is_wrong()
+	{
+		$user = User::factory()->activated()->create();
+		Passport::actingAs($user);
 
-        $newPassword = "NewSecret1";
-        $payload = [
-            "current_password" => "wrong-current-password",
-            "new_password" => $newPassword,
-            "new_password_confirmation" => $newPassword
-        ];
-        $this->putJson("api/account/password", $payload)
-            ->assertStatus(422)
-            ->assertJsonValidationErrorFor("current_password");
+		$newPassword = "NewSecret1";
+		$payload = [
+			"current_password" => "wrong-current-password",
+			"new_password" => $newPassword,
+			"new_password_confirmation" => $newPassword
+		];
+		$this->putJson("api/account/password", $payload)
+			->assertStatus(422)
+			->assertJsonValidationErrorFor("current_password");
+	}
 
-    }
+	/** @test */
+	public function the_current_password_is_required()
+	{
+		$user = User::factory()->activated()->create();
+		Passport::actingAs($user);
 
-    /** @test */
-    public function the_current_password_is_required()
-    {
-        $user = User::factory()->activated()->create();
-        Passport::actingAs($user);
+		$newPassword = "NewSecret1";
+		$payload = [
+			"current_password" => null,
+			"new_password" => $newPassword,
+			"new_password_confirmation" => $newPassword
+		];
 
-        $newPassword = "NewSecret1";
-        $payload = [
-            "current_password" => null,
-            "new_password" => $newPassword,
-            "new_password_confirmation" => $newPassword
-        ];
+		$response = $this->putJson("api/account/password", $payload)
+			->assertJsonValidationErrorFor("current_password");
 
-        $response = $this->putJson("api/account/password", $payload)
-                ->assertJsonValidationErrorFor("current_password");
-
-        $this->assertEquals("The current password field is required.", $response->json("errors.current_password.0"));
-    }
-
-
-    /** @test */
-    public function the_new_password_is_required()
-    {
-        $user = User::factory()->activated()->create();
-        Passport::actingAs($user);
-
-        $newPassword = "NewSecret1";
-        $payload = [
-            "current_password" => "password",
-            "new_password" => null,
-            "new_password_confirmation" => $newPassword
-        ];
-
-        $this->putJson("api/account/password", $payload)
-                ->assertJsonValidationErrorFor("new_password");
-
-    }
-
-    /** @test */
-    public function the_new_password_must_be_have_at_least_8_characters()
-    {
-        $user = User::factory()->activated()->create();
-        Passport::actingAs($user);
-
-        $newPassword = "NewSecret1";
-        $payload = [
-            "current_password" => "password",
-            "new_password" => "secret",
-            "new_password_confirmation" => $newPassword
-        ];
-
-        $this->putJson("api/account/password", $payload)
-            ->assertJsonValidationErrorFor("new_password");
-    }
+		$this->assertEquals("The current password field is required.", $response->json("errors.current_password.0"));
+	}
 
 
-    /** @test */
-    public function the_new_password_must_be_have_at_least_one_uppercase_and_one_lowercase_letter()
-    {
-        $user = User::factory()->activated()->create();
-        Passport::actingAs($user);
+	/** @test */
+	public function the_new_password_is_required()
+	{
+		$user = User::factory()->activated()->create();
+		Passport::actingAs($user);
 
-        $newPassword = "NewSecret1";
-        $payload = [
-            "current_password" => "password",
-            "new_password" => "mynewsecret",
-            "new_password_confirmation" => $newPassword
-        ];
+		$newPassword = "NewSecret1";
+		$payload = [
+			"current_password" => "password",
+			"new_password" => null,
+			"new_password_confirmation" => $newPassword
+		];
 
-        $this->putJson("api/account/password", $payload)
-            ->assertJsonValidationErrorFor("new_password");
-    }
+		$this->putJson("api/account/password", $payload)
+			->assertJsonValidationErrorFor("new_password");
+	}
 
-    /** @test */
-    public function the_new_password_must_be_have_at_least_one_number()
-    {
-        $user = User::factory()->activated()->create();
-        Passport::actingAs($user);
+	/** @test */
+	public function the_new_password_must_be_have_at_least_8_characters()
+	{
+		$user = User::factory()->activated()->create();
+		Passport::actingAs($user);
 
-        $newPassword = "NewSecret1";
-        $payload = [
-            "current_password" => "password",
-            "new_password" => "MyNewSecret",
-            "new_password_confirmation" => $newPassword
-        ];
+		$newPassword = "NewSecret1";
+		$payload = [
+			"current_password" => "password",
+			"new_password" => "secret",
+			"new_password_confirmation" => $newPassword
+		];
 
-        $this->putJson("api/account/password", $payload)
-            ->assertJsonValidationErrorFor("new_password");
-    }
+		$this->putJson("api/account/password", $payload)
+			->assertJsonValidationErrorFor("new_password");
+	}
 
 
-    /** @test */
-    public function the_new_password_must_be_confirmed()
-    {
-        $user = User::factory()->activated()->create();
-        Passport::actingAs($user);
+	/** @test */
+	public function the_new_password_must_be_have_at_least_one_uppercase_and_one_lowercase_letter()
+	{
+		$user = User::factory()->activated()->create();
+		Passport::actingAs($user);
 
-        $newPassword = "NewSecret1";
-        $payload = [
-            "current_password" => "password",
-            "new_password" => $newPassword,
-            "new_password_confirmation" => null
-        ];
+		$newPassword = "NewSecret1";
+		$payload = [
+			"current_password" => "password",
+			"new_password" => "mynewsecret",
+			"new_password_confirmation" => $newPassword
+		];
 
-        $this->putJson("api/account/password", $payload)
-            ->assertJsonValidationErrorFor("new_password");
-    }
+		$this->putJson("api/account/password", $payload)
+			->assertJsonValidationErrorFor("new_password");
+	}
+
+	/** @test */
+	public function the_new_password_must_be_have_at_least_one_number()
+	{
+		$user = User::factory()->activated()->create();
+		Passport::actingAs($user);
+
+		$newPassword = "NewSecret1";
+		$payload = [
+			"current_password" => "password",
+			"new_password" => "MyNewSecret",
+			"new_password_confirmation" => $newPassword
+		];
+
+		$this->putJson("api/account/password", $payload)
+			->assertJsonValidationErrorFor("new_password");
+	}
+
+
+	/** @test */
+	public function the_new_password_must_be_confirmed()
+	{
+		$user = User::factory()->activated()->create();
+		Passport::actingAs($user);
+
+		$newPassword = "NewSecret1";
+		$payload = [
+			"current_password" => "password",
+			"new_password" => $newPassword,
+			"new_password_confirmation" => null
+		];
+
+		$this->putJson("api/account/password", $payload)
+			->assertJsonValidationErrorFor("new_password");
+	}
 }

@@ -33,6 +33,9 @@ class TweetResource extends JsonResource
             $this->mergeWhen(!is_null($this->replies_count), function () {
                 return ["replies_count" => $this->replies_count];
             }),
+            $this->mergeWhen(!is_null($this->likes_count), function () {
+                return ["likes_count" => $this->likes_count];
+            }),
             "creation_date_readable" => $this->getReadableCreationDate(),
             "created_at" => $this->created_at,
         ];

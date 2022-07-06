@@ -29,7 +29,7 @@ class TweetController extends Controller
     {
         $tweet = Tweet::where('uuid', $tweetUuid)
                 ->with(["user.profileImage", "media"])
-                ->withCount(["retweets"])
+                ->withCount(["retweets", "likes"])
                 ->first();
 
         if (!$tweet) {

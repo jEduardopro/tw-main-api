@@ -6,6 +6,7 @@ use App\Http\Controllers\Media\MediaController;
 use App\Http\Controllers\Replies\RepliesController;
 use App\Http\Controllers\Retweet\RetweetController;
 use App\Http\Controllers\Tweets\TweetController;
+use App\Http\Controllers\Tweets\TweetLikesController;
 use App\Http\Controllers\Users\ProfileController;
 use Illuminate\Support\Facades\Route;
 
@@ -26,6 +27,9 @@ Route::prefix('auth')->group(function() {
 
 
 Route::group(["middleware" => ["auth:api"]], function() {
+    // Home Timeline
+    Route::get("home/timeline", "Home\HomeTimelineController@index");
+
     // Tweets
     Route::controller(TweetController::class)->prefix("tweets")->group(function(){
         Route::post("/", "store");
@@ -42,6 +46,12 @@ Route::group(["middleware" => ["auth:api"]], function() {
     Route::controller(RetweetController::class)->prefix("retweets")->group(function(){
         Route::post("/", "store");
         Route::delete("/{id}", "destroy");
+    });
+
+    // Tweet Likes
+    Route::controller(TweetLikesController::class)->prefix("tweets")->group(function () {
+        Route::post("/{id}/likes","store");
+        Route::delete("/{id}/likes", "destroy");
     });
 
     // Media

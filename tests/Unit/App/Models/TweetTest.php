@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Concerns\HasUuid;
+use App\Models\Concerns\Likeable;
 use App\Models\User;
 use Tests\TestCase;
 
@@ -48,6 +49,13 @@ class TweetTest extends TestCase
     public function a_tweet_model_must_use_the_trait_has_uuid()
     {
         $this->assertClassUsesTrait(HasUuid::class, Tweet::class);
+    }
+
+
+    /** @test */
+    public function a_tweet_model_must_use_the_trait_likeable()
+    {
+        $this->assertClassUsesTrait(Likeable::class, Tweet::class);
     }
 
 

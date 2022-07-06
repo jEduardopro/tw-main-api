@@ -22,7 +22,11 @@ class SearchController extends Controller
                 $results = ProfileResource::collection($users);
                 break;
             case 'image':
-                $tweets = Tweet::searchByImageTerm($q)->with(['media', 'user'])->paginate();
+                $tweets = Tweet::searchByImageTerm($q)
+                        ->with(['media', 'user.profileImage'])
+                        ->withCount(["retweets", "replies", "likes"])
+                        ->latest()
+                        ->paginate();
                 $results = TweetResource::collection($tweets);
                 break;
             default:
