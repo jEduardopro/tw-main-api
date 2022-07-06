@@ -3,6 +3,7 @@
 namespace Tests\Unit\App\Http\Resources;
 
 use App\Http\Resources\{MediaResource, ProfileResource,TweetResource};
+use App\Models\Reply;
 use App\Models\Tweet;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -89,5 +90,27 @@ class TweetResourceTest extends TestCase
         $tweetResource = TweetResource::make($tweet)->resolve();
 
         $this->assertArrayHasKey("retweets_count", $tweetResource);
+    }
+
+
+    /** @test */
+    public function a_tweet_resources_must_have_the_key_of_replies_count_when_its_replies_count_relation_is_loaded()
+    {
+        $user = User::factory()->activated()->create();
+        $user2 = User::factory()->activated()->create();
+        $tweet = Tweet::factory()->create(["user_id" => $user2->id]);
+        $tweet2 = Tweet::factory()->create(["user_id" => $user->id]);
+
+        Reply::factory()->create(["tweet_id" => $tweet->id, "reply_tweet_id" => $tweet2->id]);
+
+        $tweetResource = TweetResource::make($tweet)->resolve();
+
+        $this->assertArrayNotHasKey("replies_count", $tweetResource);
+
+        $tweet->loadCount('replies');
+
+        $tweetResource = TweetResource::make($tweet)->resolve();
+
+        $this->assertArrayHasKey("replies_count", $tweetResource);
     }
 }

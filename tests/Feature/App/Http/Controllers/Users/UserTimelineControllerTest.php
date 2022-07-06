@@ -25,7 +25,7 @@ class UserTimelineControllerTest extends TestCase
         $response = $this->getJson("api/users/{$user->uuid}/timeline");
 
         $response->assertSuccessful()
-                ->assertJsonStructure(["meta", "links"]);
+                ->assertJsonStructure(["data", "meta", "links"]);
 
 
         $this->assertEquals($tweet2->body, $response->json("data.0.body"));
@@ -46,7 +46,7 @@ class UserTimelineControllerTest extends TestCase
         $response = $this->getJson("api/users/{$user->uuid}/timeline");
 
         $response->assertSuccessful()
-                ->assertJsonStructure(["meta", "links"]);
+                ->assertJsonStructure(["data", "meta", "links"]);
 
         $this->assertEquals($tweet2->body, $response->json("data.0.body"));
         $this->assertArrayHasKey("images", $response->json("data.0"));
@@ -58,7 +58,6 @@ class UserTimelineControllerTest extends TestCase
     /** @test */
     public function a_user_can_see_their_tweets_and_retweets_on_their_timeline_sorted_by_creation_date()
     {
-        $this->withoutExceptionHandling();
         $user = User::factory()->activated()->create();
         $user2 = User::factory()->activated()->create();
 
@@ -74,9 +73,10 @@ class UserTimelineControllerTest extends TestCase
 
 
         $response->assertSuccessful()
-            ->assertJsonStructure(["meta", "links"]);
+            ->assertJsonStructure(["data", "meta", "links"]);
 
         $this->assertArrayHasKey("retweets_count", $response->json("data.0"));
+        $this->assertArrayHasKey("replies_count", $response->json("data.0"));
         $this->assertEquals($lastTweet->body, $response->json("data.0.body"));
         $this->assertEquals($tweetToRetweet->uuid, $response->json("data.1.id"));
         $this->assertEquals(1, $response->json("data.1.retweets_count"));

@@ -14,7 +14,7 @@ class RetweetTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function tweets_table_has_expected_columns()
+    public function retweets_table_has_expected_columns()
     {
         $this->assertTrue(
             Schema::hasColumns('retweets', [

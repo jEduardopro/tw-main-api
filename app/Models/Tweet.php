@@ -41,6 +41,17 @@ class Tweet extends Model implements HasMedia
         return $this->hasMany(Retweet::class);
     }
 
+
+    /**
+     * Get all of the replies for the Tweet
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function replies(): HasMany
+    {
+        return $this->hasMany(Reply::class);
+    }
+
     /** Scopes */
     public function scopeSearchByImageTerm($query, string $q)
     {

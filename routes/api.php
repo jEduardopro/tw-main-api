@@ -3,6 +3,7 @@
 use App\Http\Controllers\Account\AccountInformationController;
 use App\Http\Controllers\Friendships\FriendshipController;
 use App\Http\Controllers\Media\MediaController;
+use App\Http\Controllers\Replies\RepliesController;
 use App\Http\Controllers\Retweet\RetweetController;
 use App\Http\Controllers\Tweets\TweetController;
 use App\Http\Controllers\Users\ProfileController;
@@ -27,6 +28,12 @@ Route::prefix('auth')->group(function() {
 Route::group(["middleware" => ["auth:api"]], function() {
     // Tweets
     Route::controller(TweetController::class)->prefix("tweets")->group(function(){
+        Route::post("/", "store");
+        Route::delete("/{id}", "destroy");
+    });
+
+    // Replies
+    Route::controller(RepliesController::class)->prefix("replies")->group(function(){
         Route::post("/", "store");
         Route::delete("/{id}", "destroy");
     });
@@ -78,8 +85,12 @@ Route::group(["middleware" => ["auth:api"]], function() {
         Route::post("/resend-new-email", "resendNewEmail");
         Route::put("/update-email", "updateEmail");
     });
-
 });
+
+// Show Tweet
+Route::get("tweets/{id}", "Tweets\TweetController@show");
+// Show Tweet Replies
+Route::get("tweets/{id}/replies", "Tweets\TweetRepliesController@index");
 
 Route::get("profile/{username}", "Users\ProfileController@getProfileByUsername");
 

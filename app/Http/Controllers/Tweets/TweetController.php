@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Tweets;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTweetFormRequest;
+use App\Http\Resources\TweetResource;
 use App\Models\Tweet;
 
 class TweetController extends Controller
@@ -22,6 +23,20 @@ class TweetController extends Controller
         $tweet->attachMediaFiles();
 
         return $this->responseWithMessage("successful tweet");
+    }
+
+    public function show($tweetUuid)
+    {
+        $tweet = Tweet::where('uuid', $tweetUuid)
+                ->with(["user.profileImage", "media"])
+                ->withCount(["retweets"])
+                ->first();
+
+        if (!$tweet) {
+            return $this->responseWithMessage("the tweet does not exist", 404);
+        }
+
+        return $this->responseWithResource(TweetResource::make($tweet));
     }
 
     public function destroy($uuid)

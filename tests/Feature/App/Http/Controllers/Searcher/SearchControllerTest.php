@@ -31,6 +31,25 @@ class SearchControllerTest extends TestCase
     }
 
     /** @test */
+    public function a_user_can_search_people_using_the_user_filter()
+    {
+        User::factory()->count(8)->activated()->create();
+
+        $testName = "test name";
+        User::factory()->activated()->create(["name" => $testName]);
+
+        $response = $this->json("GET", "api/search", [
+            "q" => "ex",
+            "f" => "user"
+        ]);
+
+        $response->assertSuccessful()
+            ->assertJsonStructure(["data", "meta", "links"]);
+
+        $this->assertEquals($testName, $response->json("data.0.name"));
+    }
+
+    /** @test */
     public function a_user_can_search_images()
     {
         Tweet::factory()->count(5)->create();

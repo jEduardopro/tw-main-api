@@ -72,4 +72,18 @@ class TweetTest extends TestCase
 
         $this->assertInstanceOf(Tweet::class, $tweet->retweets->first()->tweet);
     }
+
+
+    /** @test */
+    public function a_tweet_model_has_many_replies()
+    {
+        $user = User::factory()->activated()->create();
+        $user2 = User::factory()->activated()->create();
+        $tweet = Tweet::factory()->create(["user_id" => $user->id]);
+        $tweet2 = Tweet::factory()->create(["user_id" => $user2->id]);
+
+        $tweet->replies()->create(["reply_tweet_id" => $tweet2->id]);
+
+        $this->assertInstanceOf(Tweet::class, $tweet->replies->first()->tweet);
+    }
 }

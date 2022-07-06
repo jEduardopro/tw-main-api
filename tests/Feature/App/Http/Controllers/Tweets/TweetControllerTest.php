@@ -49,6 +49,33 @@ class TweetControllerTest extends TestCase
         ]);
     }
 
+    /** @test */
+    public function a_user_can_see_a_specific_tweet()
+    {
+        $user = User::factory()->activated()->create();
+        $user2 = User::factory()->activated()->create();
+        $tweet = Tweet::factory()->create(["user_id" => $user2->id]);
+
+        $response = $this->getJson("api/tweets/{$tweet->uuid}")
+                ->assertSuccessful();
+
+        $data = $response->json();
+        $this->assertEquals($tweet->uuid, $data["id"]);
+        $this->assertArrayHasKey("owner", $data);
+        $this->assertArrayHasKey("image", $data["owner"]);
+        $this->assertArrayHasKey("images", $data);
+        $this->assertArrayHasKey("retweets_count", $data);
+    }
+
+    /** @test */
+    public function the_show_tweet_process_must_fail_if_no_tweet_found()
+    {
+        $response = $this->getJson("api/tweets/invalid-uuid")
+            ->assertStatus(404);
+
+        $this->assertEquals("the tweet does not exist", $response->json("message"));
+    }
+
     /** @test*/
     public function a_logged_user_can_delete_tweets()
     {
