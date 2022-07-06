@@ -31,6 +31,7 @@ class UserTimelineControllerTest extends TestCase
         $this->assertEquals($tweet2->body, $response->json("data.0.body"));
         $this->assertArrayHasKey("images", $response->json("data.0"));
         $this->assertArrayHasKey("owner", $response->json("data.0"));
+        $this->assertArrayHasKey("retweets_count", $response->json("data.0"));
         $this->assertArrayHasKey("image", $response->json("data.0.owner"));
     }
 
@@ -46,11 +47,40 @@ class UserTimelineControllerTest extends TestCase
 
         $response->assertSuccessful()
                 ->assertJsonStructure(["meta", "links"]);
-                
+
         $this->assertEquals($tweet2->body, $response->json("data.0.body"));
         $this->assertArrayHasKey("images", $response->json("data.0"));
         $this->assertArrayHasKey("owner", $response->json("data.0"));
+        $this->assertArrayHasKey("retweets_count", $response->json("data.0"));
         $this->assertArrayHasKey("image", $response->json("data.0.owner"));
+    }
+
+    /** @test */
+    public function a_user_can_see_their_tweets_and_retweets_on_their_timeline_sorted_by_creation_date()
+    {
+        $this->withoutExceptionHandling();
+        $user = User::factory()->activated()->create();
+        $user2 = User::factory()->activated()->create();
+
+        $tweetToRetweet = Tweet::factory()->create(["user_id" => $user2->id, "created_at" => now()->subMinutes(15)]);
+        Tweet::factory()->count(5)->create(["user_id" => $user->id, "created_at" => now()->subMinutes(5)]);
+
+        $user->retweet($tweetToRetweet->id);
+
+        $lastTweet = Tweet::factory()->create(["user_id" => $user->id, "created_at" => now()->addMinutes(10)]);
+
+
+        $response = $this->getJson("api/users/{$user->uuid}/timeline");
+
+
+        $response->assertSuccessful()
+            ->assertJsonStructure(["meta", "links"]);
+
+        $this->assertArrayHasKey("retweets_count", $response->json("data.0"));
+        $this->assertEquals($lastTweet->body, $response->json("data.0.body"));
+        $this->assertEquals($tweetToRetweet->uuid, $response->json("data.1.id"));
+        $this->assertEquals(1, $response->json("data.1.retweets_count"));
+
     }
 
     /** @test */

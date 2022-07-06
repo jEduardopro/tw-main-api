@@ -27,6 +27,9 @@ class TweetResource extends JsonResource
                     "images" => MediaResource::collection($this->media)
                 ];
             }),
+            $this->mergeWhen(!is_null($this->retweets_count), function () {
+                return ["retweets_count" => $this->retweets_count];
+            }),
             "creation_date_readable" => $this->getReadableCreationDate(),
             "created_at" => $this->created_at,
         ];

@@ -206,4 +206,16 @@ class UserTest extends TestCase
 
         $this->assertEquals(0, $user->fresh()->following->count());
     }
+
+    /** @test */
+    public function a_user_model_has_many_retweets()
+    {
+        $user = User::factory()->activated()->create();
+        $user2 = User::factory()->activated()->create();
+        $tweet = Tweet::factory()->create(["user_id" => $user->id]);
+
+        $user2->retweet($tweet->id);
+
+        $this->assertInstanceOf(Tweet::class, $user2->retweets->first()->tweet);
+    }
 }

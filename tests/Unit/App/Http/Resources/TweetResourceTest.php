@@ -70,4 +70,24 @@ class TweetResourceTest extends TestCase
 
         $this->assertEquals(MediaResource::class, $tweetResource["images"]->collects);
     }
+
+    /** @test */
+    public function a_tweet_resources_must_have_the_key_of_retweets_count_when_its_retweets_count_relation_is_loaded()
+    {
+        $user = User::factory()->activated()->create();
+        $user2 = User::factory()->activated()->create();
+        $tweet = Tweet::factory()->create(["user_id" => $user2->id]);
+
+        $user->retweet($tweet->id);
+
+        $tweetResource = TweetResource::make($tweet)->resolve();
+
+        $this->assertArrayNotHasKey("retweets_count", $tweetResource);
+
+        $tweet->loadCount('retweets');
+
+        $tweetResource = TweetResource::make($tweet)->resolve();
+
+        $this->assertArrayHasKey("retweets_count", $tweetResource);
+    }
 }

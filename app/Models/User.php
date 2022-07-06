@@ -87,6 +87,16 @@ class User extends Authenticatable implements HasMedia
     }
 
     /**
+     * Get all of the retweets for the User
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function retweets(): HasMany
+    {
+        return $this->hasMany(Retweet::class);
+    }
+
+    /**
      * Get the profile image media that owns the User
      *
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
@@ -161,6 +171,23 @@ class User extends Authenticatable implements HasMedia
     public function unfollow(string $userId): void
     {
         $this->following()->detach($userId);
+    }
+
+    /**
+     * Retweet a tweet
+     */
+    public function retweet($tweetId): void
+    {
+        $this->retweets()->create(["tweet_id" => $tweetId]);
+    }
+
+
+    /**
+     * Undo Retweet of a tweet
+     */
+    public function undoRetweet($tweetId): void
+    {
+        $this->retweets()->where("tweet_id", $tweetId)->delete();
     }
 
     public function registerMediaConversions(Media $media = null): void

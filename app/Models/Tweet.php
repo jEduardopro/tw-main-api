@@ -6,6 +6,7 @@ use App\Models\Concerns\HasUuid;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -30,6 +31,16 @@ class Tweet extends Model implements HasMedia
         return $this->belongsTo(User::class);
     }
 
+    /**
+     * Get all of the retweets for the Tweet
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     */
+    public function retweets(): HasMany
+    {
+        return $this->hasMany(Retweet::class);
+    }
+
     /** Scopes */
     public function scopeSearchByImageTerm($query, string $q)
     {
@@ -37,11 +48,13 @@ class Tweet extends Model implements HasMedia
                         ->orWhere('name', 'like', "%". Str::slug($q) . "%")
                         ->orWhere('name', 'like', "%". Str::slug($q, "_") . "%")
                         ->where('model_type', Tweet::class);
-                        
+
         $query->whereIn('id', $tweetIds);
     }
 
-    public function attachMediaFiles()
+    /** Public Methods */
+
+    public function attachMediaFiles(): void
     {
         $user = request()->user();
 

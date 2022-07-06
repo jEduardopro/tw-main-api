@@ -3,6 +3,7 @@
 use App\Http\Controllers\Account\AccountInformationController;
 use App\Http\Controllers\Friendships\FriendshipController;
 use App\Http\Controllers\Media\MediaController;
+use App\Http\Controllers\Retweet\RetweetController;
 use App\Http\Controllers\Tweets\TweetController;
 use App\Http\Controllers\Users\ProfileController;
 use Illuminate\Support\Facades\Route;
@@ -26,6 +27,12 @@ Route::prefix('auth')->group(function() {
 Route::group(["middleware" => ["auth:api"]], function() {
     // Tweets
     Route::controller(TweetController::class)->prefix("tweets")->group(function(){
+        Route::post("/", "store");
+        Route::delete("/{id}", "destroy");
+    });
+
+    // Retweets
+    Route::controller(RetweetController::class)->prefix("retweets")->group(function(){
         Route::post("/", "store");
         Route::delete("/{id}", "destroy");
     });
