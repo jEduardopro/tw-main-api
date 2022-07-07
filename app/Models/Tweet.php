@@ -66,6 +66,9 @@ class Tweet extends Model implements HasMedia
 
     /** Public Methods */
 
+    /**
+     * Move media files uploeded by user to tweet model
+     */
     public function attachMediaFiles(): void
     {
         $user = request()->user();
@@ -81,6 +84,16 @@ class Tweet extends Model implements HasMedia
         });
     }
 
+    /**
+     * Delete media files of a tweet
+     */
+    public function detachMediaFiles(): void
+    {
+        $this->media()->get()->each(function($media) {
+            $media->delete();
+        });
+    }
+
     public function registerMediaConversions(Media $media = null): void
     {
         $this->addMediaConversion('small')
@@ -91,9 +104,11 @@ class Tweet extends Model implements HasMedia
             ->width(360)
             ->height(360);
 
+
         $this->addMediaConversion('medium')
             ->width(680)
-            ->height(380);
+            ->height(380)
+            ->nonQueued();
 
         $this->addMediaConversion('large')
             ->width(1200)

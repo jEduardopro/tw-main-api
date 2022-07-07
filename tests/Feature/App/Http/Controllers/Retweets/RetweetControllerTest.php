@@ -61,6 +61,25 @@ class RetweetControllerTest extends TestCase
 		]);
 	}
 
+    /** @test */
+    public function an_authenticated_user_can_not_undo_retweets_that_are_not_yours()
+    {
+        $user = User::factory()->activated()->create();
+        $user2 = User::factory()->activated()->create();
+
+        $tweet = Tweet::factory()->create(["user_id" => $user->id]);
+
+        $user2->retweet($tweet->id);
+
+        Passport::actingAs($user);
+
+        $response = $this->deleteJson("api/retweets/{$tweet->uuid}");
+
+        $response->assertStatus(403);
+
+        $this->assertEquals("you do not have permission to perform this action", $response->json("message"));
+    }
+
 	/** @test */
 	public function the_retweet_process_must_fail_if_no_tweet_found()
 	{
@@ -70,7 +89,7 @@ class RetweetControllerTest extends TestCase
 
 		$response = $this->postJson("api/retweets", ["tweet_id" => "invalid-tweet-id"]);
 
-		$response->assertStatus(400);
+		$response->assertStatus(404);
 
 		$this->assertEquals("the tweet you want to retweet does not exist", $response->json("message"));
 	}
@@ -85,7 +104,7 @@ class RetweetControllerTest extends TestCase
 
 		$response = $this->deleteJson("api/retweets/invalid-tweet-id");
 
-		$response->assertStatus(400);
+		$response->assertStatus(404);
 
 		$this->assertEquals("the retweet you want to undo does not exist", $response->json("message"));
 	}

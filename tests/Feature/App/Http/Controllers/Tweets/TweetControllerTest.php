@@ -6,6 +6,7 @@ use App\Models\Tweet;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\File;
 use Laravel\Passport\Passport;
 use Tests\TestCase;
 
@@ -19,12 +20,29 @@ class TweetControllerTest extends TestCase
 		$user = User::factory()->activated()->create();
 		Passport::actingAs($user);
 
-		$payload = [
-			"body" => "My first tweet"
-		];
-		$response = $this->postJson("api/tweets", $payload);
+        $collectionName = "tweet_image";
+        $media = $user->addMedia(storage_path('media-demo/test_image.jpeg'))
+                ->preservingOriginal()
+                ->toMediaCollection($collectionName);
 
-		$this->assertEquals("successful tweet", $response->json("message"));
+		$payload = [
+			"body" => "My first tweet",
+            "media" => [$media->uuid]
+		];
+		$response = $this->postJson("api/tweets", $payload)
+                    ->assertSuccessful();
+
+        $data = $response->json();
+		$this->assertArrayHasKey("id", $data);
+		$this->assertArrayHasKey("body", $data);
+		$this->assertArrayHasKey("owner", $data);
+		$this->assertArrayHasKey("image", $data["owner"]);
+		$this->assertArrayHasKey("images", $data);
+		$this->assertArrayHasKey("conversions", $data["images"]["0"]);
+        $this->assertArrayHasKey("replies_count", $data);
+        $this->assertArrayHasKey("retweets_count", $data);
+        $this->assertArrayHasKey("likes_count", $data);
+
 		$this->assertDatabaseHas("tweets", [
 			"user_id" => $user->id,
 			"body" => $payload["body"]
@@ -64,6 +82,7 @@ class TweetControllerTest extends TestCase
 		$this->assertArrayHasKey("owner", $data);
 		$this->assertArrayHasKey("image", $data["owner"]);
 		$this->assertArrayHasKey("images", $data);
+		$this->assertArrayHasKey("replies_count", $data);
 		$this->assertArrayHasKey("retweets_count", $data);
 		$this->assertArrayHasKey("likes_count", $data);
 	}
@@ -83,6 +102,16 @@ class TweetControllerTest extends TestCase
 		$user = User::factory()->activated()->create();
 		$tweet = Tweet::factory()->create(["user_id" => $user->id]);
 
+        $collectionName = "images";
+        $media = $tweet->addMedia(storage_path('media-demo/test_image.jpeg'))
+            ->preservingOriginal()
+            ->toMediaCollection($collectionName);
+
+        $this->assertDatabaseHas("media", [
+            "id" => $media->id,
+            "name" => "test_image"
+        ]);
+
 		Passport::actingAs($user);
 
 		$this->assertDatabaseHas("tweets", [
@@ -100,6 +129,12 @@ class TweetControllerTest extends TestCase
 			"body" => $tweet->body,
 			"deleted_at" => $tweet->fresh()->deleted_at->format('Y-m-d H:i:s')
 		]);
+
+		$this->assertFalse(File::exists($media->getPath()));
+        $this->assertDatabaseMissing("media", [
+            "id" => $media->id,
+            "name" => "test_image"
+        ]);
 	}
 
 	/** @test */
@@ -115,6 +150,22 @@ class TweetControllerTest extends TestCase
 		$response->assertStatus(404);
 		$this->assertEquals("the tweet does not exist or has already been deleted", $response->json("message"));
 	}
+
+    /** @test */
+    public function an_authenticated_user_can_not_delete_tweets_that_are_not_yours()
+    {
+        $user = User::factory()->activated()->create();
+        $user2 = User::factory()->activated()->create();
+        $tweet = Tweet::factory()->create(["user_id" => $user2->id]);
+
+        Passport::actingAs($user);
+
+        $response = $this->deleteJson("api/tweets/{$tweet->uuid}");
+
+        $response->assertStatus(403);
+
+        $this->assertEquals("you do not have permission to perform this action", $response->json("message"));
+    }
 
 	/** @test */
 	public function a_new_tweet_can_have_media_files_related()

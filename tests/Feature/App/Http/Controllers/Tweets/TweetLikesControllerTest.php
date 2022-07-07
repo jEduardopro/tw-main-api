@@ -57,6 +57,28 @@ class TweetLikesControllerTest extends TestCase
     }
 
     /** @test */
+    public function an_authenticated_user_can_not_unlike_tweets_that_are_not_yours()
+    {
+        $user = User::factory()->activated()->create();
+        $user2 = User::factory()->activated()->create();
+        Passport::actingAs($user);
+
+        $tweet = Tweet::factory()->create();
+
+        Like::factory()->create([
+            "user_id" => $user2->id,
+            "likeable_id" => $tweet->id,
+            "likeable_type" => Tweet::class
+        ]);
+
+        $response = $this->deleteJson("api/tweets/{$tweet->uuid}/likes");
+
+        $response->assertStatus(403);
+
+        $this->assertEquals("you do not have permission to perform this action", $response->json("message"));
+    }
+
+    /** @test */
     public function the_like_process_must_fail_if_no_tweet_found()
     {
         $user = User::factory()->activated()->create();

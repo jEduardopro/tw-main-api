@@ -36,9 +36,9 @@ class MediaController extends Controller
             return $this->responseWithMessage("the resource doesn't exist", 404);
         }
 
-        if (File::exists($media->getPath())) {
-            File::delete($media->getPath());
-        }
+        // if (File::exists($media->getPath())) {
+        //     File::delete($media->getPath());
+        // }
 
         $media->delete();
 

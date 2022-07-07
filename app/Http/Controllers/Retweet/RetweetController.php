@@ -17,7 +17,7 @@ class RetweetController extends Controller
         $tweet = Tweet::where("uuid", $tweetUuid)->first();
 
         if (!$tweet) {
-            return $this->responseWithMessage("the tweet you want to retweet does not exist", 400);
+            return $this->responseWithMessage("the tweet you want to retweet does not exist", 404);
         }
 
         $user->retweet($tweet->id);
@@ -32,7 +32,13 @@ class RetweetController extends Controller
         $tweet = Tweet::where("uuid", $tweetUuid)->first();
 
         if (!$tweet) {
-            return $this->responseWithMessage("the retweet you want to undo does not exist", 400);
+            return $this->responseWithMessage("the retweet you want to undo does not exist", 404);
+        }
+
+        $retweet = $user->retweets()->where('tweet_id', $tweet->id)->first();
+
+        if (!$retweet) {
+            return $this->responseWithMessage("you do not have permission to perform this action", 403);
         }
 
         $user->undoRetweet($tweet->id);

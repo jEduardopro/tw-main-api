@@ -22,12 +22,20 @@ class TweetLikesController extends Controller
     }
 
 
-    public function destroy($tweetUuid)
+    public function destroy(Request $request, $tweetUuid)
     {
+        $user = $request->user();
+
         $tweet = Tweet::where("uuid", $tweetUuid)->first();
 
         if (!$tweet) {
             return $this->responseWithMessage("the tweet does not exist", 404);
+        }
+
+        $like = $tweet->likes()->where(["user_id" => request()->user()->id])->first();
+
+        if (!$like) {
+            return $this->responseWithMessage("you do not have permission to perform this action", 403);
         }
 
         $tweet->unlike();

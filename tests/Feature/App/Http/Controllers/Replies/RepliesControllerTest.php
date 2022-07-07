@@ -72,4 +72,82 @@ class RepliesControllerTest extends TestCase
 			"user_id" => $user->id
 		]);
 	}
+
+    /** @test */
+    public function an_authenticated_user_can_not_delete_replies_of_a_tweet_that_are_not_yours()
+    {
+        $user = User::factory()->activated()->create();
+        $user2 = User::factory()->activated()->create();
+        $tweet = Tweet::factory()->create(["user_id" => $user->id]);
+        $replyTweet = Tweet::factory()->create(["user_id" => $user2->id]);
+        Reply::factory()->create([
+            "tweet_id" => $tweet->id,
+            "reply_tweet_id" => $replyTweet->id
+        ]);
+
+        Passport::actingAs($user);
+
+        $this->assertDatabaseHas("replies", [
+            "tweet_id" => $tweet->id,
+            "reply_tweet_id" => $replyTweet->id
+        ]);
+
+        $response = $this->deleteJson("api/replies/{$replyTweet->uuid}");
+
+        $response->assertStatus(403);
+
+        $this->assertEquals("you do not have permission to perform this action", $response->json("message"));
+    }
+
+    /** @test */
+    public function the_replies_process_to_reply_to_a_tweet_must_fail_if_no_found_the_tweets()
+    {
+        $user = User::factory()->activated()->create();
+
+        Passport::actingAs($user);
+
+        $response = $this->postJson("api/replies", ["reply_tweet_id" => "reply_uuid", "tweet_id" => "uuid"]);
+
+        $response->assertStatus(400);
+
+        $this->assertEquals("one of the tweets does not exist", $response->json("message"));
+    }
+
+
+    /** @test */
+    public function the_replies_process_to_undo_reply_of_a_tweet_must_fail_if_no_found_the_tweet_reply()
+    {
+        $user = User::factory()->activated()->create();
+
+        Passport::actingAs($user);
+
+		$response = $this->deleteJson("api/replies/reply-uuid");
+
+        $response->assertStatus(404);
+
+        $this->assertEquals("the tweet reply does not exist", $response->json("message"));
+    }
+
+    /** @test */
+    public function the_reply_tweet_id_is_required()
+    {
+        $user = User::factory()->activated()->create();
+
+        Passport::actingAs($user);
+        $this->postJson("api/replies", ["reply_tweet_id" => null, "tweet_id" => "uuid"])
+                ->assertJsonValidationErrorFor("reply_tweet_id");
+
+    }
+
+
+    /** @test */
+    public function the_tweet_id_is_required()
+    {
+        $user = User::factory()->activated()->create();
+
+        Passport::actingAs($user);
+        $this->postJson("api/replies", ["reply_tweet_id" => "uuid", "tweet_id" => null])
+                ->assertJsonValidationErrorFor("tweet_id");
+
+    }
 }
