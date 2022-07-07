@@ -16,9 +16,7 @@ class TweetSeeder extends Seeder
      */
     public function run()
     {
-        Tweet::factory()->count(10)->create([
-            "user_id" => rand(5, 20)
-        ])->each(function($tweet) {
+        Tweet::all()->each(function($tweet) {
             $collectionName = "images";
             $randomImage = "image".rand(2,5).".jpg";
             $mediaIdString = Str::random();
