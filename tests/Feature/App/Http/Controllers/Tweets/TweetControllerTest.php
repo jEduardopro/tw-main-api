@@ -7,6 +7,9 @@ use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Notification;
+use App\Notifications\TweetCreated;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Laravel\Passport\Passport;
 use Tests\TestCase;
 
@@ -17,7 +20,12 @@ class TweetControllerTest extends TestCase
 	/** @test*/
 	public function an_authenticated_user_can_tweet()
 	{
+        Notification::fake();
+
 		$user = User::factory()->activated()->create();
+		$user2 = User::factory()->activated()->create();
+        $user2->follow($user->id);
+
 		Passport::actingAs($user);
 
         $collectionName = "tweet_image";
@@ -33,20 +41,24 @@ class TweetControllerTest extends TestCase
                     ->assertSuccessful();
 
         $data = $response->json();
-		$this->assertArrayHasKey("id", $data);
-		$this->assertArrayHasKey("body", $data);
-		$this->assertArrayHasKey("owner", $data);
-		$this->assertArrayHasKey("image", $data["owner"]);
-		$this->assertArrayHasKey("images", $data);
-		$this->assertArrayHasKey("conversions", $data["images"]["0"]);
-        $this->assertArrayHasKey("replies_count", $data);
-        $this->assertArrayHasKey("retweets_count", $data);
-        $this->assertArrayHasKey("likes_count", $data);
+        $this->assertTweetResourceData($data);
 
 		$this->assertDatabaseHas("tweets", [
 			"user_id" => $user->id,
 			"body" => $payload["body"]
 		]);
+
+        Notification::assertSentTo($user2, TweetCreated::class, function($notification, $channels) use ($user2) {
+            $this->assertTrue(!is_null($notification->tweet));
+            $this->assertContains('broadcast', $channels);
+
+            $tweetData = $notification->toArray($user2);
+            $this->assertTweetResourceData($tweetData);
+
+            $this->assertInstanceOf(BroadcastMessage::class, $notification->toBroadcast($user2));
+
+            return true;
+        });
 	}
 
 	/** @test*/
@@ -78,13 +90,7 @@ class TweetControllerTest extends TestCase
 			->assertSuccessful();
 
 		$data = $response->json();
-		$this->assertEquals($tweet->uuid, $data["id"]);
-		$this->assertArrayHasKey("owner", $data);
-		$this->assertArrayHasKey("image", $data["owner"]);
-		$this->assertArrayHasKey("images", $data);
-		$this->assertArrayHasKey("replies_count", $data);
-		$this->assertArrayHasKey("retweets_count", $data);
-		$this->assertArrayHasKey("likes_count", $data);
+		$this->assertTweetResourceData($data);
 	}
 
 	/** @test */
@@ -244,4 +250,16 @@ class TweetControllerTest extends TestCase
 		$this->postJson("api/tweets", ["body" => "My first tweet", "media" => [1, 2, 3, 4, 5]])
 			->assertJsonValidationErrorFor("media");
 	}
+
+    private function assertTweetResourceData(array $data)
+    {
+        $this->assertArrayHasKey("id", $data);
+        $this->assertArrayHasKey("body", $data);
+        $this->assertArrayHasKey("owner", $data);
+        // $this->assertArrayHasKey("image", $data["owner"]);
+        $this->assertArrayHasKey("images", $data);
+        $this->assertArrayHasKey("replies_count", $data);
+        $this->assertArrayHasKey("retweets_count", $data);
+        $this->assertArrayHasKey("likes_count", $data);
+    }
 }

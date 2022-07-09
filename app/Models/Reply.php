@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Reply extends Model
 {
@@ -24,12 +25,12 @@ class Reply extends Model
 
 
     /**
-     * Get the tweet that owns the Reply
+     * Get the tweetReply associated with the Reply
      *
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     * @return \Illuminate\Database\Eloquent\Relations\HasOne
      */
-    public function tweetReply(): BelongsTo
+    public function tweetReply(): HasOne
     {
-        return $this->belongsTo(Tweet::class, 'reply_tweet_id');
+        return $this->hasOne(Tweet::class);
     }
 }

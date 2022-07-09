@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Http\Controllers\Retweet;
+namespace App\Http\Controllers\Retweets;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RetweetFormRequest;
 use App\Models\Tweet;
 use Illuminate\Http\Request;
 
-class RetweetController extends Controller
+class RetweetsController extends Controller
 {
     public function store(RetweetFormRequest $request)
     {

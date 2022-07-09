@@ -17,7 +17,7 @@ class UserTimelineController extends Controller
         $user = User::active()->where("uuid", $userUuid)->first();
 
         if (!$user) {
-            return $this->responseWithMessage("the timeline of tweets is not available for this account", 400);
+            return $this->responseWithMessage("the timeline of tweets is not available for this account", 404);
         }
 
         $tweetsAndRetweets = DB::table(DB::raw("(

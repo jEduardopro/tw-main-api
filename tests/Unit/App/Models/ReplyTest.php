@@ -18,7 +18,7 @@ class ReplyTest extends TestCase
     {
         $this->assertTrue(
             Schema::hasColumns('replies', [
-                'tweet_id', 'reply_tweet_id', 'created_at', 'updated_at'
+                'tweet_id', 'created_at', 'updated_at'
             ])
         );
     }
@@ -31,21 +31,23 @@ class ReplyTest extends TestCase
         $tweet = Tweet::factory()->create(["user_id" => $user2->id]);
         $tweet2 = Tweet::factory()->create(["user_id" => $user->id]);
 
-        $reply = Reply::factory()->create(["tweet_id" => $tweet->id, "reply_tweet_id" => $tweet2->id]);
+        $reply = Reply::factory()->create(["tweet_id" => $tweet->id]);
 
         $this->assertInstanceOf(Tweet::class, $reply->tweet);
     }
 
 
     /** @test */
-    public function a_reply_model_belongs_to_tweet_reply()
+    public function a_reply_model_has_one_tweet_reply()
     {
         $user = User::factory()->activated()->create();
         $user2 = User::factory()->activated()->create();
         $tweet = Tweet::factory()->create(["user_id" => $user2->id]);
         $tweet2 = Tweet::factory()->create(["user_id" => $user->id]);
 
-        $reply = Reply::factory()->create(["tweet_id" => $tweet->id, "reply_tweet_id" => $tweet2->id]);
+        $reply = Reply::factory()->create(["tweet_id" => $tweet->id]);
+        $tweet2->reply_id = $reply->id;
+        $tweet2->save();
 
         $this->assertInstanceOf(Tweet::class, $reply->tweetReply);
     }

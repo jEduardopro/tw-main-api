@@ -9,7 +9,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Laravel\Passport\Passport;
 use Tests\TestCase;
 
-class RetweetControllerTest extends TestCase
+class RetweetsControllerTest extends TestCase
 {
 
 	use RefreshDatabase;

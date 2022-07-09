@@ -19,10 +19,9 @@ class RepliesController extends Controller
             return $this->responseWithMessage("one of the tweets does not exist", 400);
         }
 
-        Reply::firstOrCreate([
-            "tweet_id" => $tweet->id,
-            "reply_tweet_id" => $replyTweet->id,
-        ]);
+        $reply = Reply::firstOrCreate(["tweet_id" => $tweet->id]);
+        $replyTweet->reply_id = $reply->id;
+        $replyTweet->save();
 
         return $this->responseWithMessage("you tweet was sent");
     }
@@ -30,7 +29,7 @@ class RepliesController extends Controller
     public function destroy(Request $request, $replyTweetUuid)
     {
         $user = $request->user();
-        
+
         $replyTweet = Tweet::where("uuid", $replyTweetUuid)->first();
 
         if (!$replyTweet) {
@@ -41,9 +40,11 @@ class RepliesController extends Controller
             return $this->responseWithMessage("you do not have permission to perform this action", 403);
         }
 
-        Reply::where('reply_tweet_id', $replyTweet->id)->delete();
+        $replyTweet->reply->delete();
 
         $replyTweet->delete();
+
+        $replyTweet->detachMediaFiles();
 
         return $this->responseWithMessage("you tweet was deleted");
     }

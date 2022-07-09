@@ -10,6 +10,7 @@ use Spatie\MediaLibrary\InteractsWithMedia;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Concerns\HasUuid;
 use App\Models\Concerns\Likeable;
+use App\Models\Reply;
 use App\Models\User;
 use Tests\TestCase;
 
@@ -22,7 +23,7 @@ class TweetTest extends TestCase
     {
         $this->assertTrue(
             Schema::hasColumns('tweets', [
-               'uuid', 'user_id', 'body', 'created_at', 'updated_at', 'deleted_at'
+               'uuid', 'user_id', 'body', 'reply_id', 'created_at', 'updated_at', 'deleted_at'
             ])
         );
     }
@@ -81,6 +82,20 @@ class TweetTest extends TestCase
         $this->assertInstanceOf(Tweet::class, $tweet->retweets->first()->tweet);
     }
 
+    /** @test */
+    public function a_tweet_model_belongs_to_reply()
+    {
+        $user = User::factory()->activated()->create();
+        $user2 = User::factory()->activated()->create();
+        $tweet = Tweet::factory()->create(["user_id" => $user->id]);
+        $tweet2 = Tweet::factory()->create(["user_id" => $user2->id]);
+
+        $reply = $tweet->replies()->create(["tweet_id" => $tweet->id]);
+        $tweet2->reply_id = $reply->id;
+        $tweet2->save();
+
+        $this->assertInstanceOf(Reply::class, $tweet2->reply);
+    }
 
     /** @test */
     public function a_tweet_model_has_many_replies()
@@ -88,10 +103,24 @@ class TweetTest extends TestCase
         $user = User::factory()->activated()->create();
         $user2 = User::factory()->activated()->create();
         $tweet = Tweet::factory()->create(["user_id" => $user->id]);
+
+        $tweet->replies()->create(["tweet_id" => $tweet->id]);
+
+        $this->assertInstanceOf(Reply::class, $tweet->replies->first());
+    }
+
+    /** @test */
+    public function a_tweet_model_has_many_tweet_replies_through_reply()
+    {
+        $user = User::factory()->activated()->create();
+        $user2 = User::factory()->activated()->create();
+        $tweet = Tweet::factory()->create(["user_id" => $user->id]);
         $tweet2 = Tweet::factory()->create(["user_id" => $user2->id]);
 
-        $tweet->replies()->create(["reply_tweet_id" => $tweet2->id]);
+        $reply = $tweet->replies()->create(["tweet_id" => $tweet->id]);
+        $tweet2->reply_id = $reply->id;
+        $tweet2->save();
 
-        $this->assertInstanceOf(Tweet::class, $tweet->replies->first()->tweet);
+        $this->assertInstanceOf(Tweet::class, $tweet->tweetReplies->first());
     }
 }

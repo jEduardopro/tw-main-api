@@ -4,7 +4,7 @@ use App\Http\Controllers\Account\AccountInformationController;
 use App\Http\Controllers\Friendships\FriendshipController;
 use App\Http\Controllers\Media\MediaController;
 use App\Http\Controllers\Replies\RepliesController;
-use App\Http\Controllers\Retweet\RetweetController;
+use App\Http\Controllers\Retweets\RetweetsController;
 use App\Http\Controllers\Tweets\TweetController;
 use App\Http\Controllers\Tweets\TweetLikesController;
 use App\Http\Controllers\Users\ProfileController;
@@ -43,10 +43,14 @@ Route::group(["middleware" => ["auth:api"]], function() {
     });
 
     // Retweets
-    Route::controller(RetweetController::class)->prefix("retweets")->group(function(){
+    Route::controller(RetweetsController::class)->prefix("retweets")->group(function(){
         Route::post("/", "store");
         Route::delete("/{id}", "destroy");
     });
+
+    // Owners Retweets of a Tweet
+    Route::get("tweets/{id}/owners-retweets", "Tweets\TweetOwnersRetweetsController@index");
+
 
     // Tweet Likes
     Route::controller(TweetLikesController::class)->prefix("tweets")->group(function () {
@@ -104,7 +108,10 @@ Route::get("tweets/{id}/replies", "Tweets\TweetRepliesController@index");
 
 Route::get("profile/{username}", "Users\ProfileController@getProfileByUsername");
 
+// User Profile Timeline
 Route::get("users/{id}/timeline", "Users\UserTimelineController@index");
+// User Profile Tweets And Replies Timeline
+Route::get("users/{id}/tweets-replies-timeline", "Users\UserTweetsAndRepliesTimelineController@index");
 
 // Searcher
 Route::get("search", "Searcher\SearchController@index");

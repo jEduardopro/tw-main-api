@@ -24,7 +24,7 @@ class RepliesControllerTest extends TestCase
 
 		Passport::actingAs($user);
 
-		$response = $this->postJson("api/replies", ["reply_tweet_id" => $myReplyTweet->uuid, "tweet_id" => $tweet->uuid]);
+		$response = $this->postJson("api/replies", ["tweet_id" => $tweet->uuid, "reply_tweet_id" => $myReplyTweet->uuid]);
 
 		$response->assertSuccessful();
 
@@ -32,8 +32,9 @@ class RepliesControllerTest extends TestCase
 
 		$this->assertDatabaseHas("replies", [
 			"tweet_id" => $tweet->id,
-			"reply_tweet_id" => $myReplyTweet->id
 		]);
+
+        $this->assertEquals($tweet->id, $myReplyTweet->fresh()->reply->tweet_id);
 	}
 
 
@@ -43,17 +44,14 @@ class RepliesControllerTest extends TestCase
 		$user = User::factory()->activated()->create();
 		$user2 = User::factory()->activated()->create();
 		$tweet = Tweet::factory()->create(["user_id" => $user2->id]);
-		$myReplyTweet = Tweet::factory()->create(["user_id" => $user->id]);
-		Reply::factory()->create([
-			"tweet_id" => $tweet->id,
-			"reply_tweet_id" => $myReplyTweet->id
-		]);
+		$reply = Reply::factory()->create(["tweet_id" => $tweet->id]);
+        $myReplyTweet = Tweet::factory()->create(["user_id" => $user->id, "reply_id" => $reply->id]);
+
 
 		Passport::actingAs($user);
 
 		$this->assertDatabaseHas("replies", [
 			"tweet_id" => $tweet->id,
-			"reply_tweet_id" => $myReplyTweet->id
 		]);
 
 		$response = $this->deleteJson("api/replies/{$myReplyTweet->uuid}");
@@ -64,7 +62,6 @@ class RepliesControllerTest extends TestCase
 
 		$this->assertDatabaseMissing("replies", [
 			"tweet_id" => $tweet->id,
-			"reply_tweet_id" => $myReplyTweet->id
 		]);
 
 		$this->assertSoftDeleted("tweets", [
@@ -79,17 +76,14 @@ class RepliesControllerTest extends TestCase
         $user = User::factory()->activated()->create();
         $user2 = User::factory()->activated()->create();
         $tweet = Tweet::factory()->create(["user_id" => $user->id]);
-        $replyTweet = Tweet::factory()->create(["user_id" => $user2->id]);
-        Reply::factory()->create([
-            "tweet_id" => $tweet->id,
-            "reply_tweet_id" => $replyTweet->id
-        ]);
+        $reply = Reply::factory()->create(["tweet_id" => $tweet->id]);
+        $replyTweet = Tweet::factory()->create(["user_id" => $user2->id, "reply_id" => $reply->id]);
+
 
         Passport::actingAs($user);
 
         $this->assertDatabaseHas("replies", [
             "tweet_id" => $tweet->id,
-            "reply_tweet_id" => $replyTweet->id
         ]);
 
         $response = $this->deleteJson("api/replies/{$replyTweet->uuid}");

@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTweetFormRequest;
 use App\Http\Resources\TweetResource;
 use App\Models\Tweet;
+use App\Notifications\TweetCreated;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 
 class TweetController extends Controller
 {
@@ -24,6 +26,9 @@ class TweetController extends Controller
         $tweet->attachMediaFiles();
 
         $tweet->load(["user.profileImage", "media"])->loadCount(["replies", "retweets", "likes"]);
+
+        $followers = $user->followers;
+        Notification::send($followers, new TweetCreated($tweet));
 
         return $this->responseWithResource(TweetResource::make($tweet));
     }

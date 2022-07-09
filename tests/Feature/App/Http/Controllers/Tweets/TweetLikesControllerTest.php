@@ -7,6 +7,10 @@ use App\Models\Tweet;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Event;
+use App\Events\ModelLiked;
+use Illuminate\Broadcasting\Channel;
+use Illuminate\Support\Facades\Broadcast;
 use Laravel\Passport\Passport;
 use Tests\TestCase;
 
@@ -17,6 +21,10 @@ class TweetLikesControllerTest extends TestCase
     /** @test */
     public function an_authenticated_user_can_like_tweets()
     {
+        Event::fake([ModelLiked::class]);
+
+        Broadcast::shouldReceive('socket')->andReturn('socket-id');
+
         $user = User::factory()->activated()->create();
         Passport::actingAs($user);
 
@@ -30,6 +38,34 @@ class TweetLikesControllerTest extends TestCase
         $this->assertDatabaseHas("likes", [
             "user_id" => $user->id
         ]);
+
+        Event::assertDispatched(ModelLiked::class, function($event) use ($tweet, $user) {
+            $this->assertInstanceOf(get_class($tweet), $event->model);
+            $this->assertTrue($event->likeSender->is($user));
+            $this->assertInstanceOf(Channel::class, $event->broadcastOn());
+            $this->assertEquals(Channel::class, get_class($event->broadcastOn()));
+            $this->assertEquals("tweets.{$tweet->uuid}.likes", $event->broadcastOn()->name);
+            return true;
+        });
+    }
+
+    /** @test */
+    public function a_tweet_can_only_be_liked_by_a_user_once()
+    {
+        $user = User::factory()->activated()->create();
+        Passport::actingAs($user);
+
+        $tweet = Tweet::factory()->create();
+
+        Like::factory()->create([
+            "user_id" => $user->id,
+            "likeable_id" => $tweet->id,
+            "likeable_type" => Tweet::class
+        ]);
+
+        $response = $this->postJson("api/tweets/{$tweet->uuid}/likes");
+
+        $this->assertEquals("you already liked this tweet", $response->json("message"));
     }
 
     /** @test */

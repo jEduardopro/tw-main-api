@@ -102,7 +102,7 @@ class TweetResourceTest extends TestCase
         $tweet = Tweet::factory()->create(["user_id" => $user2->id]);
         $tweet2 = Tweet::factory()->create(["user_id" => $user->id]);
 
-        Reply::factory()->create(["tweet_id" => $tweet->id, "reply_tweet_id" => $tweet2->id]);
+        Reply::factory()->create(["tweet_id" => $tweet->id]);
 
         $tweetResource = TweetResource::make($tweet)->resolve();
 
@@ -138,5 +138,36 @@ class TweetResourceTest extends TestCase
         $tweetResource = TweetResource::make($tweet)->resolve();
 
         $this->assertArrayHasKey("likes_count", $tweetResource);
+    }
+
+    /** @test */
+    public function a_tweet_resources_must_have_the_reply_to_key_when_its_reply_and_tweet_relations_are_loaded()
+    {
+        $user = User::factory()->create();
+        $user2 = User::factory()->activated()->create();
+        $tweet = Tweet::factory()->create(["user_id" => $user2->id]);
+        $reply = Reply::factory()->create(["tweet_id" => $tweet->id]);
+        $tweet2 = Tweet::factory()->create(["user_id" => $user->id, "reply_id" => $reply->id]);
+
+        $tweetResource = TweetResource::make($tweet2)->resolve();
+
+        $this->assertArrayNotHasKey("reply_to", $tweetResource);
+
+        $tweet2->load(["reply.tweet" => function ($q) {
+                $q->with(["user.profileImage", "media"])
+                    ->withCount(["replies", "retweets", "likes"]);
+            }]);
+
+        $tweetResource = TweetResource::make($tweet2)->resolve();
+
+        $this->assertArrayHasKey("reply_to", $tweetResource);
+        $this->assertInstanceOf(TweetResource::class, $tweetResource["reply_to"]);
+        $tweetReplyResource = $tweetResource["reply_to"]->resolve();
+        $this->assertArrayHasKey("owner", $tweetReplyResource);
+        $this->assertArrayHasKey("image", $tweetReplyResource["owner"]->resolve());
+        $this->assertArrayHasKey("images", $tweetReplyResource);
+        $this->assertArrayHasKey("replies_count", $tweetReplyResource);
+        $this->assertArrayHasKey("retweets_count", $tweetReplyResource);
+        $this->assertArrayHasKey("likes_count", $tweetReplyResource);
     }
 }

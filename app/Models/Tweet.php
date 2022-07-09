@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
@@ -44,6 +47,16 @@ class Tweet extends Model implements HasMedia
 
 
     /**
+     * Get the reply that owns the Tweet
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
+    public function reply(): BelongsTo
+    {
+        return $this->belongsTo(Reply::class);
+    }
+
+    /**
      * Get all of the replies for the Tweet
      *
      * @return \Illuminate\Database\Eloquent\Relations\HasMany
@@ -51,6 +64,16 @@ class Tweet extends Model implements HasMedia
     public function replies(): HasMany
     {
         return $this->hasMany(Reply::class);
+    }
+
+    /**
+     * Get all of the tweetReplies for the Tweet
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\HasManyThrough
+     */
+    public function tweetReplies(): HasManyThrough
+    {
+        return $this->hasManyThrough(Tweet::class, Reply::class);
     }
 
     /** Scopes */

@@ -13,10 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('replies', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('tweet_id')->constrained()->cascadeOnDelete();
-            $table->timestamps();
+        Schema::table('tweets', function (Blueprint $table) {
+            $table->foreignId('reply_id')->nullable()->after('body')->constrained()->nullOnDelete();
         });
     }
 
@@ -27,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('replies');
+        Schema::table('tweets', function (Blueprint $table) {
+            $table->dropConstrainedForeignId('reply_id');
+        });
     }
 };

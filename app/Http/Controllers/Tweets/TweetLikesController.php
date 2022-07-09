@@ -16,6 +16,10 @@ class TweetLikesController extends Controller
             return $this->responseWithMessage("the tweet does not exist", 404);
         }
 
+        if ($tweet->likes()->where(["user_id" => request()->user()->id])->exists()) {
+            return $this->responseWithMessage("you already liked this tweet");
+        }
+
         $tweet->like();
 
         return $this->responseWithMessage("like tweet done");

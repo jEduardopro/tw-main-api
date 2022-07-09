@@ -96,7 +96,7 @@ class UserTimelineControllerTest extends TestCase
 
 		$response = $this->getJson("api/users/{$user->uuid}/timeline");
 
-		$response->assertStatus(400);
+		$response->assertStatus(404);
 
 		$this->assertEquals("the timeline of tweets is not available for this account", $response->json("message"));
 	}
@@ -110,7 +110,7 @@ class UserTimelineControllerTest extends TestCase
 
 		$response = $this->getJson("api/users/{$user->uuid}/timeline");
 
-		$response->assertStatus(400);
+		$response->assertStatus(404);
 
 		$this->assertEquals("the timeline of tweets is not available for this account", $response->json("message"));
 	}
