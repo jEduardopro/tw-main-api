@@ -2,7 +2,9 @@
 
 namespace App\Providers;
 
+use App\Events\ModelLiked;
 use App\Events\UserRegistered;
+use App\Listeners\SendNewLikeNotification;
 use App\Listeners\SendVerificationTokenNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -19,6 +21,9 @@ class EventServiceProvider extends ServiceProvider
         // ],
         UserRegistered::class => [
             SendVerificationTokenNotification::class
+        ],
+        ModelLiked::class => [
+            SendNewLikeNotification::class
         ]
     ];
 

@@ -36,13 +36,15 @@ class TweetLikesController extends Controller
             return $this->responseWithMessage("the tweet does not exist", 404);
         }
 
-        $like = $tweet->likes()->where(["user_id" => request()->user()->id])->first();
+        $like = $tweet->likes()->where(["user_id" => $user->id])->first();
 
         if (!$like) {
             return $this->responseWithMessage("you do not have permission to perform this action", 403);
         }
 
         $tweet->unlike();
+
+        $tweet->user->notifications()->where('data->like_sender_uuid', $user->uuid)->delete();
 
         return $this->responseWithMessage("unlike tweet done");
     }

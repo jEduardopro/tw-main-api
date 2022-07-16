@@ -54,9 +54,9 @@ class UserTimelineControllerTest extends TestCase
 		$this->assertArrayHasKey("images", $response->json("data.0"));
 		$this->assertArrayHasKey("owner", $response->json("data.0"));
 		$this->assertArrayHasKey("image", $response->json("data.0.owner"));
-        $this->assertArrayHasKey("retweets_count", $response->json("data.0"));
-        $this->assertArrayHasKey("replies_count", $response->json("data.0"));
-        $this->assertArrayHasKey("likes_count", $response->json("data.0"));
+		$this->assertArrayHasKey("retweets_count", $response->json("data.0"));
+		$this->assertArrayHasKey("replies_count", $response->json("data.0"));
+		$this->assertArrayHasKey("likes_count", $response->json("data.0"));
 	}
 
 	/** @test */
@@ -79,9 +79,9 @@ class UserTimelineControllerTest extends TestCase
 		$response->assertSuccessful()
 			->assertJsonStructure(["data", "meta", "links"]);
 
-        $this->assertArrayHasKey("retweets_count", $response->json("data.0"));
-        $this->assertArrayHasKey("replies_count", $response->json("data.0"));
-        $this->assertArrayHasKey("likes_count", $response->json("data.0"));
+		$this->assertArrayHasKey("retweets_count", $response->json("data.0"));
+		$this->assertArrayHasKey("replies_count", $response->json("data.0"));
+		$this->assertArrayHasKey("likes_count", $response->json("data.0"));
 		$this->assertEquals($lastTweet->body, $response->json("data.0.body"));
 		$this->assertEquals($tweetToRetweet->uuid, $response->json("data.1.id"));
 		$this->assertEquals(1, $response->json("data.1.retweets_count"));

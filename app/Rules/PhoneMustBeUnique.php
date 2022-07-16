@@ -26,7 +26,6 @@ class PhoneMustBeUnique implements Rule
      */
     public function passes($attribute, $value)
     {
-        // dd($value);
         return User::query()->where('phone', $value)->orWhere('phone_validated', $value)->exists() ? false : true;
     }
 

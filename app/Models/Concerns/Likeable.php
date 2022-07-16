@@ -3,6 +3,7 @@
 namespace App\Models\Concerns;
 
 use App\Events\ModelLiked;
+use App\Events\ModelUnliked;
 use App\Models\Like;
 use Illuminate\Support\Str;
 
@@ -30,6 +31,8 @@ trait Likeable
         $this->likes()->where([
             "user_id" => $likeSender->id
         ])->delete();
+
+        ModelUnliked::dispatch($this);
     }
 
     public function eventChannelName(): string

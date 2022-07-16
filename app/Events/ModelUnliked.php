@@ -10,24 +10,22 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class ModelLiked implements ShouldBroadcast
+class ModelUnliked implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $model;
-    public $likeSender;
 
     /**
      * Create a new event instance.
      *
      * @return void
      */
-    public function __construct($model, $likeSender)
+    public function __construct($model)
     {
         $this->dontBroadcastToCurrentUser();
-        
+
         $this->model = $model;
-        $this->likeSender = $likeSender;
     }
 
     /**
