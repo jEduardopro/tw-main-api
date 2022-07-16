@@ -13,7 +13,7 @@ class MediaResourceTest extends TestCase
     use RefreshDatabase;
 
     /** @test */
-    public function a_tweet_resources_must_have_the_necessary_keys()
+    public function a_media_resources_must_have_the_necessary_keys()
     {
         $user = User::factory()->create();
         $tweet = Tweet::factory()->create(["user_id" => $user->id]);

@@ -70,6 +70,9 @@ Route::group(["middleware" => ["auth:api"]], function() {
         Route::get("/{id}/followings", "Users\UserFollowingsController@index");
     });
 
+    // User Notifications
+    Route::get("users/{id}/notifications", "Users\UserNotificationsController@index");
+
     // Profile
     Route::controller(ProfileController::class)->prefix("profile")->group(function () {
         Route::put("/", "update");
