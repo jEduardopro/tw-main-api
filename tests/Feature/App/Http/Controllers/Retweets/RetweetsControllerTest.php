@@ -2,10 +2,14 @@
 
 namespace Tests\Feature\App\Http\Controllers\Retweets;
 
+use App\Events\TweetRetweeted;
+use App\Events\UndoRetweet;
 use App\Models\Tweet;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Event;
 use Laravel\Passport\Passport;
 use Tests\TestCase;
 
@@ -17,6 +21,10 @@ class RetweetsControllerTest extends TestCase
 	/** @test */
 	public function an_authenticated_user_can_retweet_a_tweet()
 	{
+        Event::fake([TweetRetweeted::class]);
+
+        Broadcast::shouldReceive('socket')->andReturn('socket-id');
+
 		$user = User::factory()->activated()->create();
 		$user2 = User::factory()->activated()->create();
 
@@ -34,12 +42,29 @@ class RetweetsControllerTest extends TestCase
 			"user_id" => $user->id,
 			"tweet_id" => $tweet->id
 		]);
+
+        Event::assertDispatched(TweetRetweeted::class, function($event) use ($tweet) {
+            $this->assertTrue(!is_null($event->tweetRetweeted));
+            $this->assertTrue(!is_null($event->retweetOwner));
+
+            $this->assertTrue($event->tweetRetweeted->is($tweet));
+
+            $this->assertDontBroadcastToCurrentUser($event);
+            $this->assertEventChannelType('public', $event);
+            $this->assertEventChannelName("tweets.{$tweet->uuid}.retweets", $event);
+
+            return true;
+        });
 	}
 
 
 	/** @test */
 	public function an_authenticated_user_can_undo_a_retweet_of_a_tweet()
 	{
+        Event::fake([UndoRetweet::class]);
+
+        Broadcast::shouldReceive('socket')->andReturn('socket-id');
+
 		$user = User::factory()->activated()->create();
 		$user2 = User::factory()->activated()->create();
 
@@ -59,6 +84,18 @@ class RetweetsControllerTest extends TestCase
 			"user_id" => $user->id,
 			"tweet_id" => $tweet->id
 		]);
+
+        Event::assertDispatched(UndoRetweet::class, function($event) use ($tweet){
+            $this->assertTrue(!is_null($event->tweet));
+
+            $this->assertTrue($event->tweet->is($tweet));
+
+            $this->assertDontBroadcastToCurrentUser($event);
+            $this->assertEventChannelType('public', $event);
+            $this->assertEventChannelName("tweets.{$tweet->uuid}.retweets", $event);
+
+            return true;
+        });
 	}
 
     /** @test */

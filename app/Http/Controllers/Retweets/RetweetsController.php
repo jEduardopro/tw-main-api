@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Retweets;
 
+use App\Events\TweetRetweeted;
+use App\Events\UndoRetweet;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\RetweetFormRequest;
 use App\Models\Tweet;
@@ -21,6 +23,8 @@ class RetweetsController extends Controller
         }
 
         $user->retweet($tweet->id);
+
+        TweetRetweeted::dispatch($tweet, $user);
 
         return $this->responseWithMessage("retweet created successfully");
     }
@@ -42,6 +46,10 @@ class RetweetsController extends Controller
         }
 
         $user->undoRetweet($tweet->id);
+
+        UndoRetweet::dispatch($tweet);
+
+        $user->notificationsSent()->where("data->tweet_retweeted_uuid", $tweet->uuid)->delete();
 
         return $this->responseWithMessage("retweet deleted successfully");
     }

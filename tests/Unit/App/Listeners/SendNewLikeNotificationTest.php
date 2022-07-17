@@ -21,7 +21,6 @@ class SendNewLikeNotificationTest extends TestCase
     /** @test */
     public function a_notification_is_sent_when_a_tweet_is_liked()
     {
-        $this->withoutExceptionHandling();
         Notification::fake();
 
         $user = User::factory()->activated()->create();
