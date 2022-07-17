@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Users;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\NotificationResource;
 use App\Models\User;
+use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Http\Request;
 
 class UserNotificationsController extends Controller
@@ -21,7 +22,13 @@ class UserNotificationsController extends Controller
             return $this->responseWithMessage("you do not have permission to perform this action", 403);
         }
 
-        $notifications = $user->notifications()->latest()->paginate();
+        $notifications = $user->notifications()
+                        ->with(["senderable" => function(MorphTo $morphTo) {
+                            $morphTo->morphWith([
+                                User::class => ["profileImage"]
+                            ]);
+                        }])
+                        ->paginate();
 
         return $this->responseWithResource(NotificationResource::collection($notifications));
     }

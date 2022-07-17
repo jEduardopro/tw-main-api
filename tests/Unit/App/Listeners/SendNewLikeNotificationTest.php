@@ -3,6 +3,7 @@
 namespace Tests\Unit\App\Listeners;
 
 use App\Events\ModelLiked;
+use App\Models\CustomDatabaseNotification;
 use App\Models\Like;
 use App\Models\Tweet;
 use App\Models\User;
@@ -20,6 +21,7 @@ class SendNewLikeNotificationTest extends TestCase
     /** @test */
     public function a_notification_is_sent_when_a_tweet_is_liked()
     {
+        $this->withoutExceptionHandling();
         Notification::fake();
 
         $user = User::factory()->activated()->create();
@@ -37,20 +39,23 @@ class SendNewLikeNotificationTest extends TestCase
             $this->assertTrue(!is_null($notification->likeSender));
 
             $this->assertContains('broadcast', $channels);
-            $this->assertContains('database', $channels);
+            $this->assertNotContains('database', $channels);
             $toArrayResult = $notification->toArray($tweetOwner);
             $this->assertArrayHasKey("tweet", $toArrayResult);
             $this->assertArrayHasKey("like_sender", $toArrayResult);
-            $toDatabaseResult = $notification->toDatabase($tweetOwner);
-            $this->assertArrayHasKey("tweet_uuid", $toDatabaseResult);
-            $this->assertArrayHasKey("like_sender_uuid", $toDatabaseResult);
-            $this->assertArrayHasKey("tweet", $toDatabaseResult);
-            $this->assertArrayHasKey("like_sender", $toDatabaseResult);
-
             $this->assertArrayHasKey("image", $toArrayResult["like_sender"]);
 
+            $toDatabaseResult = $notification->toDatabase($tweetOwner);
+            $this->assertArrayHasKey("tweet_uuid", $toDatabaseResult);
+            $this->assertArrayHasKey("tweet", $toDatabaseResult);
+
+
+            $this->assertContains("saveNotification", get_class_methods($notification));
+            $this->assertInstanceOf(CustomDatabaseNotification::class, $notification->saveNotification($tweetOwner));
 
             $this->assertInstanceOf(BroadcastMessage::class, $notification->toBroadcast($tweetOwner));
+            $this->assertEquals("like.added", $notification->broadcastType());
+
 
             return true;
         });

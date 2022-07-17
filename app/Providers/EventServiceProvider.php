@@ -3,8 +3,10 @@
 namespace App\Providers;
 
 use App\Events\ModelLiked;
+use App\Events\RepliedTweet;
 use App\Events\UserRegistered;
 use App\Listeners\SendNewLikeNotification;
+use App\Listeners\SendNewRepliedTweetNotification;
 use App\Listeners\SendVerificationTokenNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
@@ -24,7 +26,10 @@ class EventServiceProvider extends ServiceProvider
         ],
         ModelLiked::class => [
             SendNewLikeNotification::class
-        ]
+        ],
+        RepliedTweet::class => [
+            SendNewRepliedTweetNotification::class
+        ],
     ];
 
     /**

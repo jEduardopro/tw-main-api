@@ -14,8 +14,10 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Schema;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use App\Models\Concerns\HasUuid;
+use App\Models\CustomDatabaseNotification;
 use Laravel\Scout\Searchable;
 use Spatie\MediaLibrary\MediaCollections\Models\Media;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class UserTest extends TestCase
@@ -217,5 +219,24 @@ class UserTest extends TestCase
         $user2->retweet($tweet->id);
 
         $this->assertInstanceOf(Tweet::class, $user2->retweets->first()->tweet);
+    }
+
+    /** @test */
+    public function a_user_model_has_morph_many_notifications_sent()
+    {
+        $user = User::factory()->activated()->create();
+        $user2 = User::factory()->activated()->create();
+
+        CustomDatabaseNotification::create([
+            "id" => Str::uuid()->toString(),
+            "type" => "App\Notifications\NewLike",
+            "notifiable_type" => User::class,
+            "notifiable_id" => $user2->id,
+            "senderable_type" => User::class,
+            "senderable_id" => $user->id,
+            "data" => ["tweet" => "tweet test", "like_sender" => "user test sender"]
+        ]);
+
+        $this->assertInstanceOf(CustomDatabaseNotification::class, $user->notificationsSent->first());
     }
 }

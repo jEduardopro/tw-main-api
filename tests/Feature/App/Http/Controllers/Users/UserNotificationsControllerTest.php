@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\App\Http\Controllers\Users;
 
+use App\Models\CustomDatabaseNotification;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -18,13 +19,16 @@ class UserNotificationsControllerTest extends TestCase
     public function an_authenticated_user_can_see_their_notifications()
     {
         $user = User::factory()->activated()->create();
+        $user2 = User::factory()->activated()->create();
         Passport::actingAs($user);
 
-        DatabaseNotification::create([
+        CustomDatabaseNotification::create([
             "id" => Str::uuid()->toString(),
             "type" => "App\Notifications\NewLike",
             "notifiable_type" => User::class,
             "notifiable_id" => $user->id,
+            "senderable_type" => User::class,
+            "senderable_id" => $user2->id,
             "data" => ["tweet" => "tweet test", "like_sender" => "user test sender"]
         ]);
 
@@ -33,6 +37,8 @@ class UserNotificationsControllerTest extends TestCase
         $response->assertSuccessful()
                 ->assertJsonStructure(["data", "meta", "links"]);
 
+        $this->assertArrayHasKey("sender", $response->json("data.0"));
+        $this->assertArrayHasKey("image", $response->json("data.0.sender"));
     }
 
     /** @test */
@@ -55,11 +61,13 @@ class UserNotificationsControllerTest extends TestCase
         $user2 = User::factory()->activated()->create();
         Passport::actingAs($user);
 
-        DatabaseNotification::create([
+        CustomDatabaseNotification::create([
             "id" => Str::uuid()->toString(),
             "type" => "App\Notifications\NewLike",
             "notifiable_type" => User::class,
             "notifiable_id" => $user2->id,
+            "senderable_type" => User::class,
+            "senderable_id" => $user->id,
             "data" => ["tweet" => "tweet test", "like_sender" => "user test sender"]
         ]);
 

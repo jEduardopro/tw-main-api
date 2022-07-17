@@ -157,6 +157,28 @@ class User extends Authenticatable implements HasMedia
     /** Public methods */
 
     /**
+     * Get the entity's notifications.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function notifications()
+    {
+        return $this->morphMany(CustomDatabaseNotification::class, 'notifiable')->latest();
+    }
+
+    /**
+     * Get the entity's notifications sent.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\MorphMany
+     */
+    public function notificationsSent()
+    {
+        return $this->morphMany(CustomDatabaseNotification::class, 'senderable')->latest();
+    }
+
+
+
+    /**
      * Create the friendship between follower and followed
      */
     public function follow(string $userId): void

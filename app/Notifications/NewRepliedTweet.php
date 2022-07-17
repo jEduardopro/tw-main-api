@@ -15,22 +15,22 @@ use Illuminate\Notifications\Notification;
 use Illuminate\Support\Str;
 
 
-class NewLike extends Notification
+class NewRepliedTweet extends Notification
 {
     use Queueable;
 
-    public Tweet $tweet;
-    public User $likeSender;
+    public Tweet $replyTweet;
+    public User $userReplying;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($tweet, $likeSender)
+    public function __construct($replyTweet, $userReplying)
     {
-        $this->tweet = $tweet;
-        $this->likeSender = $likeSender->load('profileImage');
+        $this->replyTweet = $replyTweet->load(["user.profileImage"]);
+        $this->userReplying = $userReplying;
     }
 
     /**
@@ -45,6 +45,19 @@ class NewLike extends Notification
         return ['broadcast'];
     }
 
+    /**
+     * Get the mail representation of the notification.
+     *
+     * @param  mixed  $notifiable
+     * @return \Illuminate\Notifications\Messages\MailMessage
+     */
+    public function toMail($notifiable)
+    {
+        return (new MailMessage)
+                    ->line('The introduction to the notification.')
+                    ->action('Notification Action', url('/'))
+                    ->line('Thank you for using our application!');
+    }
 
     /**
      * Get the array representation of the notification.
@@ -55,19 +68,21 @@ class NewLike extends Notification
     public function toArray($notifiable)
     {
         return [
-            "tweet" => TweetResource::make($this->tweet)->resolve(),
-            "like_sender" => ProfileResource::make($this->likeSender)->resolve(),
+            "reply_tweet" => TweetResource::make($this->replyTweet)->resolve(),
+            "user_replying" => ProfileResource::make($this->userReplying)->resolve(),
         ];
     }
 
     public function toDatabase($notifiable)
     {
-        return ["tweet_uuid" => $this->tweet->uuid, "tweet" => TweetResource::make($this->tweet)];
+        return array_merge([
+            "reply_tweet_uuid" => $this->replyTweet->uuid,
+        ], $this->toArray($notifiable));
     }
 
     public function toBroadcast($notifiable)
     {
-        return (new BroadcastMessage($this->toArray($notifiable)))->onQueue('likes');
+        return (new BroadcastMessage($this->toArray($notifiable)))->onQueue("replies");
     }
 
     /**
@@ -77,7 +92,7 @@ class NewLike extends Notification
      */
     public function broadcastType()
     {
-        return 'like.added';
+        return 'reply.added';
     }
 
     public function saveNotification($notifiable): CustomDatabaseNotification
@@ -87,8 +102,8 @@ class NewLike extends Notification
             "type" => self::class,
             "notifiable_type" => get_class($notifiable),
             "notifiable_id" => $notifiable->id,
-            "senderable_type" => get_class($this->likeSender),
-            "senderable_id" => $this->likeSender->id,
+            "senderable_type" => get_class($this->replyTweet->user),
+            "senderable_id" => $this->replyTweet->user->id,
             "data" => $this->toDatabase($notifiable)
         ]);
     }

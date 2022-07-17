@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Replies;
 
+use App\Events\DeletedTweetReply;
+use App\Events\RepliedTweet;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ReplyTweetFormRequest;
 use App\Models\Reply;
@@ -23,6 +25,8 @@ class RepliesController extends Controller
         $replyTweet->reply_id = $reply->id;
         $replyTweet->save();
 
+        RepliedTweet::dispatch($replyTweet, $tweet->user);
+
         return $this->responseWithMessage("you tweet was sent");
     }
 
@@ -40,11 +44,17 @@ class RepliesController extends Controller
             return $this->responseWithMessage("you do not have permission to perform this action", 403);
         }
 
+        $tweetReplying = $replyTweet->reply->tweet;
+
         $replyTweet->reply->delete();
+
+        $user->notificationsSent()->where('data->reply_tweet_uuid', $replyTweet->uuid)->delete();
 
         $replyTweet->delete();
 
         $replyTweet->detachMediaFiles();
+
+        DeletedTweetReply::dispatch($tweetReplying);
 
         return $this->responseWithMessage("you tweet was deleted");
     }

@@ -44,7 +44,7 @@ class TweetLikesController extends Controller
 
         $tweet->unlike();
 
-        $tweet->user->notifications()->where('data->like_sender_uuid', $user->uuid)->delete();
+        $user->notificationsSent()->where('data->tweet_uuid', $tweet->uuid)->delete();
 
         return $this->responseWithMessage("unlike tweet done");
     }

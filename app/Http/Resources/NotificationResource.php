@@ -18,6 +18,9 @@ class NotificationResource extends JsonResource
         return [
             "id" => $this->id,
             "type" => $this->getReadableNotificationType(),
+            $this->mergeWhen($this->relationLoaded("senderable"), function () {
+                return ["sender" => ProfileResource::make( $this->senderable )];
+            }),
             "data" => $this->data,
             "read_at" => $this->read_at,
             "created_at" => $this->created_at,
