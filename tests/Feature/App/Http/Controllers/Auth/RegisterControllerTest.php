@@ -107,6 +107,15 @@ class RegisterControllerTest extends TestCase
     }
 
     /** @test */
+    public function the_phone_must_be_prohibited_if_email_is_present()
+    {
+        $payload = $this->userValidData();
+
+        $this->postJson('api/auth/register', $payload)
+                ->assertJsonValidationErrorFor('phone');
+    }
+
+    /** @test */
     public function the_request_must_have_at_least_an_email_or_a_phone()
     {
         $this->postJson('api/auth/register', $this->userValidData(["phone" => null, "email" => null]))
