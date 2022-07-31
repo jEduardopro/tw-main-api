@@ -1,6 +1,6 @@
 <?php
 
-namespace Tests\Feature\App\Http\Controllers\Followers;
+namespace Tests\Feature\App\Http\Controllers\Friendships;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
