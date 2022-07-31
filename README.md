@@ -30,3 +30,12 @@
     fresh-db
 ```
 
+### Extra
+- Run tests within container
+```
+    vendor/bin/phpunit
+```
+- Run queues within container
+```
+    artisan queue:work --default,tweets,likes,replies,retweets
+```
