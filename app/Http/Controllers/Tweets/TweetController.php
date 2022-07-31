@@ -57,7 +57,7 @@ class TweetController extends Controller
             return $this->responseWithMessage("the tweet does not exist or has already been deleted", 404);
         }
 
-        if ($tweet->user_id !== $user->id) {
+        if ($tweet->user_id != $user->id) {
             return $this->responseWithMessage("you do not have permission to perform this action", 403);
         }
         $tweet->delete();

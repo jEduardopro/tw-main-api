@@ -10,26 +10,26 @@ use Tests\TestCase;
 
 class MediaResourceTest extends TestCase
 {
-    use RefreshDatabase;
+	use RefreshDatabase;
 
-    /** @test */
-    public function a_media_resources_must_have_the_necessary_keys()
-    {
-        $user = User::factory()->create();
-        $tweet = Tweet::factory()->create(["user_id" => $user->id]);
+	/** @test */
+	public function a_media_resources_must_have_the_necessary_keys()
+	{
+		$user = User::factory()->create();
+		$tweet = Tweet::factory()->create(["user_id" => $user->id]);
 
-        $media = $tweet->addMedia(storage_path('media-demo/test_image.jpeg'))
-            ->preservingOriginal()
-            ->toMediaCollection("images");
+		$media = $tweet->addMedia(storage_path('media-test/test_image.jpeg'))
+			->preservingOriginal()
+			->toMediaCollection("images");
 
-        $mediaResource = MediaResource::make($media->refresh())->resolve();
+		$mediaResource = MediaResource::make($media->refresh())->resolve();
 
-        $this->assertTrue(is_string($media->uuid));
-        $this->assertEquals($media->uuid, $mediaResource["id"]);
-        $this->assertEquals($media->getUrl(), $mediaResource["url"]);
-        $this->assertEquals($media->getUrl(), $mediaResource["url"]);
-        $this->assertEquals($media->created_at, $mediaResource["created_at"]);
+		$this->assertTrue(is_string($media->uuid));
+		$this->assertEquals($media->uuid, $mediaResource["id"]);
+		$this->assertEquals($media->getUrl(), $mediaResource["url"]);
+		$this->assertEquals($media->getUrl(), $mediaResource["url"]);
+		$this->assertEquals($media->created_at, $mediaResource["created_at"]);
 
-        $this->assertArrayHasKey("conversions", $mediaResource);
-    }
+		$this->assertArrayHasKey("conversions", $mediaResource);
+	}
 }

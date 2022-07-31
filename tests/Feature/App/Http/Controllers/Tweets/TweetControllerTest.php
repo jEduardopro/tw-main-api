@@ -20,45 +20,45 @@ class TweetControllerTest extends TestCase
 	/** @test*/
 	public function an_authenticated_user_can_tweet()
 	{
-        Notification::fake();
+		Notification::fake();
 
 		$user = User::factory()->activated()->create();
 		$user2 = User::factory()->activated()->create();
-        $user2->follow($user->id);
+		$user2->follow($user->id);
 
 		Passport::actingAs($user);
 
-        $collectionName = "tweet_image";
-        $media = $user->addMedia(storage_path('media-demo/test_image.jpeg'))
-                ->preservingOriginal()
-                ->toMediaCollection($collectionName);
+		$collectionName = "tweet_image";
+		$media = $user->addMedia(storage_path('media-test/test_image.jpeg'))
+			->preservingOriginal()
+			->toMediaCollection($collectionName);
 
 		$payload = [
 			"body" => "My first tweet",
-            "media" => [$media->uuid]
+			"media" => [$media->uuid]
 		];
 		$response = $this->postJson("api/tweets", $payload)
-                    ->assertSuccessful();
+			->assertSuccessful();
 
-        $data = $response->json();
-        $this->assertTweetResourceData($data);
+		$data = $response->json();
+		$this->assertTweetResourceData($data);
 
 		$this->assertDatabaseHas("tweets", [
 			"user_id" => $user->id,
 			"body" => $payload["body"]
 		]);
 
-        Notification::assertSentTo($user2, TweetCreated::class, function($notification, $channels) use ($user2) {
-            $this->assertTrue(!is_null($notification->tweet));
-            $this->assertContains('broadcast', $channels);
+		Notification::assertSentTo($user2, TweetCreated::class, function ($notification, $channels) use ($user2) {
+			$this->assertTrue(!is_null($notification->tweet));
+			$this->assertContains('broadcast', $channels);
 
-            $tweetData = $notification->toArray($user2);
-            $this->assertTweetResourceData($tweetData);
+			$tweetData = $notification->toArray($user2);
+			$this->assertTweetResourceData($tweetData);
 
-            $this->assertInstanceOf(BroadcastMessage::class, $notification->toBroadcast($user2));
+			$this->assertInstanceOf(BroadcastMessage::class, $notification->toBroadcast($user2));
 
-            return true;
-        });
+			return true;
+		});
 	}
 
 	/** @test*/
@@ -108,15 +108,15 @@ class TweetControllerTest extends TestCase
 		$user = User::factory()->activated()->create();
 		$tweet = Tweet::factory()->create(["user_id" => $user->id]);
 
-        $collectionName = "images";
-        $media = $tweet->addMedia(storage_path('media-demo/test_image.jpeg'))
-            ->preservingOriginal()
-            ->toMediaCollection($collectionName);
+		$collectionName = "images";
+		$media = $tweet->addMedia(storage_path('media-test/test_image.jpeg'))
+			->preservingOriginal()
+			->toMediaCollection($collectionName);
 
-        $this->assertDatabaseHas("media", [
-            "id" => $media->id,
-            "name" => "test_image"
-        ]);
+		$this->assertDatabaseHas("media", [
+			"id" => $media->id,
+			"name" => "test_image"
+		]);
 
 		Passport::actingAs($user);
 
@@ -137,10 +137,10 @@ class TweetControllerTest extends TestCase
 		]);
 
 		$this->assertFalse(File::exists($media->getPath()));
-        $this->assertDatabaseMissing("media", [
-            "id" => $media->id,
-            "name" => "test_image"
-        ]);
+		$this->assertDatabaseMissing("media", [
+			"id" => $media->id,
+			"name" => "test_image"
+		]);
 	}
 
 	/** @test */
@@ -157,21 +157,21 @@ class TweetControllerTest extends TestCase
 		$this->assertEquals("the tweet does not exist or has already been deleted", $response->json("message"));
 	}
 
-    /** @test */
-    public function an_authenticated_user_can_not_delete_tweets_that_are_not_yours()
-    {
-        $user = User::factory()->activated()->create();
-        $user2 = User::factory()->activated()->create();
-        $tweet = Tweet::factory()->create(["user_id" => $user2->id]);
+	/** @test */
+	public function an_authenticated_user_can_not_delete_tweets_that_are_not_yours()
+	{
+		$user = User::factory()->activated()->create();
+		$user2 = User::factory()->activated()->create();
+		$tweet = Tweet::factory()->create(["user_id" => $user2->id]);
 
-        Passport::actingAs($user);
+		Passport::actingAs($user);
 
-        $response = $this->deleteJson("api/tweets/{$tweet->uuid}");
+		$response = $this->deleteJson("api/tweets/{$tweet->uuid}");
 
-        $response->assertStatus(403);
+		$response->assertStatus(403);
 
-        $this->assertEquals("you do not have permission to perform this action", $response->json("message"));
-    }
+		$this->assertEquals("you do not have permission to perform this action", $response->json("message"));
+	}
 
 	/** @test */
 	public function a_new_tweet_can_have_media_files_related()
@@ -180,7 +180,7 @@ class TweetControllerTest extends TestCase
 		Passport::actingAs($user);
 
 		$collectionName = "tweet_image";
-		$media = $user->addMedia(storage_path('media-demo/test_image.jpeg'))
+		$media = $user->addMedia(storage_path('media-test/test_image.jpeg'))
 			->preservingOriginal()
 			->toMediaCollection($collectionName);
 
@@ -251,15 +251,15 @@ class TweetControllerTest extends TestCase
 			->assertJsonValidationErrorFor("media");
 	}
 
-    private function assertTweetResourceData(array $data)
-    {
-        $this->assertArrayHasKey("id", $data);
-        $this->assertArrayHasKey("body", $data);
-        $this->assertArrayHasKey("owner", $data);
-        // $this->assertArrayHasKey("image", $data["owner"]);
-        $this->assertArrayHasKey("images", $data);
-        $this->assertArrayHasKey("replies_count", $data);
-        $this->assertArrayHasKey("retweets_count", $data);
-        $this->assertArrayHasKey("likes_count", $data);
-    }
+	private function assertTweetResourceData(array $data)
+	{
+		$this->assertArrayHasKey("id", $data);
+		$this->assertArrayHasKey("body", $data);
+		$this->assertArrayHasKey("owner", $data);
+		// $this->assertArrayHasKey("image", $data["owner"]);
+		$this->assertArrayHasKey("images", $data);
+		$this->assertArrayHasKey("replies_count", $data);
+		$this->assertArrayHasKey("retweets_count", $data);
+		$this->assertArrayHasKey("likes_count", $data);
+	}
 }

@@ -25,10 +25,10 @@ class UserSeeder extends Seeder
             "password" => Hash::make("secretTest1")
         ]);
 
-        User::factory()->unverified()->activated()->withPhoneValidated()->count(20)->create();
+        User::factory()->unverified()->activated()->withPhoneValidated()->count(10)->create();
 
-        $users = User::factory()->activated()->count(20)->create()->each(function ($user){
-            Tweet::factory()->count(rand(1, 10))->create(["user_id" => $user->id]);
+        $users = User::factory()->activated()->count(10)->create()->each(function ($user){
+            Tweet::factory()->count(rand(1, 3))->create(["user_id" => $user->id]);
         });
 
         User::factory()->deactivated()->count(5)->create();
@@ -38,15 +38,15 @@ class UserSeeder extends Seeder
         User::whereNotIn('id', $users->pluck('id'))->get()->each(function ($user) use ($users) {
             $user->following()->saveMany($users);
 
-            Tweet::factory()->count(rand(1, 10))->create(["user_id" => $user->id]);
+            Tweet::factory()->count(rand(1, 3))->create(["user_id" => $user->id]);
         });
 
-        User::take(20)->where('id', '!=', $userTest->id)->get()->each(function ($user) use ($userTest) {
+        User::take(10)->where('id', '!=', $userTest->id)->get()->each(function ($user) use ($userTest) {
             $user->following()->attach($userTest);
         });
 
 
-        $userTest->tweets()->saveMany(Tweet::factory()->count(10)->make(["user_id" => $userTest->id]));
+        $userTest->tweets()->saveMany(Tweet::factory()->count(3)->make(["user_id" => $userTest->id]));
         $userTest->following()->saveMany($users);
 
         $users->each(function ($u) use ($userTest) {

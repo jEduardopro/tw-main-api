@@ -27,9 +27,11 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd
 
 
-ENV PHP_MEMORY_LIMIT=1G\
+ENV PHP_MEMORY_LIMIT=2G\
     UPLOAD_MAX_FILESIZE=256M\
     POST_MAX_SIZE=256M
+
+RUN echo 'memory_limit = -1' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini;
 
 # Instalamos dentro de la imagen la última versión de composer, para ello copiamos la imagen disponible en el repositorio:
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer

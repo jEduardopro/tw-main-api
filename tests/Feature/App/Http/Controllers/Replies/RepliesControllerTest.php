@@ -7,7 +7,6 @@ use App\Events\RepliedTweet;
 use App\Models\Reply;
 use App\Models\Tweet;
 use App\Models\User;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\Broadcast;
@@ -64,6 +63,7 @@ class RepliesControllerTest extends TestCase
 	/** @test */
 	public function an_authenticated_user_can_delete_a_reply_of_a_tweet()
 	{
+
         Event::fake([DeletedTweetReply::class]);
 
         Broadcast::shouldReceive('socket')->andReturn('socket-id');
@@ -81,7 +81,6 @@ class RepliesControllerTest extends TestCase
 		]);
 
 		$response = $this->deleteJson("api/replies/{$myReplyTweet->uuid}");
-
 		$response->assertSuccessful();
 
 		$this->assertEquals("you tweet was deleted", $response->json("message"));

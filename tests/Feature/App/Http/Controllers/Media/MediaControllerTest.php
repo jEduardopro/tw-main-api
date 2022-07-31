@@ -51,7 +51,7 @@ class MediaControllerTest extends TestCase
 		Passport::actingAs($user);
 
 		$collectionName = "tweet_image";
-		$media = $user->addMedia(storage_path('media-demo/test_image.jpeg'))
+		$media = $user->addMedia(storage_path('media-test/test_image.jpeg'))
 			->preservingOriginal()
 			->toMediaCollection($collectionName);
 

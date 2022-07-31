@@ -125,7 +125,7 @@ class ProfileControllerTest extends TestCase
 		Passport::actingAs($user);
 
 		$collectionName = "banner_image";
-		$media = $user->addMedia(storage_path('media-demo/bg_banner.jpeg'))
+		$media = $user->addMedia(storage_path('media-test/bg_banner.jpeg'))
 			->preservingOriginal()
 			->toMediaCollection($collectionName);
 
@@ -147,7 +147,7 @@ class ProfileControllerTest extends TestCase
 		Passport::actingAs($user);
 
 		$collectionName = "profile_image";
-		$media = $user->addMedia(storage_path('media-demo/avatar.jpeg'))
+		$media = $user->addMedia(storage_path('media-test/avatar.jpeg'))
 			->preservingOriginal()
 			->toMediaCollection($collectionName);
 

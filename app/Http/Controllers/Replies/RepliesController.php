@@ -40,7 +40,7 @@ class RepliesController extends Controller
             return $this->responseWithMessage("the tweet reply does not exist", 404);
         }
 
-        if ($replyTweet->user_id !== $user->id) {
+        if ($replyTweet->user_id != $user->id) {
             return $this->responseWithMessage("you do not have permission to perform this action", 403);
         }
 

@@ -3,7 +3,6 @@
 /public/media
 /public/storage
 /storage/*.key
-/storage/media-demo
 /vendor
 .env
 .env.backup
