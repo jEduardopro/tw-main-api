@@ -29,7 +29,7 @@ trait Verificationable
     public function createVerificationTokenForUser($userId): string
     {
         $token = $this->generateToken();
-        DB::table('user_verifications')->insert(['user_id' => $userId, 'token' => $token]);
+        DB::table('user_verifications')->insert(['user_id' => $userId, 'token' => $token, 'created_at' => now()]);
 
         return $token;
     }

@@ -30,7 +30,7 @@ class RegisterFormRequest extends FormRequest
             "name" => "required|string|max:255",
             "email" => "email|unique:users,email|nullable",
             "phone" => ["nullable", Rule::prohibitedIf(request()->filled('email')), new Phone, new PhoneMustBeUnique],
-            "date_birth" => "required|date_format:Y-m-d|before_or_equal:". now()->subYears(13)
+            "date_birth" => "required|date_format:Y-m-d|before_or_equal:". now()->subYears(13)->format('Y-m-d')
         ];
     }
 }
