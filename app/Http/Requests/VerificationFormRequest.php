@@ -24,7 +24,7 @@ class VerificationFormRequest extends FormRequest
     public function rules()
     {
         return [
-            'token' => 'string|required'
+            'code' => 'string|required|max:8'
         ];
     }
 }

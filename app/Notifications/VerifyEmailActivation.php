@@ -11,15 +11,15 @@ class VerifyEmailActivation extends Notification
 {
     use Queueable;
 
-    public string $token;
+    public string $code;
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($token)
+    public function __construct($code)
     {
-        $this->token = $token;
+        $this->code = $code;
     }
 
     /**
@@ -45,7 +45,7 @@ class VerifyEmailActivation extends Notification
             ->from('no-reply@twitterclone.com', 'Twitter Clone')
             ->subject('Verification Email Account')
             ->markdown('mail.account.verification.verify-email-activation', [
-                'token' => $this->token
+                'code' => $this->code
             ]);
     }
 }

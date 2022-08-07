@@ -9,7 +9,7 @@ use App\Events\UserRegistered;
 use App\Listeners\SendNewLikeNotification;
 use App\Listeners\SendNewRepliedTweetNotification;
 use App\Listeners\SendNewTweetRetweetedNotification;
-use App\Listeners\SendVerificationTokenNotification;
+use App\Listeners\SendVerificationCodeNotification;
 use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvider;
 
 class EventServiceProvider extends ServiceProvider
@@ -24,7 +24,7 @@ class EventServiceProvider extends ServiceProvider
         //     SendEmailVerificationNotification::class,
         // ],
         UserRegistered::class => [
-            SendVerificationTokenNotification::class
+            SendVerificationCodeNotification::class
         ],
         ModelLiked::class => [
             SendNewLikeNotification::class

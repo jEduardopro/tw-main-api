@@ -36,7 +36,7 @@ class RegisterController extends Controller
 
         $user->save();
 
-        $user["token"] = $user->createVerificationTokenForUser($user->id);
+        $user["code"] = $user->createVerificationCodeForUser($user->id);
 
         UserRegistered::dispatch($user);
 

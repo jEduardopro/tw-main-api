@@ -11,16 +11,16 @@ class VerificationController extends Controller
 {
     public function verify(VerificationFormRequest $request)
     {
-        $userVerification = User::findVerificationByToken($request->token);
+        $userVerification = User::findVerificationByCode($request->code);
 
         if (!$userVerification) {
-            return $this->responseWithErrors([ "token" => ["The token is invalid"] ]);
+            return $this->responseWithMessage("The code you entered is incorrect", 400);
         }
 
         $userVerificationDate = Carbon::parse($userVerification->created_at);
         $currentDate = now()->subMinutes(10);
         if ($currentDate->greaterThan($userVerificationDate)) {
-            return $this->responseWithErrors([ "token" => ["The token is expired"] ]);
+            return $this->responseWithMessage("The code you entered is expired", 400);
         }
 
         $user = User::where('id', $userVerification->user_id)->first();
@@ -30,14 +30,14 @@ class VerificationController extends Controller
         }
 
         if ($user->isVerified()) {
-            User::deleteUserVerificationTokens($user->id);
+            User::deleteUserVerificationCodes($user->id);
             return $this->responseWithMessage("The user account is already verified", 403);
         }
 
         $user->verify();
         $user->save();
 
-        User::deleteUserVerificationTokens($user->id);
+        User::deleteUserVerificationCodes($user->id);
 
         return $this->responseWithData([
             "message" => "Verification success",
@@ -59,11 +59,11 @@ class VerificationController extends Controller
             return $this->responseWithMessage("The code was not sent, the information is invalid",417);
         }
 
-        User::deleteUserVerificationTokens($user->id);
+        User::deleteUserVerificationCodes($user->id);
 
-        $token = $user->createVerificationTokenForUser($user->id);
+        $code = $user->createVerificationCodeForUser($user->id);
 
-        $user->sendVerificationNotification($token);
+        $user->sendVerificationNotification($code);
 
         return $this->responseWithMessage("The code was sent successfully");
     }

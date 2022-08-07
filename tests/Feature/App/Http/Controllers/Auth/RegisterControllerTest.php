@@ -16,6 +16,7 @@ class RegisterControllerTest extends TestCase
     /** @test */
     public function a_user_can_register_with_email()
     {
+        $this->withoutExceptionHandling();
         Event::fake();
         $payload = $this->userValidData(['phone' => null]);
 

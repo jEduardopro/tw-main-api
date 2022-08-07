@@ -3,7 +3,7 @@
 
 This is the code to verify your account
 
-## {{$token}}
+## {{$code}}
 
 {{-- @component('mail::button', ['url' => ''])
 Button Text

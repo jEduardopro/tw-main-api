@@ -20,13 +20,13 @@ class VerificationControllerTest extends TestCase
     public function a_user_can_verify_their_email()
     {
         $user = User::factory()->unverified()->withoutPassword()->create($this->userValidData(['phone' => null]));
-        $token = Str::upper(Str::random(6));
-        $userVerificationData = ['user_id' => $user->id, 'token' => $token];
+        $code = Str::upper(Str::random(8));
+        $userVerificationData = ['user_id' => $user->id, 'code' => $code];
         DB::table('user_verifications')->insert($userVerificationData);
 
         $this->assertFalse($user->hasVerifiedEmail());
 
-        $response = $this->postJson('api/auth/verification/verify', ['token' => $token]);
+        $response = $this->postJson('api/auth/verification/verify', ['code' => $code]);
 
         $this->assertTrue($user->fresh()->hasVerifiedEmail());
 
@@ -53,13 +53,13 @@ class VerificationControllerTest extends TestCase
             ->withPhoneValidated()
             ->create(['email' => null]);
 
-        $token = Str::upper(Str::random(6));
-        $userVerificationData = ['user_id' => $user->id, 'token' => $token];
+        $code = Str::upper(Str::random(8));
+        $userVerificationData = ['user_id' => $user->id, 'code' => $code];
         DB::table('user_verifications')->insert($userVerificationData);
 
         $this->assertFalse($user->hasVerifiedPhone());
 
-        $response = $this->postJson('api/auth/verification/verify', ['token' => $token]);
+        $response = $this->postJson('api/auth/verification/verify', ['code' => $code]);
 
         $this->assertTrue($user->fresh()->hasVerifiedPhone());
 
@@ -79,12 +79,14 @@ class VerificationControllerTest extends TestCase
     }
 
     /** @test */
-    public function the_verify_process_to_email_or_phone_must_be_fail_if_does_not_exist_a_user_verification_token()
+    public function the_verify_process_to_email_or_phone_must_be_fail_if_does_not_exist_a_user_verification_code()
     {
-        $token = Str::upper(Str::random(6));
+        $code = Str::upper(Str::random(8));
 
-        $this->postJson('api/auth/verification/verify', ['token' => $token])
-                    ->assertJsonValidationErrorFor("token");
+        $response = $this->postJson('api/auth/verification/verify', ['code' => $code])
+                ->assertStatus(400);
+
+        $this->assertEquals("The code you entered is incorrect", $response->json("message"));
     }
 
     /** @test */
@@ -95,25 +97,25 @@ class VerificationControllerTest extends TestCase
             ->withPhoneValidated()
             ->create(['email' => null]);
 
-        $token = Str::upper(Str::random(6));
-        $userVerificationData = ['user_id' => $user->id, 'token' => $token];
+        $code = Str::upper(Str::random(8));
+        $userVerificationData = ['user_id' => $user->id, 'code' => $code];
         DB::table('user_verifications')->insert($userVerificationData);
 
         $user->delete();
-        $response = $this->postJson('api/auth/verification/verify', ['token' => $token]);
+        $response = $this->postJson('api/auth/verification/verify', ['code' => $code]);
 
         $response->assertStatus(400);
         $this->assertEquals("The account does not exist", $response->json("message"));
     }
 
     /** @test */
-    public function a_user_can_resend_the_verification_token_by_email()
+    public function a_user_can_resend_the_verification_code_by_email()
     {
         Notification::fake();
 
         $user = User::factory()->unverified()->withoutPassword()->create($this->userValidData(['phone' => null]));
-        $token = Str::upper(Str::random(6));
-        $userVerificationData = ['user_id' => $user->id, 'token' => $token];
+        $code = Str::upper(Str::random(8));
+        $userVerificationData = ['user_id' => $user->id, 'code' => $code];
         DB::table('user_verifications')->insert($userVerificationData);
 
         $this->assertFalse($user->hasVerifiedEmail());
@@ -136,7 +138,7 @@ class VerificationControllerTest extends TestCase
     }
 
     /** @test */
-    public function a_user_can_resend_the_verification_token_by_sms()
+    public function a_user_can_resend_the_verification_code_by_sms()
     {
         Notification::fake();
 
@@ -144,8 +146,8 @@ class VerificationControllerTest extends TestCase
             ->withPhoneValidated()
             ->create(['email' => null]);
 
-        $token = Str::upper(Str::random(6));
-        $userVerificationData = ['user_id' => $user->id, 'token' => $token];
+        $code = Str::upper(Str::random(8));
+        $userVerificationData = ['user_id' => $user->id, 'code' => $code];
         DB::table('user_verifications')->insert($userVerificationData);
 
         $this->assertFalse($user->hasVerifiedPhone());
@@ -171,10 +173,10 @@ class VerificationControllerTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $token = Str::upper(Str::random(6));
-        $userVerificationData = ['user_id' => $user->id, 'token' => $token];
+        $code = Str::upper(Str::random(8));
+        $userVerificationData = ['user_id' => $user->id, 'code' => $code];
         DB::table('user_verifications')->insert($userVerificationData);
-        $response = $this->postJson('api/auth/verification/verify', ['token' => $token]);
+        $response = $this->postJson('api/auth/verification/verify', ['code' => $code]);
 
         $response->assertStatus(403);
 
@@ -187,24 +189,34 @@ class VerificationControllerTest extends TestCase
     public function the_verification_code_must_be_valid()
     {
         $user = User::factory()->unverified()->withoutPassword()->create($this->userValidData(['email' => null]));
-        $token = Str::upper(Str::random(6));
-        $userVerificationData = ['user_id' => $user->id, 'token' => $token, 'created_at' => now()->subMinutes(15)];
+        $code = Str::upper(Str::random(8));
+        $userVerificationData = ['user_id' => $user->id, 'code' => $code, 'created_at' => now()->subMinutes(15)];
         DB::table('user_verifications')->insert($userVerificationData);
 
         $this->assertDatabaseHas('user_verifications', $userVerificationData);
 
-        $response = $this->postJson('api/auth/verification/verify', ['token' => $token]);
-        $response->assertJsonValidationErrorFor('token');
+        $response = $this->postJson('api/auth/verification/verify', ['code' => $code]);
+        $response->assertStatus(400);
+
+        $this->assertEquals("The code you entered is expired", $response->json("message"));
     }
 
     /** @test */
     public function the_verification_code_is_required()
     {
-        $this->postJson('api/auth/verification/verify', ['token' => null])
-            ->assertJsonValidationErrorFor('token')
+        $this->postJson('api/auth/verification/verify', ['code' => null])
+            ->assertJsonValidationErrorFor('code')
             ->assertJsonValidationErrors([
-                'token' => ['The token field is required.']
+                'code' => ['The code field is required.']
             ]);
+    }
+
+
+    /** @test */
+    public function the_verification_code_must_no_have_more_than_8_characters()
+    {
+        $this->postJson('api/auth/verification/verify', ['code' => '123456789'])
+            ->assertJsonValidationErrorFor('code');
     }
 
     /** @test */

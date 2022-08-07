@@ -29,9 +29,9 @@ class AccountInformationController extends Controller
         $user = $request->user();
         $email = $request->email;
 
-        $token = $user->createVerificationTokenForUser($user->id);
+        $code = $user->createVerificationCodeForUser($user->id);
 
-        Notification::send($user, new VerifyNewEmailAddress($email, $token));
+        Notification::send($user, new VerifyNewEmailAddress($email, $code));
 
         return $this->responseWithMessage("The verification code was sent");
     }
@@ -42,11 +42,11 @@ class AccountInformationController extends Controller
         $user = $request->user();
         $email = $request->email;
 
-        User::deleteUserVerificationTokens($user->id);
+        User::deleteUserVerificationCodes($user->id);
 
-        $token = $user->createVerificationTokenForUser($user->id);
+        $code = $user->createVerificationCodeForUser($user->id);
 
-        Notification::send($user, new VerifyNewEmailAddress($email, $token));
+        Notification::send($user, new VerifyNewEmailAddress($email, $code));
 
         return $this->responseWithMessage("The verification code was sent");
     }
@@ -55,25 +55,25 @@ class AccountInformationController extends Controller
     {
         $user = $request->user();
         $email = $request->email;
-        $token = $request->code;
+        $code = $request->code;
 
-        $pendingVerification = User::findVerificationByToken($token);
+        $pendingVerification = User::findVerificationByCode($code);
 
         if (!$pendingVerification) {
-            return $this->responseWithMessage("The code is invalid", 400);
+            return $this->responseWithMessage("The code you entered is incorrect", 400);
         }
 
         $userVerificationDate = Carbon::parse($pendingVerification->created_at);
         $currentDate = now()->subMinutes(10);
         if ($currentDate->greaterThan($userVerificationDate)) {
-            return $this->responseWithErrors(["code" => ["The code is expired"]]);
+            return $this->responseWithMessage("The code you entered is expired", 400);
         }
 
         $user->email = $email;
         $user->email_verified_at = now();
         $user->save();
 
-        User::deleteUserVerificationTokens($user->id);
+        User::deleteUserVerificationCodes($user->id);
 
         return $this->responseWithData([
             "message" => "Email address updated",

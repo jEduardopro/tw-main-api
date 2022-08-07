@@ -8,7 +8,7 @@ use App\Notifications\VerifyPhoneActivation;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Queue\InteractsWithQueue;
 
-class SendVerificationTokenNotification
+class SendVerificationCodeNotification
 {
     /**
      * Create the event listener.
@@ -29,11 +29,11 @@ class SendVerificationTokenNotification
     public function handle(UserRegistered $event)
     {
         if (! $event->user->hasVerifiedEmail() && $event->user->email) {
-            $event->user->notify(new VerifyEmailActivation($event->user->token));
+            $event->user->notify(new VerifyEmailActivation($event->user->code));
         }
 
         if (! $event->user->hasVerifiedPhone() && $event->user->phone_validated) {
-            $event->user->notify(new VerifyPhoneActivation($event->user->phone_validated, $event->user->token));
+            $event->user->notify(new VerifyPhoneActivation($event->user->phone_validated, $event->user->code));
         }
     }
 }

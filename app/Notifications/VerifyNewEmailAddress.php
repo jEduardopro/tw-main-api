@@ -12,17 +12,17 @@ class VerifyNewEmailAddress extends Notification
     use Queueable;
 
     public $email;
-    public $token;
+    public $code;
 
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct($email, $token)
+    public function __construct($email, $code)
     {
         $this->email = $email;
-        $this->token = $token;
+        $this->code = $code;
     }
 
     /**
@@ -45,9 +45,9 @@ class VerifyNewEmailAddress extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-            ->subject("{$this->token} is your twitter clone verification code")
+            ->subject("{$this->code} is your twitter clone verification code")
             ->markdown('mail.account.information.verify-new-email-address', [
-                "token" => $this->token
+                "code" => $this->code
             ]);
     }
 }
