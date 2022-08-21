@@ -38,6 +38,8 @@ class SignUpControllerTest extends TestCase
 
         $this->assertEquals("begin onboarding", $response->json("message"));
 
+        $this->assertArrayNotHasKeysWithinUserData($response->json("user"));
+
         $this->assertDatabaseHas("users", [
             "email" => $user->email,
             "is_activated" => 1
@@ -70,6 +72,8 @@ class SignUpControllerTest extends TestCase
             ]);
 
         $this->assertEquals("begin onboarding", $response->json("message"));
+
+        $this->assertArrayNotHasKeysWithinUserData($response->json("user"));
 
         $this->assertDatabaseHas("users", [
             "phone" => $user->phone,
@@ -108,13 +112,6 @@ class SignUpControllerTest extends TestCase
     }
 
     /** @test */
-    public function the_email_must_be_required_when_the_sign_up_is_with_email()
-    {
-        $this->postJson('api/auth/signup', ["description" => User::SIGN_UP_DESC_EMAIL])
-            ->assertJsonValidationErrorFor('email');
-    }
-
-    /** @test */
     public function the_email_must_be_a_valid_email_address()
     {
         $payload = [
@@ -126,10 +123,28 @@ class SignUpControllerTest extends TestCase
     }
 
     /** @test */
-    public function the_phone_must_be_required_when_the_sign_up_is_with_phone()
+    public function the_phone_must_be_prohibited_if_email_is_present()
     {
-        $this->postJson('api/auth/signup', ["description" => User::SIGN_UP_DESC_PHONE])
+        $payload = [
+            "description" => User::SIGN_UP_DESC_EMAIL,
+            "email" => "test_email@example.com",
+            "phone" => env('PHONE_NUMBER_VALIDATED_TEST'),
+            "password" => "Absecret55"
+        ];
+
+        $this->postJson('api/auth/signup', $payload)
             ->assertJsonValidationErrorFor('phone');
+    }
+
+    /** @test */
+    public function the_request_must_have_at_least_an_email_or_a_phone()
+    {
+        $this->postJson('api/auth/signup', ["phone" => null, "email" => null, "description" => User::SIGN_UP_DESC_EMAIL , "password" => "Absecret55"])
+            ->assertStatus(422);
+        $this->postJson('api/auth/signup', ["phone" => "null", "email" => "null", "description" => User::SIGN_UP_DESC_EMAIL , "password" => "Absecret55"])
+        ->assertStatus(422);
+        $this->postJson('api/auth/signup', ["phone" => "", "email" => "", "description" => User::SIGN_UP_DESC_EMAIL , "password" => "Absecret55"])
+            ->assertStatus(422);
     }
 
     /** @test */
@@ -189,5 +204,24 @@ class SignUpControllerTest extends TestCase
         ];
         $this->postJson('api/auth/signup', $payload)
             ->assertJsonValidationErrorFor('password');
+    }
+
+    private function assertArrayNotHasKeysWithinUserData($userData)
+    {
+        $this->assertArrayNotHasKey("email_verified_at", $userData);
+        $this->assertArrayNotHasKey("country_code", $userData);
+        $this->assertArrayNotHasKey("phone", $userData);
+        $this->assertArrayNotHasKey("phone_validated", $userData);
+        $this->assertArrayNotHasKey("phone_verified_at", $userData);
+        $this->assertArrayNotHasKey("banner_id", $userData);
+        $this->assertArrayNotHasKey("image_id", $userData);
+        $this->assertArrayNotHasKey("country", $userData);
+        $this->assertArrayNotHasKey("gender", $userData);
+        $this->assertArrayNotHasKey("description", $userData);
+        $this->assertArrayNotHasKey("date_birth", $userData);
+        $this->assertArrayNotHasKey("deactivated_at", $userData);
+        $this->assertArrayNotHasKey("reactivated_at", $userData);
+        $this->assertArrayNotHasKey("updated_at", $userData);
+        $this->assertArrayNotHasKey("deleted_at", $userData);
     }
 }

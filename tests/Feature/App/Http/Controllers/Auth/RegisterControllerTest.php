@@ -101,10 +101,6 @@ class RegisterControllerTest extends TestCase
 
         $this->postJson('api/auth/register', $payload)
             ->assertJsonValidationErrorFor('phone');
-
-        $payload["phone"] = env("PHONE_NUMBER_VALIDATED_TEST");
-        $this->postJson('api/auth/register', $payload)
-            ->assertJsonValidationErrorFor('phone');
     }
 
     /** @test */

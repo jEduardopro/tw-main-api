@@ -23,6 +23,8 @@ Route::prefix('auth')->group(function() {
     Route::post('/send-password-reset', 'Auth\ResetPasswordController@send');
     Route::post('/password-verify-code', 'Auth\ResetPasswordController@verify');
     Route::post('/reset-password', 'Auth\ResetPasswordController@reset');
+
+    Route::post('/logout', 'Auth\LogoutController@logout')->middleware('auth:api');
 });
 
 
