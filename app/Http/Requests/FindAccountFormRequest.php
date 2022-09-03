@@ -24,7 +24,8 @@ class FindAccountFormRequest extends FormRequest
     public function rules()
     {
         return [
-            "user_identifier" => "required"
+            "user_identifier" => "required",
+            "task_id" => "required|in:". implode(",", config('task-ids.tasks'))
         ];
     }
 }

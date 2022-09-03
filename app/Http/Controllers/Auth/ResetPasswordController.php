@@ -9,20 +9,30 @@ use App\Http\Requests\VerifyResetPasswordFormRequest;
 use App\Http\Requests\SendResetPasswordFormRequest;
 use App\Models\User;
 use App\Notifications\ResetPassword;
+use App\Traits\FlowTrait;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Notification;
 
 class ResetPasswordController extends Controller
 {
-	use UserAccount;
+	use UserAccount, FlowTrait;
 
 	public function send(SendResetPasswordFormRequest $request)
 	{
 		$userIdentifier = null;
-		if ($request->description == User::RESET_PASSWORD_BY_EMAIL) {
-			$userIdentifier = $request->email;
-		}
+        $description = $request->description;
+        $flow_token = $request->flow_token;
+
+        if (!$flow = $this->findFlowByToken($flow_token)) {
+            return $this->responseWithMessage("This flow was not found.", 400);
+        }
+        if ($this->flowIsExpired($flow)) {
+            $flow->delete();
+            return $this->responseWithMessage("This flow has expired, please start again.", 400);
+        }
+        $payloadFlow = $flow->payload;
+        $userIdentifier = $payloadFlow[$description];
 
 		if (!$user = $this->existsUserAccountByIdentifier($userIdentifier)) {
 			return $this->responseWithMessage("We could not find your account", 400);
@@ -59,7 +69,20 @@ class ResetPasswordController extends Controller
 
 	public function reset(ResetPasswordFormRequest $request)
 	{
-		$user = User::query()->where('email', $request->email)->first();
+        $flow_token = $request->flow_token;
+
+        if (!$flow = $this->findFlowByToken($flow_token)) {
+            return $this->responseWithMessage("This flow was not found.", 400);
+        }
+        if ($this->flowIsExpired($flow)) {
+            $flow->delete();
+            return $this->responseWithMessage("This flow has expired, please start again.", 400);
+        }
+
+        $payload = $flow->payload;
+        $username = $payload["username"];
+
+		$user = User::query()->where('username', $username)->first();
 
 		if (!$user) {
 			return $this->responseWithMessage("We could not find your account", 400);
@@ -67,6 +90,8 @@ class ResetPasswordController extends Controller
 
 		$user->encryptPassword($request->password);
 		$user->save();
+
+        $flow->delete();
 
 		return $this->responseWithMessage("successful password reset");
 	}

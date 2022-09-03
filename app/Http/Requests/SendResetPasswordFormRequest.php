@@ -24,8 +24,9 @@ class SendResetPasswordFormRequest extends FormRequest
     public function rules()
     {
         return [
-            "email" => "required_if:description,reset_password_by_email|email",
-            "description" => "required|in:reset_password_by_email"
+            // "email" => "required_if:description,reset_password_by_email|email",
+            "description" => "required|in:reset_password_by_email",
+            "flow_token" => "required|string"
         ];
     }
 }

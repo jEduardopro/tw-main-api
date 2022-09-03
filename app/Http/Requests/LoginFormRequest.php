@@ -25,7 +25,8 @@ class LoginFormRequest extends FormRequest
     {
         return [
             "user_identifier" => "required",
-            "password" => ["required"]
+            "password" => ["required"],
+            "flow_token" => "required|string"
         ];
     }
 }

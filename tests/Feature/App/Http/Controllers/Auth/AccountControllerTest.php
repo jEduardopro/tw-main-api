@@ -5,6 +5,7 @@ namespace Tests\Feature\App\Http\Controllers\Auth;
 use App\Http\Controllers\Auth\AccountController;
 use App\Models\User;
 use App\Http\Controllers\Auth\Concerns\UserAccount;
+use App\Utils\Task;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -25,24 +26,31 @@ class AccountControllerTest extends TestCase
         $emailMask = "{$firstPartEmail}@{$lastPartEmail}";
         $phoneMask = preg_replace("/[A-Za-z0-9]/", "*", substr($phone, 0, strlen($phone)-2)) . substr($phone, -2, 2);
 
-        $response = $this->postJson('api/auth/account/find', ["user_identifier" => $user->email])->assertSuccessful();
+        $taskId = Task::PASSWORD_RESET_BEGIN;
+
+        $response = $this->postJson('api/auth/account/find', ["user_identifier" => $user->email, "task_id" => $taskId])->assertSuccessful();
         $this->assertEquals("success", $response->json("message"));
 
-        $response = $this->postJson('api/auth/account/find', ["user_identifier" => $user->username])->assertSuccessful();
+        $response = $this->postJson('api/auth/account/find', ["user_identifier" => $user->username, "task_id" => $taskId])->assertSuccessful();
         $this->assertEquals("success", $response->json("message"));
 
-        $response = $this->postJson('api/auth/account/find', ["user_identifier" => $user->phone])->assertSuccessful();
+        $response = $this->postJson('api/auth/account/find', ["user_identifier" => $user->phone, "task_id" => $taskId])->assertSuccessful();
         $this->assertEquals("success", $response->json("message"));
 
         $this->assertEquals($emailMask, $response->json("account_info.email"));
         $this->assertEquals($phoneMask, $response->json("account_info.phone"));
         $this->assertEquals($user->username, $response->json("account_info.username"));
+        $this->assertArrayHasKey("flow_token", $response->json());
+        $this->assertDatabaseHas("flows", [
+            "name" => $taskId,
+            "token" => $response->json("flow_token")
+        ]);
     }
 
     /** @test */
     public function the_find_account_process_must_be_fail_if_no_user_account_exists()
     {
-        $response = $this->postJson('api/auth/account/find', ["user_identifier" => "invalid_user_identifier"])
+        $response = $this->postJson('api/auth/account/find', ["user_identifier" => "invalid_user_identifier", "task_id" => Task::PASSWORD_RESET_BEGIN])
                     ->assertStatus(400);
 
         $this->assertEquals("Sorry, we could not find your account", $response->json("message"));
