@@ -86,11 +86,11 @@ class UserTest extends TestCase
 	}
 
 
-	/** @test */
-	public function a_user_model_must_use_the_trait_searchable()
-	{
-		$this->assertClassUsesTrait(Searchable::class, User::class);
-	}
+	// /** @test */
+	// public function a_user_model_must_use_the_trait_searchable()
+	// {
+	// 	$this->assertClassUsesTrait(Searchable::class, User::class);
+	// }
 
 	/** @test */
 	public function the_get_email_mask_method_must_return_null_if_no_email_set()

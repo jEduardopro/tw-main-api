@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\App\Http\Controllers\Account;
 
+use App\Models\Flow;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -39,9 +40,11 @@ class AccountPasswordControllerTest extends TestCase
 
 		$this->assertEquals("password updated", $response->json("message"));
 
+        $flow = Flow::factory()->create();
 		$loginResponse = $this->postJson("api/auth/login", [
 			"user_identifier" => $user->email,
-			"password" => "password"
+			"password" => "password",
+            "flow_token" => $flow->token
 		])->assertStatus(400);
 
 		$this->assertEquals("Wrong password", $loginResponse->json("message"));
@@ -54,7 +57,8 @@ class AccountPasswordControllerTest extends TestCase
 
 		$loginResponse = $this->postJson("api/auth/login", [
 			"user_identifier" => $user->email,
-			"password" => $newPassword
+			"password" => $newPassword,
+            "flow_token" => $flow->token
 		])->assertStatus(200);
 
 		$this->assertEquals("successful login", $loginResponse->json("message"));

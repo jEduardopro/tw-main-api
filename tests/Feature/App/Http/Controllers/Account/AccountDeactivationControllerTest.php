@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\App\Http\Controllers\Account;
 
+use App\Models\Flow;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
@@ -47,9 +48,11 @@ class AccountDeactivationControllerTest extends TestCase
 			"revoked" => 1
 		]);
 
+        $flow = Flow::factory()->create();
 		$this->postJson("api/auth/login", [
 			"user_identifier" => $user->email,
-			"password" => "password"
+			"password" => "password",
+            "flow_token" => $flow->token
 		])->assertStatus(200)->assertJsonStructure(["message", "reactivation_deadline"]);
 	}
 

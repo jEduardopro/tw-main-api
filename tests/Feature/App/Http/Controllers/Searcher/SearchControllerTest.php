@@ -21,13 +21,14 @@ class SearchControllerTest extends TestCase
 		User::factory()->activated()->create(["name" => $testName]);
 
 		$response = $this->json("GET", "api/search", [
-			"q" => "ex"
+			"q" => "test"
 		]);
 
 		$response->assertSuccessful()
 			->assertJsonStructure(["data", "meta", "links"]);
 
 		$this->assertEquals($testName, $response->json("data.0.name"));
+        $this->assertArrayHasKey("image", $response->json("data.0"));
 	}
 
 	/** @test */
@@ -39,7 +40,7 @@ class SearchControllerTest extends TestCase
 		User::factory()->activated()->create(["name" => $testName]);
 
 		$response = $this->json("GET", "api/search", [
-			"q" => "ex",
+			"q" => "test",
 			"f" => "user"
 		]);
 
@@ -47,6 +48,7 @@ class SearchControllerTest extends TestCase
 			->assertJsonStructure(["data", "meta", "links"]);
 
 		$this->assertEquals($testName, $response->json("data.0.name"));
+        $this->assertArrayHasKey("image", $response->json("data.0"));
 	}
 
 	/** @test */

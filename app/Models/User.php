@@ -24,7 +24,7 @@ use Spatie\MediaLibrary\MediaCollections\Models\Media;
 
 class User extends Authenticatable implements HasMedia
 {
-	use HasApiTokens, HasFactory, Notifiable, Verificationable, LocationTrait, SoftDeletes, InteractsWithMedia, HasUuid, Searchable;
+	use HasApiTokens, HasFactory, Notifiable, Verificationable, LocationTrait, SoftDeletes, InteractsWithMedia, HasUuid;
 
 	const SIGN_UP_DESC_EMAIL = "signup_with_email";
 	const SIGN_UP_DESC_PHONE = "signup_with_phone";
@@ -152,6 +152,13 @@ class User extends Authenticatable implements HasMedia
 	{
 		$query->where('is_activated', true);
 	}
+
+    public function scopeSearch($query, $q)
+    {
+        $query->where('name', 'like', "%{$q}%")
+            ->orWhere('username', 'like', "%{$q}%")
+            ->orWhere('email', 'like', "%{$q}%");
+    }
 
 
 	/** Public methods */
@@ -312,20 +319,6 @@ class User extends Authenticatable implements HasMedia
 	{
 		Token::where('user_id', $userId)
 			->update(['revoked' => true]);
-	}
-
-	/**
-	 * Get the indexable data array for the model.
-	 *
-	 * @return array
-	 */
-	public function toSearchableArray()
-	{
-		return [
-			"name" => $this->name,
-			"username" => $this->username,
-			"email" => $this->email,
-		];
 	}
 
 	/**
