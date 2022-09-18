@@ -19,7 +19,6 @@ class SendVerificationCodeNotificationTest extends TestCase
     /** @test */
     public function a_notification_is_sent_when_a_user_is_registered_user_by_email()
     {
-        $this->withoutExceptionHandling();
         Notification::fake();
 
         $user = User::factory()->unverified()->create([

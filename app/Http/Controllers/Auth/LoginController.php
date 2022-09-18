@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Auth\Concerns\UserAccount;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\LoginFormRequest;
+use App\Http\Resources\ProfileResource;
 use App\Http\Resources\UserResource;
 use App\Traits\FlowTrait;
 use Illuminate\Support\Facades\Hash;
@@ -47,10 +48,11 @@ class LoginController extends Controller
         $token = $user->createToken('token')->accessToken;
 
         $flow->delete();
+        $user->load(['profileImage']);
 
         return $this->responseWithData([
             "token" => $token,
-            "user" => UserResource::make($user),
+            "user" => ProfileResource::make($user),
             "message" => "successful login"
         ]);
     }

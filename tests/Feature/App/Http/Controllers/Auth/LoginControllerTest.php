@@ -17,7 +17,6 @@ class LoginControllerTest extends TestCase
     /** @test */
     public function a_user_can_login_with_their_identifier_and_password()
     {
-        $this->withoutExceptionHandling();
         $user = User::factory()->withPhoneValidated()->create();
 
         $flow = Flow::factory()->create();
@@ -46,21 +45,24 @@ class LoginControllerTest extends TestCase
 
         $this->assertEquals("successful login", $response->json("message"));
 
-        $this->assertArrayNotHasKey("email_verified_at", $response->json("user"));
-        $this->assertArrayNotHasKey("country_code", $response->json("user"));
-        $this->assertArrayNotHasKey("phone", $response->json("user"));
-        $this->assertArrayNotHasKey("phone_validated", $response->json("user"));
-        $this->assertArrayNotHasKey("phone_verified_at", $response->json("user"));
-        $this->assertArrayNotHasKey("banner_id", $response->json("user"));
-        $this->assertArrayNotHasKey("image_id", $response->json("user"));
-        $this->assertArrayNotHasKey("country", $response->json("user"));
-        $this->assertArrayNotHasKey("gender", $response->json("user"));
-        $this->assertArrayNotHasKey("description", $response->json("user"));
-        $this->assertArrayNotHasKey("date_birth", $response->json("user"));
-        $this->assertArrayNotHasKey("deactivated_at", $response->json("user"));
-        $this->assertArrayNotHasKey("reactivated_at", $response->json("user"));
-        $this->assertArrayNotHasKey("updated_at", $response->json("user"));
-        $this->assertArrayNotHasKey("deleted_at", $response->json("user"));
+        $user = $response->json("user");
+        $this->assertArrayNotHasKey("email_verified_at", $user);
+        $this->assertArrayNotHasKey("country_code", $user);
+        $this->assertArrayNotHasKey("phone", $user);
+        $this->assertArrayNotHasKey("phone_validated", $user);
+        $this->assertArrayNotHasKey("phone_verified_at", $user);
+        $this->assertArrayNotHasKey("banner_id", $user);
+        $this->assertArrayNotHasKey("image_id", $user);
+        $this->assertArrayNotHasKey("country", $user);
+        $this->assertArrayNotHasKey("gender", $user);
+        // $this->assertArrayNotHasKey("description", $user);
+        $this->assertArrayNotHasKey("date_birth", $user);
+        $this->assertArrayNotHasKey("deactivated_at", $user);
+        $this->assertArrayNotHasKey("reactivated_at", $user);
+        $this->assertArrayNotHasKey("updated_at", $user);
+        $this->assertArrayNotHasKey("deleted_at", $user);
+
+        $this->assertArrayHasKey("image", $user);
     }
 
     /** @test */
