@@ -27,6 +27,11 @@ class TweetResource extends JsonResource
                     "images" => MediaResource::collection($this->media)
                 ];
             }),
+            $this->mergeWhen($this->relationLoaded("mentions"), function () {
+                return [
+                    "mentions" => ProfileResource::collection($this->mentions)
+                ];
+            }),
             $this->mergeWhen($this->relationLoaded("reply") && !is_null($this->reply), function () {
                 return ['reply_to' => TweetResource::make($this->reply->tweet) ];
             }),

@@ -169,4 +169,24 @@ class TweetResourceTest extends TestCase
 		$this->assertArrayHasKey("retweets_count", $tweetReplyResource);
 		$this->assertArrayHasKey("likes_count", $tweetReplyResource);
 	}
+
+	/** @test */
+	public function a_tweet_resources_must_have_the_mentions_key_when_its_mentions_relation_is_loaded()
+	{
+		$user2 = User::factory()->activated()->create();
+		$tweet = Tweet::factory()->create(["user_id" => $user2->id]);
+
+        $tweet->mentions()->attach($user2->id);
+
+		$tweetResource = TweetResource::make($tweet)->resolve();
+
+		$this->assertArrayNotHasKey("mentions", $tweetResource);
+
+		$tweet->load(["mentions"]);
+
+		$tweetResource = TweetResource::make($tweet)->resolve();
+
+		$this->assertArrayHasKey("mentions", $tweetResource);
+		$this->assertEquals(ProfileResource::class, $tweetResource["mentions"]->collects);
+	}
 }

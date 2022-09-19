@@ -6,7 +6,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreTweetFormRequest;
 use App\Http\Resources\TweetResource;
 use App\Models\Tweet;
+use App\Models\User;
 use App\Notifications\TweetCreated;
+use App\Notifications\UserMentioned;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Notification;
 
@@ -16,6 +18,7 @@ class TweetController extends Controller
     {
         $user = $request->user();
         $data = $request->only(['body']);
+        $peopleMentioned = collect($request->mentions);
 
 
         $tweet = new Tweet();
@@ -25,10 +28,17 @@ class TweetController extends Controller
 
         $tweet->attachMediaFiles();
 
-        $tweet->load(["user.profileImage", "media"])->loadCount(["replies", "retweets", "likes"]);
 
         $followers = $user->followers;
         Notification::send($followers, new TweetCreated($tweet));
+
+        if ($peopleMentioned->isNotEmpty()) {
+            $usersMentioned = User::whereIn('uuid', $peopleMentioned)->get();
+            Notification::send($usersMentioned, new UserMentioned($tweet));
+            $tweet->mentions()->attach($usersMentioned);
+        }
+
+        $tweet->load(["user.profileImage", "media", "mentions"])->loadCount(["replies", "retweets", "likes"]);
 
         return $this->responseWithResource(TweetResource::make($tweet));
     }
@@ -36,7 +46,7 @@ class TweetController extends Controller
     public function show($tweetUuid)
     {
         $tweet = Tweet::where('uuid', $tweetUuid)
-                ->with(["user.profileImage", "media"])
+                ->with(["user.profileImage", "media", "mentions"])
                 ->withCount(["replies", "retweets", "likes"])
                 ->first();
 

@@ -9,6 +9,7 @@ use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Notification;
 use App\Notifications\TweetCreated;
+use App\Notifications\UserMentioned;
 use Illuminate\Notifications\Messages\BroadcastMessage;
 use Laravel\Passport\Passport;
 use Tests\TestCase;
@@ -213,6 +214,44 @@ class TweetControllerTest extends TestCase
 		]);
 	}
 
+    /** @test */
+    public function a_new_tweet_can_have_mentions_related()
+    {
+		Notification::fake();
+
+        $user = User::factory()->activated()->create();
+		Passport::actingAs($user);
+
+        $userMentioned = User::factory()->activated()->create();
+
+		$payload = [
+			"body" => "My first tweet with images",
+            "mentions" => [$userMentioned->uuid]
+		];
+
+		$response = $this->postJson("api/tweets", $payload);
+
+        $data = $response->json();
+		$this->assertTweetResourceData($data);
+
+        $this->assertDatabaseHas("user_mentions", [
+            "user_id" => $userMentioned->id
+        ]);
+
+        Notification::assertSentTo($userMentioned, UserMentioned::class, function ($notification, $channels) use ($userMentioned) {
+			$this->assertTrue(!is_null($notification->tweet));
+			$this->assertContains('broadcast', $channels);
+
+			$tweetData = $notification->toArray($userMentioned);
+            // dd($tweetData);
+			$this->assertTweetResourceData($tweetData["tweet"]);
+
+			$this->assertInstanceOf(BroadcastMessage::class, $notification->toBroadcast($userMentioned));
+
+			return true;
+		});
+    }
+
 	/** @test */
 	public function the_body_is_required()
 	{
@@ -256,6 +295,7 @@ class TweetControllerTest extends TestCase
 		$this->assertArrayHasKey("id", $data);
 		$this->assertArrayHasKey("body", $data);
 		$this->assertArrayHasKey("owner", $data);
+		$this->assertArrayHasKey("mentions", $data);
 		// $this->assertArrayHasKey("image", $data["owner"]);
 		$this->assertArrayHasKey("images", $data);
 		$this->assertArrayHasKey("replies_count", $data);

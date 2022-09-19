@@ -123,4 +123,17 @@ class TweetTest extends TestCase
 
         $this->assertInstanceOf(Tweet::class, $tweet->tweetReplies->first());
     }
+
+    /** @test */
+    public function a_tweet_model_has_many_user_mentions()
+    {
+        $user = User::factory()->activated()->create();
+        $user2 = User::factory()->activated()->create();
+        $tweet = Tweet::factory()->create(["user_id" => $user->id]);
+
+        $tweet->mentions()->attach($user2->id);
+
+        $this->assertInstanceOf(User::class, $tweet->mentions->first());
+    }
+
 }

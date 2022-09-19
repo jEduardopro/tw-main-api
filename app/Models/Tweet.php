@@ -7,6 +7,7 @@ use App\Models\Concerns\Likeable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -74,6 +75,16 @@ class Tweet extends Model implements HasMedia
     public function tweetReplies(): HasManyThrough
     {
         return $this->hasManyThrough(Tweet::class, Reply::class);
+    }
+
+    /**
+     * The mentions that belong to the Tweet
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsToMany
+     */
+    public function mentions(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_mentions')->withTimestamps();
     }
 
     /** Scopes */
