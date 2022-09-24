@@ -243,7 +243,6 @@ class TweetControllerTest extends TestCase
 			$this->assertContains('broadcast', $channels);
 
 			$tweetData = $notification->toArray($userMentioned);
-            // dd($tweetData);
 			$this->assertTweetResourceData($tweetData["tweet"]);
 
 			$this->assertInstanceOf(BroadcastMessage::class, $notification->toBroadcast($userMentioned));

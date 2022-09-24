@@ -26,7 +26,7 @@ class UserMentioned extends Notification
      */
     public function __construct(Tweet $tweet)
     {
-        $this->tweet = $tweet->load(["user.profileImage"]);
+        $this->tweet = $tweet->load(["user.profileImage", "mentions.profileImage"]);
     }
 
     /**

@@ -34,11 +34,11 @@ class TweetController extends Controller
 
         if ($peopleMentioned->isNotEmpty()) {
             $usersMentioned = User::whereIn('uuid', $peopleMentioned)->get();
-            Notification::send($usersMentioned, new UserMentioned($tweet));
             $tweet->mentions()->attach($usersMentioned);
+            Notification::send($usersMentioned, new UserMentioned($tweet));
         }
 
-        $tweet->load(["user.profileImage", "media", "mentions"])->loadCount(["replies", "retweets", "likes"]);
+        $tweet->load(["user.profileImage", "media", "mentions.profileImage"])->loadCount(["replies", "retweets", "likes"]);
 
         return $this->responseWithResource(TweetResource::make($tweet));
     }
