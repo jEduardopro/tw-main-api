@@ -37,5 +37,5 @@
 ```
 - Run queues within container
 ```
-    artisan queue:work --default,tweets,likes,replies,retweets
+    artisan queue:work --queue=default,likes,tweets,replies,retweets,mentions
 ```
