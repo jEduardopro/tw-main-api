@@ -18,7 +18,7 @@ class TweetController extends Controller
     {
         $user = $request->user();
         $data = $request->only(['body']);
-        $peopleMentioned = collect($request->mentions);
+        $peopleMentioned = $request->filled('mentions') ? collect($request->mentions) : collect([]);
 
 
         $tweet = new Tweet();

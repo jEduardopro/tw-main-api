@@ -25,7 +25,7 @@ class MediaFormRequest extends FormRequest
     {
         return [
             "media" => "required|mimes:png,jpg,jpeg,svg|max:10240",
-            "media_category" => "required|in:tweet_image"
+            "media_category" => "required|in:tweet_image,profile_image,banner_image"
         ];
     }
 }

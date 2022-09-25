@@ -42,6 +42,7 @@ class HomeTimelineControllerTest extends TestCase
         $this->assertArrayHasKey("owner", $lastTweetData);
         $this->assertArrayHasKey("image", $lastTweetData["owner"]);
         $this->assertArrayHasKey("images", $lastTweetData);
+        $this->assertArrayHasKey("mentions", $lastTweetData);
         $this->assertArrayHasKey("retweets_count", $lastTweetData);
         $this->assertArrayHasKey("replies_count", $lastTweetData);
         $this->assertArrayHasKey("likes_count", $lastTweetData);

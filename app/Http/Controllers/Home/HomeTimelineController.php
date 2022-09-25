@@ -17,7 +17,7 @@ class HomeTimelineController extends Controller
         $followings->push($user->id);
 
         $tweets = Tweet::whereIn('user_id', $followings)
-                ->with(["user.profileImage", "media"])
+                ->with(["user.profileImage", "media", "mentions.profileImage"])
                 ->withCount(["retweets", "replies", "likes"])
                 ->latest()->paginate();
 
