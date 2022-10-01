@@ -20,7 +20,11 @@ RUN apt-get update && apt-get install -y \
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Instalamos las dependencias y extensiones PHP que necesitaremos en nuestro proyecto como: pdo_mysql o mbstring
-RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd sockets
+RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd sockets \
+    && pecl install -o -f redis\
+    # && pecl install grpc\
+    # &&  rm -rf /tmp/pear \
+    && docker-php-ext-enable redis
 
 # Soporte para jpeg GD ext
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
