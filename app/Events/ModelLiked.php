@@ -25,7 +25,7 @@ class ModelLiked implements ShouldBroadcast
     public function __construct($model, $likeSender)
     {
         $this->dontBroadcastToCurrentUser();
-        
+
         $this->model = $model;
         $this->likeSender = $likeSender;
     }

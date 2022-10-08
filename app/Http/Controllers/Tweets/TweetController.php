@@ -20,7 +20,6 @@ class TweetController extends Controller
         $data = $request->only(['body']);
         $peopleMentioned = $request->filled('mentions') ? collect($request->mentions) : collect([]);
 
-
         $tweet = new Tweet();
         $tweet->fill($data);
         $tweet->user_id = $user->id;
@@ -28,8 +27,8 @@ class TweetController extends Controller
 
         $tweet->attachMediaFiles();
 
-
         $followers = $user->followers;
+        $tweet->load(["user.profileImage", "media", "mentions.profileImage"])->loadCount(["retweets", "replies", "likes"]);
         Notification::send($followers, new TweetCreated($tweet));
 
         if ($peopleMentioned->isNotEmpty()) {
@@ -37,8 +36,6 @@ class TweetController extends Controller
             $tweet->mentions()->attach($usersMentioned);
             Notification::send($usersMentioned, new UserMentioned($tweet));
         }
-
-        $tweet->load(["user.profileImage", "media", "mentions.profileImage"])->loadCount(["replies", "retweets", "likes"]);
 
         return $this->responseWithResource(TweetResource::make($tweet));
     }

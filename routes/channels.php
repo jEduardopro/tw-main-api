@@ -13,6 +13,10 @@ use Illuminate\Support\Facades\Broadcast;
 |
 */
 
-Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
-    return (int) $user->id === (int) $id;
+// Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
+//     info('here channel auth user');
+//     return (int) $user->id === (int) $id;
+// });
+Broadcast::channel('users.{id}', function ($user, $uuid) {
+    return $user->uuid === $uuid;
 });

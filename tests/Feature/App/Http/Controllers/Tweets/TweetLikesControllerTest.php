@@ -30,6 +30,7 @@ class TweetLikesControllerTest extends TestCase
         $user = User::factory()->activated()->create();
         $user2 = User::factory()->activated()->create();
         Passport::actingAs($user);
+		$user->follow($user2->id);
 
         $tweet = Tweet::factory()->create(["user_id" => $user2->id]);
 
@@ -53,6 +54,12 @@ class TweetLikesControllerTest extends TestCase
 
             return true;
         });
+
+        $responseHomeTimeline = $this->getJson("api/home/timeline")->assertSuccessful()->assertJsonStructure(["data", "meta", "links"]);
+        $data = $responseHomeTimeline->json("data");
+        $this->assertArrayHasKey('liked', $data[0]);
+        $this->assertTrue($data[0]['liked']);
+
     }
 
     /** @test */

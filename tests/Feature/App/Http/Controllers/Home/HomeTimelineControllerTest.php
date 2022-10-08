@@ -46,5 +46,6 @@ class HomeTimelineControllerTest extends TestCase
         $this->assertArrayHasKey("retweets_count", $lastTweetData);
         $this->assertArrayHasKey("replies_count", $lastTweetData);
         $this->assertArrayHasKey("likes_count", $lastTweetData);
+        $this->assertArrayHasKey("liked", $lastTweetData);
     }
 }

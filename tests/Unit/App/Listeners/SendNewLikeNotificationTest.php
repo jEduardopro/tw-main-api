@@ -41,6 +41,7 @@ class SendNewLikeNotificationTest extends TestCase
             $this->assertNotContains('database', $channels);
             $toArrayResult = $notification->toArray($tweetOwner);
             $this->assertArrayHasKey("tweet", $toArrayResult);
+            $this->assertTweetResourceData($toArrayResult["tweet"]);
             $this->assertArrayHasKey("like_sender", $toArrayResult);
             $this->assertArrayHasKey("image", $toArrayResult["like_sender"]);
 
@@ -53,11 +54,21 @@ class SendNewLikeNotificationTest extends TestCase
             $this->assertInstanceOf(CustomDatabaseNotification::class, $notification->saveNotification($tweetOwner));
 
             $this->assertInstanceOf(BroadcastMessage::class, $notification->toBroadcast($tweetOwner));
-            $this->assertEquals("like.added", $notification->broadcastType());
-
 
             return true;
         });
 
     }
+
+    private function assertTweetResourceData(array $data)
+	{
+		$this->assertArrayHasKey("id", $data);
+		$this->assertArrayHasKey("body", $data);
+		$this->assertArrayHasKey("owner", $data);
+		$this->assertArrayHasKey("mentions", $data);
+		$this->assertArrayHasKey("images", $data);
+		$this->assertArrayHasKey("replies_count", $data);
+		$this->assertArrayHasKey("retweets_count", $data);
+		$this->assertArrayHasKey("likes_count", $data);
+	}
 }

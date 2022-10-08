@@ -27,6 +27,8 @@ class TweetResourceTest extends TestCase
 		$this->assertEquals($tweet->body, $tweetResource["body"]);
 		$this->assertEquals($tweet->getReadableCreationDate(), $tweetResource["creation_date_readable"]);
 		$this->assertEquals($tweet->created_at, $tweetResource["created_at"]);
+
+        $this->assertArrayHasKey("liked", $tweetResource);
 	}
 
 
@@ -113,7 +115,6 @@ class TweetResourceTest extends TestCase
 
 		$this->assertArrayHasKey("replies_count", $tweetResource);
 	}
-
 
 	/** @test */
 	public function a_tweet_resources_must_have_the_key_of_likes_count_when_its_likes_count_relation_is_loaded()

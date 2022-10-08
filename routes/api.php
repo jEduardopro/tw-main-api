@@ -8,6 +8,9 @@ use App\Http\Controllers\Retweets\RetweetsController;
 use App\Http\Controllers\Tweets\TweetController;
 use App\Http\Controllers\Tweets\TweetLikesController;
 use App\Http\Controllers\Users\ProfileController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Broadcast;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('auth')->group(function() {
@@ -29,6 +32,12 @@ Route::prefix('auth')->group(function() {
 
 
 Route::group(["middleware" => ["auth:api"]], function() {
+
+    // Broadcasting auth of pusher echo
+    Route::post('/broadcasting/auth', function (Request $request) {
+        return Broadcast::auth($request);
+    });
+
     // Home Timeline
     Route::get("home/timeline", "Home\HomeTimelineController@index");
 

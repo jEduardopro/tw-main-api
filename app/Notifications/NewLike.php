@@ -29,7 +29,7 @@ class NewLike extends Notification
      */
     public function __construct($tweet, $likeSender)
     {
-        $this->tweet = $tweet;
+        $this->tweet = $tweet->load(["user.profileImage", "media", "mentions.profileImage"])->loadCount(["retweets", "replies", "likes"]);
         $this->likeSender = $likeSender->load('profileImage');
     }
 

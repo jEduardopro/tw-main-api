@@ -35,6 +35,14 @@ trait Likeable
         ModelUnliked::dispatch($this);
     }
 
+    public function isLiked()
+    {
+        if (!request()->user()) {
+            return false;
+        }
+        return $this->likes()->where('user_id', request()->user()->id)->exists();
+    }
+
     public function eventChannelName(): string
     {
         return Str::of(class_basename($this))->lower()->plural() . ".{$this->uuid}.likes";
