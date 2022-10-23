@@ -18,7 +18,7 @@ class TweetRepliesController extends Controller
         }
 
         $replies = $tweet->tweetReplies()
-                    ->with(["user.profileImage", "media"])
+                    ->with(["user.profileImage", "media", "mentions"])
                     ->withCount(["retweets", "replies", "likes"])
                     ->latest()->paginate();
 

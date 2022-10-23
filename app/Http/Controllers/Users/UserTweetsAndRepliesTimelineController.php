@@ -20,8 +20,9 @@ class UserTweetsAndRepliesTimelineController extends Controller
         $tweetsAndReplies = $user->tweets()
                         ->with([
                             "user.profileImage", "media",
+                            "mentions",
                             "reply.tweet" => function ($q) {
-                                $q->with(["user.profileImage", "media"])
+                                $q->with(["user.profileImage", "media", "mentions"])
                                     ->withCount(["replies", "retweets", "likes"]);
                             }
                         ])

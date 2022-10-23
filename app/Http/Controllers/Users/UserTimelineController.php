@@ -30,7 +30,8 @@ class UserTimelineController extends Controller
 
         $tweets = Tweet::fromQuery($tweetsAndRetweets)
                     ->map(function($tweet) {
-                        return $tweet->load(['user.profileImage', 'media'])->loadCount(["retweets", "replies", "likes"]);
+                        return $tweet->load(['user.profileImage', 'media', 'mentions'])
+                        ->loadCount(["retweets", "replies", "likes"]);
                     });
 
         $page = LengthAwarePaginator::resolveCurrentPage();
