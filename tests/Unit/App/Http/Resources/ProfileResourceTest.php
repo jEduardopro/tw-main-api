@@ -23,6 +23,7 @@ class ProfileResourceTest extends TestCase
         $this->assertEquals($user->name, $profileResource["name"]);
         $this->assertEquals($user->username, $profileResource["username"]);
         $this->assertEquals($user->description, $profileResource["description"]);
+        $this->assertEquals($user->date_birth, $profileResource["date_birth"]);
         $this->assertEquals($user->getReadableJoinedDate(), $profileResource["readable_joined_date"]);
     }
 

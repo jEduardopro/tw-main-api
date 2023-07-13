@@ -55,8 +55,6 @@ class LoginControllerTest extends TestCase
         $this->assertArrayNotHasKey("image_id", $user);
         $this->assertArrayNotHasKey("country", $user);
         $this->assertArrayNotHasKey("gender", $user);
-        // $this->assertArrayNotHasKey("description", $user);
-        $this->assertArrayNotHasKey("date_birth", $user);
         $this->assertArrayNotHasKey("deactivated_at", $user);
         $this->assertArrayNotHasKey("reactivated_at", $user);
         $this->assertArrayNotHasKey("updated_at", $user);

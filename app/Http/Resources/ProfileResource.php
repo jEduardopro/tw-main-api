@@ -19,6 +19,7 @@ class ProfileResource extends JsonResource
             "name" => $this->name,
             "username" => $this->username,
             "description" => $this->description,
+            "date_birth" => $this->date_birth,
             $this->mergeWhen($this->relationLoaded('profileImage'), function() {
                 return ["image" => MediaResource::make($this->profileImage)];
             }),
