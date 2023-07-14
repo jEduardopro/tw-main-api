@@ -24,7 +24,10 @@ RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd sockets \
     && pecl install -o -f redis\
     # && pecl install grpc\
     # &&  rm -rf /tmp/pear \
-    && docker-php-ext-enable redis
+    && docker-php-ext-enable redis; \
+    pecl install imagick; \
+    docker-php-ext-enable imagick; \
+    true
 
 # Soporte para jpeg GD ext
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \

@@ -132,21 +132,25 @@ class Tweet extends Model implements HasMedia
     {
         $this->addMediaConversion('small')
             ->width(150)
-            ->height(150);
+            ->height(150)
+            ->keepOriginalImageFormat();
 
         $this->addMediaConversion('thumb')
             ->width(360)
-            ->height(360);
+            ->height(360)
+            ->keepOriginalImageFormat();
 
 
         $this->addMediaConversion('medium')
             ->width(680)
             ->height(380)
-            ->nonQueued();
+            ->nonQueued()
+            ->keepOriginalImageFormat();
 
         $this->addMediaConversion('large')
             ->width(1200)
-            ->height(675);
+            ->height(675)
+            ->keepOriginalImageFormat();
     }
 
     /**
