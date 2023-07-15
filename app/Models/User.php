@@ -234,6 +234,7 @@ class User extends Authenticatable implements HasMedia
 		$this->addMediaConversion('small')
 			->width(150)
 			->height(150)
+            ->nonQueued()
             ->keepOriginalImageFormat();
 
 		$this->addMediaConversion('thumb')
