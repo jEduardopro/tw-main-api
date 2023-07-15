@@ -14,6 +14,7 @@ class ProfileResource extends JsonResource
      */
     public function toArray($request)
     {
+        $authUser = auth('api')->user();
         return [
             "id" => $this->uuid,
             "name" => $this->name,
@@ -31,6 +32,13 @@ class ProfileResource extends JsonResource
             }),
             $this->mergeWhen(!is_null( $this->followers_count ), function() {
                 return ["followers_count" => $this->followers_count];
+            }),
+            $this->mergeWhen(
+                $this->relationLoaded('following') && $authUser && $authUser->id !== $this->id,
+                function() use ($authUser) {
+                    return [
+                        "following" => $this->following->contains($authUser->id)
+                    ];
             }),
             "readable_joined_date" => $this->getReadableJoinedDate()
         ];

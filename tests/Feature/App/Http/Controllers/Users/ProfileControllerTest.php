@@ -48,6 +48,7 @@ class ProfileControllerTest extends TestCase
 				"banner",
 				"following_count",
 				"followers_count",
+                "following"
 			]);
 
 		$this->assertEquals($user2->uuid, $response->json("id"));

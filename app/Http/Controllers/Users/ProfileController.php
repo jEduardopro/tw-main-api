@@ -14,7 +14,10 @@ class ProfileController extends Controller
     public function getProfileByUsername($username)
     {
         $user = User::where('username', $username)
-                ->with(["profileImage", "profileBanner"])
+                ->with(["profileImage", "profileBanner",
+                    "followers:id,uuid,name,username",
+                    "following:id,uuid,name,username"
+                ])
                 ->withCount(["following", "followers"])->first();
 
         if (!$user) {

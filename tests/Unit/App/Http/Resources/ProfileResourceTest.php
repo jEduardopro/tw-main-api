@@ -5,6 +5,7 @@ namespace Tests\Unit\App\Http\Resources;
 use App\Http\Resources\ProfileResource;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Laravel\Passport\Passport;
 use Tests\TestCase;
 
 class ProfileResourceTest extends TestCase
@@ -97,5 +98,29 @@ class ProfileResourceTest extends TestCase
         $profileResource = ProfileResource::make($user)->resolve();
 
         $this->assertArrayHasKey("followers_count", $profileResource);
+    }
+
+    /** @test */
+    public function a_profile_resources_must_have_the_following_key_if_user_is_authenticated()
+    {
+        $user = User::factory()->activated()->create();
+        $user2 = User::factory()->activated()->create();
+
+        $user2->follow($user->id);
+
+        $profileResource = ProfileResource::make($user)->resolve();
+
+        $this->assertArrayNotHasKey("following", $profileResource);
+
+        $user->load([
+            "followers:id,uuid,name,username",
+            "following:id,uuid,name,username"
+        ]);
+
+        Passport::actingAs($user2);
+
+        $profileResource = ProfileResource::make($user)->resolve();
+
+        $this->assertArrayHasKey("following", $profileResource);
     }
 }
