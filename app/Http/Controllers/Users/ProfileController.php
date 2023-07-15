@@ -47,6 +47,8 @@ class ProfileController extends Controller
             return $this->responseWithMessage("we could not update the banner, the media file does not exist",400);
         }
 
+        $user->media()->whereNotIn("uuid", [$mediaUuid])->where("collection_name", "banner_image")->delete();
+
         $user->banner_id = $media->id;
         $user->save();
 
@@ -65,6 +67,8 @@ class ProfileController extends Controller
         if (!$media) {
             return $this->responseWithMessage("we could not update the image, the media file does not exist", 400);
         }
+
+        $user->media()->whereNotIn("uuid", [$mediaUuid])->where("collection_name", "profile_image")->delete();
 
         $user->image_id = $media->id;
         $user->save();

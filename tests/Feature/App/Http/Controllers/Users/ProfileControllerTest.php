@@ -125,6 +125,9 @@ class ProfileControllerTest extends TestCase
 		Passport::actingAs($user);
 
 		$collectionName = "banner_image";
+        $user->addMedia(storage_path('media-test/bg_banner2.jpeg'))
+			->preservingOriginal()
+			->toMediaCollection($collectionName);
 		$media = $user->addMedia(storage_path('media-test/bg_banner.jpeg'))
 			->preservingOriginal()
 			->toMediaCollection($collectionName);
@@ -133,6 +136,9 @@ class ProfileControllerTest extends TestCase
 
 		$response->assertSuccessful();
 
+        $banners = $user->getMedia($collectionName);
+
+        $this->assertEquals(1, $banners->count());
 		$this->assertEquals($media->getUrl('medium'), $response->json("profile_banner_url"));
 		$this->assertDatabaseHas("users", [
 			"id" => $user->id,
@@ -147,6 +153,9 @@ class ProfileControllerTest extends TestCase
 		Passport::actingAs($user);
 
 		$collectionName = "profile_image";
+        $user->addMedia(storage_path('media-test/image1.jpg'))
+			->preservingOriginal()
+			->toMediaCollection($collectionName);
 		$media = $user->addMedia(storage_path('media-test/avatar.jpeg'))
 			->preservingOriginal()
 			->toMediaCollection($collectionName);
@@ -155,6 +164,9 @@ class ProfileControllerTest extends TestCase
 
 		$response->assertSuccessful();
 
+        $avatars = $user->getMedia($collectionName);
+
+        $this->assertEquals(1, $avatars->count());
 		$this->assertEquals($media->getUrl('small'), $response->json("profile_image_url"));
 		$this->assertDatabaseHas("users", [
 			"id" => $user->id,
