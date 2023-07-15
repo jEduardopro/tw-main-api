@@ -7,6 +7,7 @@ use App\Http\Requests\UpdateProfileFormRequest;
 use App\Http\Requests\UpdateProfileMediaFormRequest;
 use App\Http\Resources\ProfileResource;
 use App\Models\User;
+use Illuminate\Support\Facades\File;
 
 class ProfileController extends Controller
 {
@@ -47,7 +48,15 @@ class ProfileController extends Controller
             return $this->responseWithMessage("we could not update the banner, the media file does not exist",400);
         }
 
-        $user->media()->whereNotIn("uuid", [$mediaUuid])->where("collection_name", "banner_image")->delete();
+        $mediaFiles = $user->media()->whereNotIn("uuid", [$mediaUuid])->where("collection_name", "banner_image")->get();
+
+        $mediaFiles->each(function ($media) {
+            $media->delete();
+            if (File::exists($media->getPath())) {
+                File::delete($media->getPath());
+            }
+        });
+
 
         $user->banner_id = $media->id;
         $user->save();
@@ -68,7 +77,15 @@ class ProfileController extends Controller
             return $this->responseWithMessage("we could not update the image, the media file does not exist", 400);
         }
 
-        $user->media()->whereNotIn("uuid", [$mediaUuid])->where("collection_name", "profile_image")->delete();
+        $mediaFiles = $user->media()->whereNotIn("uuid", [$mediaUuid])->where("collection_name", "profile_image")->get();
+
+        $mediaFiles->each(function ($media) {
+            $media->delete();
+            if (File::exists($media->getPath())) {
+                File::delete($media->getPath());
+            }
+        });
+
 
         $user->image_id = $media->id;
         $user->save();
