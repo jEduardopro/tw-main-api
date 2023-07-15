@@ -33,6 +33,6 @@ class CustomPathGenerator implements BasePathGenerator
 
     public function getPatchPrefix($media)
     {
-        return strtolower(explode('\\', $media->model_type)[2]) . '/' . $media->uuid;
+        return strtolower(explode('\\', $media->model_type)[2]) . '/' . $media->id;
     }
 }
