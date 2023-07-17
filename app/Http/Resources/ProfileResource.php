@@ -34,10 +34,10 @@ class ProfileResource extends JsonResource
                 return ["followers_count" => $this->followers_count];
             }),
             $this->mergeWhen(
-                $this->relationLoaded('following') && $authUser && $authUser->id !== $this->id,
+                $this->relationLoaded('followers') && $authUser && $authUser->id !== $this->id,
                 function() use ($authUser) {
                     return [
-                        "following" => $this->following->contains($authUser->id)
+                        "following" => $this->followers->contains($authUser->id)
                     ];
             }),
             "readable_joined_date" => $this->getReadableJoinedDate()
