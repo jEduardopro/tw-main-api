@@ -38,6 +38,7 @@ class UserFollowersControllerTest extends TestCase
 
 		$this->assertEquals($user3->uuid, $response->json("data.0.id"));
 		$this->assertArrayHasKey("image", $response->json("data.0"));
+		$this->assertArrayHasKey("following", $response->json("data.0"));
 	}
 
 	/** @test */
