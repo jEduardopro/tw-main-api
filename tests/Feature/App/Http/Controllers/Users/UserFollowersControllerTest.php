@@ -61,18 +61,34 @@ class UserFollowersControllerTest extends TestCase
 		Passport::actingAs($user);
 
 		$user2->follow($user->id);
+        $page = 1;
 		$followersPaginated = $user->followers()->paginate();
 
 		Cache::shouldReceive('remember')
 			->once()
-			->with("user_{$user->id}_followers_list", 900, \Closure::class)
+			->with("user_{$user->id}_followers_list_{$page}", 900, \Closure::class)
 			->andReturn($followersPaginated);
 
-		$response = $this->getJson("api/users/{$user->uuid}/followers");
+		$response = $this->getJson("api/users/{$user->uuid}/followers?page={$page}");
 
 		$response->assertSuccessful()
 			->assertJsonStructure(["data", "meta", "links"]);
 
 		$this->assertEquals($user2->uuid, $response->json("data.0.id"));
+
+        $page = 2;
+		$followersPaginated = $user->followers()->paginate(null, ['*'], 'page', $page);
+
+        Cache::shouldReceive('remember')
+			->once()
+			->with("user_{$user->id}_followers_list_{$page}", 900, \Closure::class)
+			->andReturn($followersPaginated);
+
+		$response = $this->getJson("api/users/{$user->uuid}/followers?page={$page}");
+
+        $response->assertSuccessful()
+            ->assertJsonStructure(["data", "meta", "links"]);
+
+        $this->assertEquals(0, count($response->json("data")));
 	}
 }
