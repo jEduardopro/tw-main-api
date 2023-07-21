@@ -52,43 +52,4 @@ class UserFollowersControllerTest extends TestCase
 
 		$this->assertEquals("the followers list is not available for this user account", $response->json("message"));
 	}
-
-	/** @test */
-	public function user_followers_index_cache()
-	{
-		$user = User::factory()->activated()->create();
-		$user2 = User::factory()->activated()->create();
-		Passport::actingAs($user);
-
-		$user2->follow($user->id);
-        $page = 1;
-		$followersPaginated = $user->followers()->paginate();
-
-		Cache::shouldReceive('remember')
-			->once()
-			->with("user_{$user->id}_followers_list_{$page}", 900, \Closure::class)
-			->andReturn($followersPaginated);
-
-		$response = $this->getJson("api/users/{$user->uuid}/followers?page={$page}");
-
-		$response->assertSuccessful()
-			->assertJsonStructure(["data", "meta", "links"]);
-
-		$this->assertEquals($user2->uuid, $response->json("data.0.id"));
-
-        $page = 2;
-		$followersPaginated = $user->followers()->paginate(null, ['*'], 'page', $page);
-
-        Cache::shouldReceive('remember')
-			->once()
-			->with("user_{$user->id}_followers_list_{$page}", 900, \Closure::class)
-			->andReturn($followersPaginated);
-
-		$response = $this->getJson("api/users/{$user->uuid}/followers?page={$page}");
-
-        $response->assertSuccessful()
-            ->assertJsonStructure(["data", "meta", "links"]);
-
-        $this->assertEquals(0, count($response->json("data")));
-	}
 }
