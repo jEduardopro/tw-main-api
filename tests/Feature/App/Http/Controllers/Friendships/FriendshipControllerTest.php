@@ -5,7 +5,6 @@ namespace Tests\Feature\App\Http\Controllers\Friendships;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
-use Illuminate\Support\Facades\Cache;
 use Laravel\Passport\Passport;
 use Tests\TestCase;
 
@@ -84,42 +83,6 @@ class FriendshipControllerTest extends TestCase
 			->assertJsonStructure(["message"]);
 
 		$this->assertEquals("you are already following this user", $response->json("message"));
-	}
-
-	/** @test */
-	public function clear_cache_of_followers_and_following_list_for_followed_and_follower_respectively()
-	{
-		$user = User::factory()->activated()->create();
-		Passport::actingAs($user);
-		$user2 = User::factory()->activated()->create();
-
-		Cache::shouldReceive('forget')
-			->once()
-			->with("user_{$user2->id}_followers_list");
-
-		Cache::shouldReceive('forget')
-			->once()
-			->with("user_{$user->id}_followings_list");
-
-		$this->postJson("api/friendships/follow", ["user_id" => $user2->uuid]);
-	}
-
-	/** @test */
-	public function clear_cache_of_followers_and_following_list_for_unfollowed_and_unfollower_respectively()
-	{
-		$user = User::factory()->activated()->create();
-		Passport::actingAs($user);
-		$user2 = User::factory()->activated()->create();
-
-		Cache::shouldReceive('forget')
-			->once()
-			->with("user_{$user2->id}_followers_list");
-
-		Cache::shouldReceive('forget')
-			->once()
-			->with("user_{$user->id}_followings_list");
-
-		$this->deleteJson("api/friendships/unfollow", ["user_id" => $user2->uuid]);
 	}
 
 	/** @test */

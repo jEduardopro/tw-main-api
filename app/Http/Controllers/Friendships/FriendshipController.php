@@ -32,9 +32,6 @@ class FriendshipController extends Controller
 
         $user->follow($userToFollow->id);
 
-        Cache::forget("user_{$userToFollow->id}_followers_list");
-        Cache::forget("user_{$user->id}_followings_list");
-
         return $this->responseWithResource(ProfileResource::make($userToFollow));
     }
 
@@ -49,9 +46,6 @@ class FriendshipController extends Controller
         }
 
         $user->unfollow($userToUnfollow->id);
-
-        Cache::forget("user_{$userToUnfollow->id}_followers_list");
-        Cache::forget("user_{$user->id}_followings_list");
 
         return $this->responseWithMessage("You have successfully unfollowed this user");
     }
