@@ -17,7 +17,7 @@ class UserFollowersController extends Controller
         }
 
         $followers = $user->followers()->orderBy('followers.created_at', 'desc')
-                ->with(['profileImage', 'followers:id,uuid,name,username'])->paginate();
+                ->with(['profileImage', 'followers:id'])->paginate();
 
         return $this->responseWithResource(ProfileResource::collection($followers));
     }

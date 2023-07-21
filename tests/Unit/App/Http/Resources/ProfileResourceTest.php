@@ -112,7 +112,7 @@ class ProfileResourceTest extends TestCase
 
         $this->assertArrayNotHasKey("following", $profileResource);
 
-        $user->load(["followers:id,uuid,name,username"]);
+        $user->load(["followers:id"]);
 
         Passport::actingAs($user2);
 

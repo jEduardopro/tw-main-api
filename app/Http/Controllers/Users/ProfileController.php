@@ -15,8 +15,7 @@ class ProfileController extends Controller
     {
         $user = User::where('username', $username)
                 ->with(["profileImage", "profileBanner",
-                    "followers:id,uuid,name,username",
-                    "following:id,uuid,name,username"
+                    "followers:id",
                 ])
                 ->withCount(["following", "followers"])->first();
 
