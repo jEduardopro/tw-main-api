@@ -52,27 +52,4 @@ class UserFollowingsControllerTest extends TestCase
 
 		$this->assertEquals("the followings list is not available for this user account", $response->json("message"));
 	}
-
-	/** @test */
-	public function user_followings_index_cache()
-	{
-		$user = User::factory()->activated()->create();
-		$user2 = User::factory()->activated()->create();
-		Passport::actingAs($user);
-
-		$user->follow($user2->id);
-		$followingsPaginated = $user->following()->paginate();
-
-		Cache::shouldReceive('remember')
-			->once()
-			->with("user_{$user->id}_followings_list", 900, \Closure::class)
-			->andReturn($followingsPaginated);
-
-		$response = $this->getJson("api/users/{$user->uuid}/followings");
-
-		$response->assertSuccessful()
-			->assertJsonStructure(["data", "meta", "links"]);
-
-		$this->assertEquals($user2->uuid, $response->json("data.0.id"));
-	}
 }

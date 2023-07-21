@@ -5,11 +5,10 @@ namespace App\Http\Controllers\Users;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ProfileResource;
 use App\Models\User;
-use Illuminate\Http\Request;
 
 class UserFollowersController extends Controller
 {
-    public function index(Request $request, $userUuid)
+    public function index($userUuid)
     {
         $user = User::where("uuid", $userUuid)->first();
 
