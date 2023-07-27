@@ -6,6 +6,7 @@ use App\Models\Tweet;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
+use Laravel\Passport\Passport;
 use Tests\TestCase;
 
 class SearchControllerTest extends TestCase
@@ -15,10 +16,12 @@ class SearchControllerTest extends TestCase
 	/** @test */
 	public function a_user_can_search_people()
 	{
+		$user = User::factory()->activated()->create();
 		User::factory()->count(8)->activated()->create();
 
 		$testName = "test name";
 		User::factory()->activated()->create(["name" => $testName]);
+        Passport::actingAs($user);
 
 		$response = $this->json("GET", "api/search", [
 			"q" => "test"
@@ -29,15 +32,18 @@ class SearchControllerTest extends TestCase
 
 		$this->assertEquals($testName, $response->json("data.0.name"));
         $this->assertArrayHasKey("image", $response->json("data.0"));
+        $this->assertArrayHasKey("following", $response->json("data.0"));
 	}
 
 	/** @test */
 	public function a_user_can_search_people_using_the_user_filter()
 	{
+		$user = User::factory()->activated()->create();
 		User::factory()->count(8)->activated()->create();
 
 		$testName = "test name";
 		User::factory()->activated()->create(["name" => $testName]);
+        Passport::actingAs($user);
 
 		$response = $this->json("GET", "api/search", [
 			"q" => "test",
@@ -49,6 +55,7 @@ class SearchControllerTest extends TestCase
 
 		$this->assertEquals($testName, $response->json("data.0.name"));
         $this->assertArrayHasKey("image", $response->json("data.0"));
+        $this->assertArrayHasKey("following", $response->json("data.0"));
 	}
 
 	/** @test */

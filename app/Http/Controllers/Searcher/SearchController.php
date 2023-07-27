@@ -18,7 +18,7 @@ class SearchController extends Controller
         $results = [];
         switch ($filter) {
             case 'user':
-                $users = User::search($q)->with(['profileImage'])->paginate();
+                $users = User::search($q)->with(['profileImage', 'followers:id'])->paginate();
                 $results = ProfileResource::collection($users);
                 break;
             case 'image':
@@ -30,7 +30,7 @@ class SearchController extends Controller
                 $results = TweetResource::collection($tweets);
                 break;
             default:
-                $users = User::search($q)->with(['profileImage'])->paginate();
+                $users = User::search($q)->with(['profileImage', 'followers:id'])->paginate();
                 $results = ProfileResource::collection($users);
 
         }
