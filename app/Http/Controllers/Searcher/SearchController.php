@@ -8,6 +8,7 @@ use App\Http\Resources\TweetResource;
 use App\Models\Tweet;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class SearchController extends Controller
 {
@@ -22,7 +23,8 @@ class SearchController extends Controller
                 $results = ProfileResource::collection($users);
                 break;
             case 'image':
-                $tweets = Tweet::searchByImageTerm($q)
+                $tweets = Tweet::searchByTerm($q)
+                        ->has("media")
                         ->with(['media', 'user.profileImage'])
                         ->withCount(["retweets", "replies", "likes"])
                         ->latest()

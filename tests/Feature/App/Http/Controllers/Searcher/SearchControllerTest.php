@@ -59,11 +59,12 @@ class SearchControllerTest extends TestCase
 	}
 
 	/** @test */
-	public function a_user_can_search_images()
+	public function a_user_can_search_tweets_with_images()
 	{
 		Tweet::factory()->count(5)->create();
 
-		$tweet = Tweet::factory()->create();
+		$tweet = Tweet::factory()->create(["body" => "fake body of tweet"]);
+		$tweet2 = Tweet::factory()->create(["body" => "other example of fake body of tweet"]);
 
 		$collectionName = "images";
 
@@ -71,8 +72,12 @@ class SearchControllerTest extends TestCase
 			->preservingOriginal()
 			->toMediaCollection($collectionName);
 
+		$tweet2->addMedia(storage_path('media-test/image1.jpg'))
+			->preservingOriginal()
+			->toMediaCollection($collectionName);
+
 		$response = $this->json("GET", "api/search", [
-			"q" => "test image",
+			"q" => "bo image tw fak",
 			"f" => "image"
 		]);
 
@@ -80,6 +85,7 @@ class SearchControllerTest extends TestCase
 			->assertJsonStructure(["data", "meta", "links"]);
 
 		$data = $response->json("data.0");
+        $this->assertCount(2, $response->json("data"));
 		$this->assertArrayHasKey("owner", $data);
 		$this->assertArrayHasKey("image", $data["owner"]);
 		$this->assertArrayHasKey("body", $data);

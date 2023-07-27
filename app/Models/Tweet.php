@@ -88,14 +88,13 @@ class Tweet extends Model implements HasMedia
     }
 
     /** Scopes */
-    public function scopeSearchByImageTerm($query, string $q)
+    public function scopeSearchByTerm($query, string $q)
     {
-        $tweetIds = Media::select('model_id')->where('name', 'like', "%{$q}%")
-                        ->orWhere('name', 'like', "%". Str::slug($q) . "%")
-                        ->orWhere('name', 'like', "%". Str::slug($q, "_") . "%")
-                        ->where('model_type', Tweet::class);
-
-        $query->whereIn('id', $tweetIds);
+        $terms = Str::of($q)->explode(' ');
+        $query->where('body', 'like', "%{$q}%");
+        $terms->each(function ($term) use ($query) {
+            $query->orWhere('body', 'like', "%{$term}%");
+        });
     }
 
     /** Public Methods */
