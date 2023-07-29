@@ -166,10 +166,10 @@ class Tweet extends Model implements HasMedia
      */
     public function isRetweeted()
     {
-        if (!request()->user()) {
+        if (!$authUser = auth('api')->user()) {
             return false;
         }
-        return $this->retweets()->where('user_id', request()->user()->id)->exists();
+        return $this->retweets->contains("user_id", $authUser->id);
     }
 
 }

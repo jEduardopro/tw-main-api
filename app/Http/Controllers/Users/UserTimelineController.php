@@ -29,14 +29,14 @@ class UserTimelineController extends Controller
             ))->toSql();
 
         $tweets = Tweet::fromQuery($tweetsAndRetweets);
-        $tweets = $tweets->load(['user.profileImage', 'media', 'mentions'])
+        $tweets = $tweets->load(["user.profileImage", "media", "mentions", "retweets", "replies", "likes"])
                     ->loadCount(["retweets", "replies", "likes"]);
 
         $page = LengthAwarePaginator::resolveCurrentPage();
         $perPage = $request->per_page ?? 15;
         $results = $tweets->slice(($page - 1) * $perPage, $perPage)->values();
         $timeline =  new LengthAwarePaginator($results, $tweets->count(), $perPage, $page, [
-            'path' => LengthAwarePaginator::resolveCurrentPath(),
+            "path" => LengthAwarePaginator::resolveCurrentPath(),
         ]);
         $timeline->appends(request()->all());
 

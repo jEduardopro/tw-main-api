@@ -37,10 +37,11 @@ trait Likeable
 
     public function isLiked()
     {
-        if (!request()->user()) {
+        if (!$authUser = auth('api')->user()) {
             return false;
         }
-        return $this->likes()->where('user_id', request()->user()->id)->exists();
+
+        return $this->likes->contains("user_id", $authUser->id);
     }
 
     public function eventChannelName(): string
