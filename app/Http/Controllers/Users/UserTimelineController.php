@@ -28,11 +28,9 @@ class UserTimelineController extends Controller
                 order by created_at desc"
             ))->toSql();
 
-        $tweets = Tweet::fromQuery($tweetsAndRetweets)
-                    ->map(function($tweet) {
-                        return $tweet->load(['user.profileImage', 'media', 'mentions'])
-                        ->loadCount(["retweets", "replies", "likes"]);
-                    });
+        $tweets = Tweet::fromQuery($tweetsAndRetweets);
+        $tweets = $tweets->load(['user.profileImage', 'media', 'mentions'])
+                    ->loadCount(["retweets", "replies", "likes"]);
 
         $page = LengthAwarePaginator::resolveCurrentPage();
         $perPage = $request->per_page ?? 15;
