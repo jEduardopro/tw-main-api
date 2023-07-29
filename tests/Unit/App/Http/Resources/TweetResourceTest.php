@@ -29,6 +29,7 @@ class TweetResourceTest extends TestCase
 		$this->assertEquals($tweet->created_at, $tweetResource["created_at"]);
 
         $this->assertArrayHasKey("liked", $tweetResource);
+        $this->assertArrayHasKey("retweeted", $tweetResource);
 	}
 
 

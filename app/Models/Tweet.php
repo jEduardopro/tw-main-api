@@ -161,4 +161,15 @@ class Tweet extends Model implements HasMedia
         return $date->format('H:i a') . " · " . $date->format('M j') . "," . $date->format("Y");
     }
 
+    /**
+     * Returns if a tweet is retweeted by the authenticated user
+     */
+    public function isRetweeted()
+    {
+        if (!request()->user()) {
+            return false;
+        }
+        return $this->retweets()->where('user_id', request()->user()->id)->exists();
+    }
+
 }

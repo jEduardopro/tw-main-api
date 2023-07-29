@@ -46,6 +46,7 @@ class TweetResource extends JsonResource
             }),
 
             'liked' => $this->isLiked(),
+            'retweeted' => $this->isRetweeted(),
             "creation_date_readable" => $this->getReadableCreationDate(),
             "created_at" => $this->created_at,
         ];
