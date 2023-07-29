@@ -90,7 +90,7 @@ class TweetTest extends TestCase
         $tweet = Tweet::factory()->create(["user_id" => $user->id]);
         $tweet2 = Tweet::factory()->create(["user_id" => $user2->id]);
 
-        $reply = $tweet->replies()->create(["tweet_id" => $tweet->id]);
+        $reply = $tweet->replies()->create(["tweet_id" => $tweet->id, "reply_tweet_id" => $tweet2->id]);
         $tweet2->reply_id = $reply->id;
         $tweet2->save();
 
@@ -103,8 +103,9 @@ class TweetTest extends TestCase
         $user = User::factory()->activated()->create();
         $user2 = User::factory()->activated()->create();
         $tweet = Tweet::factory()->create(["user_id" => $user->id]);
+        $tweetReply = Tweet::factory()->create(["user_id" => $user2->id]);
 
-        $tweet->replies()->create(["tweet_id" => $tweet->id]);
+        $tweet->replies()->create(["tweet_id" => $tweet->id, "reply_tweet_id" => $tweetReply->id]);
 
         $this->assertInstanceOf(Reply::class, $tweet->replies->first());
     }
@@ -117,7 +118,7 @@ class TweetTest extends TestCase
         $tweet = Tweet::factory()->create(["user_id" => $user->id]);
         $tweet2 = Tweet::factory()->create(["user_id" => $user2->id]);
 
-        $reply = $tweet->replies()->create(["tweet_id" => $tweet->id]);
+        $reply = $tweet->replies()->create(["tweet_id" => $tweet->id, "reply_tweet_id" => $tweet2->id]);
         $tweet2->reply_id = $reply->id;
         $tweet2->save();
 

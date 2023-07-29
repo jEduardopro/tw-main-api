@@ -18,7 +18,8 @@ class ReplyFactory extends Factory
     public function definition()
     {
         return [
-            "tweet_id" => Tweet::factory()->create()->id
+            "tweet_id" => Tweet::factory()->create()->id,
+            "reply_tweet_id" => Tweet::factory()->create()->id,
         ];
     }
 }

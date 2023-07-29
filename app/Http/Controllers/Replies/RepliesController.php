@@ -21,7 +21,7 @@ class RepliesController extends Controller
             return $this->responseWithMessage("one of the tweets does not exist", 400);
         }
 
-        $reply = Reply::firstOrCreate(["tweet_id" => $tweet->id]);
+        $reply = Reply::firstOrCreate(["tweet_id" => $tweet->id, "reply_tweet_id" => $replyTweet->id]);
         $replyTweet->reply_id = $reply->id;
         $replyTweet->save();
 

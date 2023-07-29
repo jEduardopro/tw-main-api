@@ -16,8 +16,9 @@ class TweetRepliesControllerTest extends TestCase
     public function a_user_can_see_the_replies_of_a_tweet()
     {
         $tweet = Tweet::factory()->create();
+        $replyTweet = Tweet::factory()->create();
 
-        $reply = Reply::factory()->create(["tweet_id" => $tweet->id]);
+        $reply = Reply::factory()->create(["tweet_id" => $tweet->id, "reply_tweet_id" => $replyTweet->id]);
         Tweet::factory()->create(["reply_id" => $reply->id, "created_at" => now()->addMinutes(10)]);
 
         $response = $this->getJson("api/tweets/{$tweet->uuid}/replies")

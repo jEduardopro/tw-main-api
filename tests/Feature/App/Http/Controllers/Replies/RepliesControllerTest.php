@@ -40,6 +40,7 @@ class RepliesControllerTest extends TestCase
 
 		$this->assertDatabaseHas("replies", [
 			"tweet_id" => $tweet->id,
+            "reply_tweet_id" => $myReplyTweet->id,
 		]);
 
         $this->assertEquals($tweet->id, $myReplyTweet->fresh()->reply->tweet_id);
