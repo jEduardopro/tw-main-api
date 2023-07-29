@@ -25,7 +25,7 @@ class SearchController extends Controller
             case 'image':
                 $tweets = Tweet::searchByTerm($q)
                         ->has("media")
-                        ->with(['media', 'user.profileImage'])
+                        ->with(['media', 'user.profileImage', 'mentions'])
                         ->withCount(["retweets", "replies", "likes"])
                         ->latest()
                         ->paginate();

@@ -84,14 +84,15 @@ class SearchControllerTest extends TestCase
 		$response->assertSuccessful()
 			->assertJsonStructure(["data", "meta", "links"]);
 
-		$data = $response->json("data.0");
+		$tweet = $response->json("data.0");
         $this->assertCount(2, $response->json("data"));
-		$this->assertArrayHasKey("owner", $data);
-		$this->assertArrayHasKey("image", $data["owner"]);
-		$this->assertArrayHasKey("body", $data);
-		$this->assertArrayHasKey("images", $data);
-		$this->assertArrayHasKey("retweets_count", $data);
-		$this->assertArrayHasKey("replies_count", $data);
-		$this->assertArrayHasKey("likes_count", $data);
+		$this->assertArrayHasKey("owner", $tweet);
+		$this->assertArrayHasKey("image", $tweet["owner"]);
+		$this->assertArrayHasKey("body", $tweet);
+		$this->assertArrayHasKey("images", $tweet);
+        $this->assertArrayHasKey("mentions", $tweet);
+		$this->assertArrayHasKey("retweets_count", $tweet);
+		$this->assertArrayHasKey("replies_count", $tweet);
+		$this->assertArrayHasKey("likes_count", $tweet);
 	}
 }
