@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\App\Http\Controllers\Users;
 
+use App\Models\Reply;
 use App\Models\Tweet;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -21,13 +22,18 @@ class UserTimelineControllerTest extends TestCase
 
 		Tweet::factory()->create(["user_id" => $user->id, "created_at" => now()->subMinutes(5)]);
 		$tweet2 = Tweet::factory()->create(["user_id" => $user->id]);
+		$tweet3 = Tweet::factory()->create();
+		$tweet4 = Tweet::factory()->create(["user_id" => $user->id, "created_at" => now()->subMinutes(10)]);
+		$reply = Reply::factory()->create(["tweet_id" => $tweet3->id, "reply_tweet_id" => $tweet4->id]);
+        $tweet4->reply_id = $reply->id;
+        $tweet4->save();
 
 		$response = $this->getJson("api/users/{$user->uuid}/timeline");
 
 		$response->assertSuccessful()
 			->assertJsonStructure(["data", "meta", "links"]);
 
-
+        $this->assertCount(2, $response->json("data"));
 		$this->assertEquals($tweet2->body, $response->json("data.0.body"));
 		$this->assertArrayHasKey("images", $response->json("data.0"));
 		$this->assertArrayHasKey("owner", $response->json("data.0"));
