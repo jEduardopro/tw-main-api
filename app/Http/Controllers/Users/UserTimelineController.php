@@ -22,6 +22,7 @@ class UserTimelineController extends Controller
 
         $tweetsAndRetweets = DB::table(DB::raw("(
                 select t.id, t.uuid, t.user_id, t.body, t.created_at from tweets as t where t.user_id = {$user->id}
+                and t.reply_id is null
                 union
                 select t.id, t.uuid, t.user_id, t.body, rt.created_at from tweets as t
                 inner join retweets as rt on rt.tweet_id = t.id where rt.user_id = {$user->id}) a
