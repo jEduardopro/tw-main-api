@@ -23,6 +23,7 @@ class UserTimelineControllerTest extends TestCase
 		Tweet::factory()->create(["user_id" => $user->id, "created_at" => now()->subMinutes(5)]);
 		$tweet2 = Tweet::factory()->create(["user_id" => $user->id]);
 		$tweet3 = Tweet::factory()->create();
+        Tweet::factory()->create(["user_id" => $user->id, "deleted_at" => now()->subMinutes(10)]);
 		$tweet4 = Tweet::factory()->create(["user_id" => $user->id, "created_at" => now()->subMinutes(10)]);
 		$reply = Reply::factory()->create(["tweet_id" => $tweet3->id, "reply_tweet_id" => $tweet4->id]);
         $tweet4->reply_id = $reply->id;
