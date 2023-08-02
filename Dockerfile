@@ -1,4 +1,4 @@
-FROM php:8.0-fpm
+FROM php:8.2-fpm
 
 # Permitimos el paso de parámetros (argumentos) que se definirán en el fichero docker-compose.yml
 # ARG user
@@ -22,6 +22,8 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 # Instalamos las dependencias y extensiones PHP que necesitaremos en nuestro proyecto como: pdo_mysql o mbstring
 RUN docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath gd sockets \
     && pecl install -o -f redis\
+    && pecl install xdebug\
+    && docker-php-ext-enable xdebug\
     # && pecl install grpc\
     # &&  rm -rf /tmp/pear \
     && docker-php-ext-enable redis; \
@@ -36,7 +38,8 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
 
 ENV PHP_MEMORY_LIMIT=2G\
     UPLOAD_MAX_FILESIZE=256M\
-    POST_MAX_SIZE=256M
+    POST_MAX_SIZE=256M\
+    XDEBUG_MODE=develop,debug,coverage
 
 RUN echo 'memory_limit = -1' >> /usr/local/etc/php/conf.d/docker-php-memlimit.ini;
 
