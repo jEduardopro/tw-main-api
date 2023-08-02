@@ -27,8 +27,6 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        Passport::routes();
-
         Passport::personalAccessTokensExpireIn(now()->addDays(5));
 
         Gate::define('can-follow', function (User $user, User $userToFollow) {
