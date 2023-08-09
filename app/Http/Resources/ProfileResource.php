@@ -19,6 +19,10 @@ class ProfileResource extends JsonResource
             "id" => $this->uuid,
             "name" => $this->name,
             "username" => $this->username,
+            "email" => $this->email,
+            "phone" => $this->phone,
+            "country" => $this->country,
+            "gender" => $this->gender,
             "description" => $this->description,
             "date_birth" => $this->date_birth,
             $this->mergeWhen($this->relationLoaded('profileImage'), function() {

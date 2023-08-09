@@ -23,9 +23,24 @@ class ProfileResourceTest extends TestCase
         $this->assertEquals($user->uuid, $profileResource["id"]);
         $this->assertEquals($user->name, $profileResource["name"]);
         $this->assertEquals($user->username, $profileResource["username"]);
+        $this->assertEquals($user->email, $profileResource["email"]);
+        $this->assertEquals($user->phone, $profileResource["phone"]);
+        $this->assertEquals($user->country, $profileResource["country"]);
+        $this->assertEquals($user->gender, $profileResource["gender"]);
         $this->assertEquals($user->description, $profileResource["description"]);
         $this->assertEquals($user->date_birth, $profileResource["date_birth"]);
         $this->assertEquals($user->getReadableJoinedDate(), $profileResource["readable_joined_date"]);
+
+        $this->assertArrayNotHasKey("email_verified_at", $profileResource);
+        $this->assertArrayNotHasKey("country_code", $profileResource);
+        $this->assertArrayNotHasKey("phone_validated", $profileResource);
+        $this->assertArrayNotHasKey("phone_verified_at", $profileResource);
+        $this->assertArrayNotHasKey("banner_id", $profileResource);
+        $this->assertArrayNotHasKey("image_id", $profileResource);
+        $this->assertArrayNotHasKey("deactivated_at", $profileResource);
+        $this->assertArrayNotHasKey("reactivated_at", $profileResource);
+        $this->assertArrayNotHasKey("updated_at", $profileResource);
+        $this->assertArrayNotHasKey("deleted_at", $profileResource);
     }
 
     /** @test */

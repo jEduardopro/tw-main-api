@@ -48,19 +48,20 @@ class LoginControllerTest extends TestCase
         $user = $response->json("user");
         $this->assertArrayNotHasKey("email_verified_at", $user);
         $this->assertArrayNotHasKey("country_code", $user);
-        $this->assertArrayNotHasKey("phone", $user);
         $this->assertArrayNotHasKey("phone_validated", $user);
         $this->assertArrayNotHasKey("phone_verified_at", $user);
         $this->assertArrayNotHasKey("banner_id", $user);
         $this->assertArrayNotHasKey("image_id", $user);
-        $this->assertArrayNotHasKey("country", $user);
-        $this->assertArrayNotHasKey("gender", $user);
         $this->assertArrayNotHasKey("deactivated_at", $user);
         $this->assertArrayNotHasKey("reactivated_at", $user);
         $this->assertArrayNotHasKey("updated_at", $user);
         $this->assertArrayNotHasKey("deleted_at", $user);
 
         $this->assertArrayHasKey("image", $user);
+        $this->assertArrayHasKey("email", $user);
+        $this->assertArrayHasKey("phone", $user);
+        $this->assertArrayHasKey("country", $user);
+        $this->assertArrayHasKey("gender", $user);
     }
 
     /** @test */
