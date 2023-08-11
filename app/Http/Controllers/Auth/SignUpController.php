@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\SignUpFormRequest;
-use App\Http\Resources\UserResource;
+use App\Http\Resources\ProfileResource;
 use App\Models\User;
 
 class SignUpController extends Controller
@@ -33,11 +33,12 @@ class SignUpController extends Controller
         $user->save();
 
         $token = $user->createToken('token')->accessToken;
+        $user->load(['profileImage']);
 
         return $this->responseWithData([
             "message" => "begin onboarding",
             "token" => $token,
-            "user" => UserResource::make($user)
+            "user" => ProfileResource::make($user)
         ]);
     }
 

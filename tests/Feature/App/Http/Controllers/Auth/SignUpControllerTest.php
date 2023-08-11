@@ -40,6 +40,14 @@ class SignUpControllerTest extends TestCase
 
         $this->assertArrayNotHasKeysWithinUserData($response->json("user"));
 
+        $this->assertArrayHasKey("image", $response->json("user"));
+        $this->assertArrayHasKey("phone", $response->json("user"));
+        $this->assertArrayHasKey("country", $response->json("user"));
+        $this->assertArrayHasKey("gender", $response->json("user"));
+        $this->assertArrayHasKey("description", $response->json("user"));
+        $this->assertArrayHasKey("date_birth", $response->json("user"));
+
+
         $this->assertDatabaseHas("users", [
             "email" => $user->email,
             "is_activated" => 1
@@ -74,6 +82,13 @@ class SignUpControllerTest extends TestCase
         $this->assertEquals("begin onboarding", $response->json("message"));
 
         $this->assertArrayNotHasKeysWithinUserData($response->json("user"));
+
+        $this->assertArrayHasKey("image", $response->json("user"));
+        $this->assertArrayHasKey("phone", $response->json("user"));
+        $this->assertArrayHasKey("country", $response->json("user"));
+        $this->assertArrayHasKey("gender", $response->json("user"));
+        $this->assertArrayHasKey("description", $response->json("user"));
+        $this->assertArrayHasKey("date_birth", $response->json("user"));
 
         $this->assertDatabaseHas("users", [
             "phone" => $user->phone,
@@ -210,15 +225,10 @@ class SignUpControllerTest extends TestCase
     {
         $this->assertArrayNotHasKey("email_verified_at", $userData);
         $this->assertArrayNotHasKey("country_code", $userData);
-        $this->assertArrayNotHasKey("phone", $userData);
         $this->assertArrayNotHasKey("phone_validated", $userData);
         $this->assertArrayNotHasKey("phone_verified_at", $userData);
         $this->assertArrayNotHasKey("banner_id", $userData);
         $this->assertArrayNotHasKey("image_id", $userData);
-        $this->assertArrayNotHasKey("country", $userData);
-        $this->assertArrayNotHasKey("gender", $userData);
-        $this->assertArrayNotHasKey("description", $userData);
-        $this->assertArrayNotHasKey("date_birth", $userData);
         $this->assertArrayNotHasKey("deactivated_at", $userData);
         $this->assertArrayNotHasKey("reactivated_at", $userData);
         $this->assertArrayNotHasKey("updated_at", $userData);
