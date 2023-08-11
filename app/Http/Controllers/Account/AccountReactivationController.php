@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Account;
 use App\Http\Controllers\Auth\Concerns\UserAccount;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AccountReactivationFormRequest;
-use App\Http\Resources\UserResource;
+use App\Http\Resources\ProfileResource;
 use Illuminate\Support\Facades\Hash;
 
 class AccountReactivationController extends Controller
@@ -37,11 +37,11 @@ class AccountReactivationController extends Controller
         $user->save();
 
         $token = $user->createToken('token')->accessToken;
-
+        $user->load(['profileImage']);
 
         return $this->responseWithData([
             "token" => $token,
-            "user" => UserResource::make($user),
+            "user" => ProfileResource::make($user),
             "reactivated_at" => $user->reactivated_at->format('Y-m-d H:i:s'),
             "message" => "successfully account reactivation"
         ]);
